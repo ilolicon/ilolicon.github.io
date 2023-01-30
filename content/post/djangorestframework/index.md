@@ -214,7 +214,7 @@ pip install djangorestframework==3.12.2
 
 #### View
 
-- **CBV简单实现**
+- CBV简单实现
 
 ```python
 # urls.py
