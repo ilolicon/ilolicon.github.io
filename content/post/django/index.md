@@ -2,7 +2,6 @@
 title: Django
 description: Django was invented to meet fast-moving newsroom deadlines, while satisfying the tough requirements of experienced web developers.
 date: 2021-02-10 22:00:00
-image: django.png
 categories:
 - PYTHON
 tags:
@@ -11,8 +10,6 @@ tags:
 - Web
 - ORM
 ---
-
-# Django
 
 [Django英文官方文档](https://docs.djangoproject.com/en/3.1/)
 

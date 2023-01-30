@@ -2,7 +2,6 @@
 title: Docker
 description: Docker is a platform designed to help developers build, share, and run modern applications. We handle the tedious setup, so you can focus on the code.
 date: 2022-01-12 12:00:00
-image: docker.png
 categories: 
 - Cloud Native
 tags:
@@ -12,11 +11,9 @@ tags:
 - Container
 ---
 
-# 🐳 Docker
-
 [![docker readme](https://img.shields.io/badge/Docker-README-00A6ED)](https://docs.docker.com/)
 
-[![docker](./icons/docker-icon.svg)](https://www.docker.com/)
+[![docker](icons/docker-icon.svg)](https://www.docker.com/)
 
 ## 主机级虚拟化
 
@@ -125,7 +122,7 @@ cgroups为每种可以控制的资源定义了一个子系统 典型的子系统
 
 ### OCI
 
-[![Open Container Initiative](./icons/opencontainers-icon.svg)](https://opencontainers.org/)
+[![Open Container Initiative](icons/opencontainers-icon.svg)](https://opencontainers.org/)
 
 Open Container Initiative
 
@@ -146,7 +143,7 @@ Open Container Initiative
 
 ### docker architecture
 
-[![docker architecture](./icons/architecture.svg)](https://docs.docker.com/get-started/overview/#docker-architecture)
+[![docker architecture](icons/architecture.svg)](https://docs.docker.com/get-started/overview/#docker-architecture)
 
 ```bash
 Client -> Daemon(REST API, over UNIX sockets or a network interface)
@@ -237,7 +234,7 @@ docker --help
 
 ### docker event state
 
-[![docker event state](./icons/docker-event-state.jpg)](https://docs.docker.com/engine/reference/commandline/events/)
+[![docker event state](icons/docker-event-state.jpg)](https://docs.docker.com/engine/reference/commandline/events/)
 
 ### docker image
 
@@ -247,7 +244,7 @@ Docker镜像含有启动容器所需的文件系统及其内容 因此 其用于
 
 #### docker image layer
 
-![分层构建](./icons/docker-base-image.png)
+![分层构建](icons/docker-base-image.png)
 
 - 采用分层构建机制 最底层为bootfs 其它为rootfs
   - bootfs: 用于`系统引导`的文件系统 包括`bootloader`和`kernel` 容器启动完成后会被卸载以节约内存资源
@@ -258,7 +255,7 @@ Docker镜像含有启动容器所需的文件系统及其内容 因此 其用于
   - 位与下层的镜像成为父镜像(parent image) 最底层的称为基础镜像(base image)
   - 最上层的为`可读写`层 其下的均为`只读`层
 
-![docker image layer](./icons/docker-image-layer.png)
+![docker image layer](icons/docker-image-layer.png)
 
 #### aufs
 
@@ -286,7 +283,7 @@ Docker镜像含有启动容器所需的文件系统及其内容 因此 其用于
     - [docker-registry/docker-distribution](https://hub.docker.com/_/registry)
     - [harbor](https://goharbor.io/)
 
-![docker registry](./icons/docker-registry.png)
+![docker registry](icons/docker-registry.png)
 
 #### registry(repository and index)
 
@@ -339,7 +336,7 @@ $ docker pull quay.io/coreos/flannel:v0.15.1-arm64
 
 #### 镜像的相关操作
 
-![docker image create](./icons/docker-image-create.png)
+![docker image create](icons/docker-image-create.png)
 
 - 镜像的生成途径
   - [Dockerfile](https://docs.docker.com/engine/reference/builder/)
@@ -372,7 +369,7 @@ NETWORK ID     NAME      DRIVER    SCOPE
 [ilolicon@master ~]$ brctl show
 ```
 
-![Four network container archetypes](./icons/four-network-container-archetypes.png)
+![Four network container archetypes](icons/four-network-container-archetypes.png)
 
 [docker-docs:network overview](https://docs.docker.com/network/)
 
@@ -513,7 +510,7 @@ Docker镜像由多个"只读层"叠加而成
 只是已经被读写层中该文件的副本所隐藏 此即"写时复制(COW)"机制
 ```
 
-![file-visible](./icons/files-visible-to-a-container.png)
+![file-visible](icons/files-visible-to-a-container.png)
 
 - 关闭并重启容器 其数据不受影响 但删除Docker容器 则其更改将会全部丢失
 - 存在的问题
@@ -525,13 +522,13 @@ Docker镜像由多个"只读层"叠加而成
   - Volume于容器初始化之时即会创建 由base image提供的卷中的数据会于此期间完成复制
   - Volume的初衷是独立于容器的生命周期实现数据持久化 因此删除容器之时既不会删除卷 也不会对哪怕未被引用的卷做垃圾回收操作(加选项可以)
 
-![volume](./icons/volume.png)
+![volume](icons/volume.png)
 
 - 卷为docker提供了独立于容器的数据管理机制
   - 可以把**镜像**想象成静态文件 -> 例如 **程序**; 把卷类比为动态内容 -> 例如 **数据**; 于是 镜像可以重用 而卷可以共享
   - 卷实现了**程序(镜像)** 和 **数据(卷)** 分离 以及 **程序(镜像)** 和 **制作镜像的主机** 分离; 用户制作镜像时无需再考虑镜像运行的容器所在的主机的环境
 
-![volume2](./icons/volume2.png)
+![volume2](icons/volume2.png)
 
 #### Data volumes
 
@@ -544,7 +541,7 @@ Docekr有两种类型的卷 每种类型都在容器中存在一个挂载点 但
 - Docker-managed volume(Docker管理卷)
   - the Docker daemon creates managed volumes in a portion of the host's file system that's owned by Docker
 
-![data-volume](./icons/data-volumes.png)
+![data-volume](icons/data-volumes.png)
 
 ```bash
 # 在容器中使用Volumes
@@ -589,7 +586,7 @@ Dockerfile is nothing but the source code for building Docker images
 - A Dockerfile is a `text document` than contains all the commands a user could call on the command line to assemble an image
 - Using `docker build` users can create an automated build that executes several command-line instructions in succession
 
-![build](./icons/docker-build.png)
+![build](icons/docker-build.png)
 
 ### Dockerfile Format
 
