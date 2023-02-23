@@ -15,7 +15,6 @@ tags:
 
 ### Docker安装
 
-
 [EMQX Docker官方镜像](https://hub.docker.com/_/emqx)
 
 - Docker安装EMQX非常简单 按照官方镜像文档说明创建容器即可
