@@ -32,9 +32,10 @@ docker volume create emqx_log
 
 # 启动容器
 docker run -d --name=emqx --restart=always \
---mount source=emqx_data,target=/opt/emqx/data \
---mount source=emqx_etc,target=/opt/emqx/etc \
---mount source=emqx_log,target=/opt/emqx/log \
+# -v emqx_data:/opt/emqx/data \                   # -v效果类似与下面的--mount
+--mount source=emqx_data,target=/opt/emqx/data \  # 挂载data目录
+--mount source=emqx_etc,target=/opt/emqx/etc \    # 挂载配置目录
+--mount source=emqx_log,target=/opt/emqx/log \    # 挂载日志目录
 -p 1883:1883 \
 -p 8083:8083 \
 -p 8084:8084 \
