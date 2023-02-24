@@ -3,7 +3,7 @@ title: Docker
 description: Docker is a platform designed to help developers build, share, and run modern applications. We handle the tedious setup, so you can focus on the code.
 date: 2020-06-12 12:10:00
 categories: 
-- Cloud Native
+- CloudNative
 tags:
 - Cloud Native
 - Docker

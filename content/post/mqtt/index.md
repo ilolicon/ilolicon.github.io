@@ -3,7 +3,7 @@ title: "MQTT"
 description: MQTT (originally an initialism of MQ Telemetry Transport) is a lightweight, publish-subscribe, machine to machine network protocol for message queue/message queuing service. 
 date: 2023-02-23T22:25:50+08:00
 categories: 
-- Linux运维
+- Linux
 tags:
 - MQTT
 - EMQX

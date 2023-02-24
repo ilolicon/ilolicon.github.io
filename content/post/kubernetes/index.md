@@ -3,7 +3,7 @@ title: "Kubernetes"
 description: Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications.
 date: 2020-09-20 14:21:14
 categories: 
-- Cloud Native
+- CloudNative
 tags:
 - Cloud Native
 - Kubernetes
