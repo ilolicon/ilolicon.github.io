@@ -1,7 +1,7 @@
 ---
 title: DjangoRESTframework
 description: Django REST framework is a powerful and flexible toolkit for building Web APIs.
-date: 2021-02-22 23:00:00
+date: 2020-02-22 21:10:17
 categories: 
 - PYTHON
 tags:
@@ -16,6 +16,9 @@ tags:
 [DjangoRESTframework官网](https://www.django-rest-framework.org/)
 
 [DjangoRESTframework 中文教程](https://q1mi.github.io/Django-REST-framework-documentation)
+
+<!-- markdownlint-disable-file MD036 -->
+<!-- markdownlint-disable-file MD024 -->
 
 ## RESTful API
 
@@ -1664,7 +1667,7 @@ class BooksList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 ```
 
-### GenericAPIVIew
+#### GenericAPIVIew
 
 - **源码分析**
 
@@ -2329,25 +2332,25 @@ class ModelViewSet(mixins.CreateModelMixin,
     pass
 ```
 
-# 路由Routers
+## 路由Routers
 
-## 简单写法
+### 简单写法
 
 **在urls.py中配置**
 
-### **FBV**
+#### FBV
 
 ```python
 path('publishs/<int:pk>/', views.detail)
 ```
 
-### **CBV**
+#### CBV
 
 ```python
 path('publishs/<int:pk>/', views.PublishDetail.as_view())
 ```
 
-### ViewSetMixin
+#### ViewSetMixin
 
 ```python
 # 一旦视图类继承ViewSetMixin之后 写法稍有不同
@@ -2356,7 +2359,7 @@ path('publishs/<int:pk>/', views.PublishDetail.as_view())
 path('books/', views.BookViewSet.as_view(actions={'get': 'list', 'post': 'create'}))
 ```
 
-## Routers
+### Routers
 
 ```python
 对于视图集ViewSet 我们除了可以手动指明请求的方式与动作action之间的对应关系以外
@@ -2389,7 +2392,7 @@ router.register('books', views.BookViewSet)
      4.2 urlpatterns = [path('', include(router.urls))]
 ```
 
-### SimpleRouter和DefaultRouter
+#### SimpleRouter和DefaultRouter
 
 ```python
 """SimpleRouter 自动生成2条路由"""
@@ -2410,7 +2413,7 @@ router.register('books', views.BookViewSet)
 <URLPattern '^\.(?P<format>[a-z0-9]+)/?$' [name='api-root']>  # http://127.0.0.1:8000/books/books.api|.json
 ```
 
-## action使用
+#### action使用
 
 ```python
 # 作用：为了给继承自ModelViewSet的视图类中自定义的方法自动生成路由
@@ -2445,11 +2448,11 @@ class BookViewSet(ModelViewSet):
         return Response(serializer.data)
 ```
 
-# 认证组件
+## 认证组件
 
 [Authentication](https://www.django-rest-framework.org/api-guide/authentication/)
 
-## 认证类的写法
+### 认证类的写法
 
 ```python
 """
@@ -2471,7 +2474,7 @@ drf认证得实现：
 """
 ```
 
-## 认证源码分析
+### 认证源码分析
 
 ```python
 """
@@ -2551,9 +2554,9 @@ class Request:
         self._not_authenticated()
 ```
 
-## 自定义认证类
+### 自定义认证类
 
-### 简单登录实现
+#### 简单登录实现
 
 ```python
 测试简单存了一个token值到服务端数据库 仅为测试方便类似session
@@ -2604,7 +2607,7 @@ class LoginView(APIView):
         return Response({'status': 101, 'msg': '用户名或密码错误'})
 ```
 
-### 实现自定义认证类
+#### 实现自定义认证类
 
 - **编写自定义认证类**
 
@@ -2673,9 +2676,9 @@ class LoginView(APIView):
     authentication_classes = []  # 局部禁用认证 置为空列表实现
 ```
 
-## 内置认证类
+### 内置认证类
 
-### BasicAuthentication
+#### BasicAuthentication
 
 ```python
 # 针对用户名/密码的HTTP基本身份验证
@@ -2685,7 +2688,7 @@ class BasicAuthentication(BaseAuthentication): pass
     ""
 ```
 
-### RemoteUserAuthentication
+#### RemoteUserAuthentication
 
 ```python
 class RemoteUserAuthentication(BaseAuthentication): pass
@@ -2699,7 +2702,7 @@ class RemoteUserAuthentication(BaseAuthentication): pass
     """
 ```
 
-### SessionAuthentication
+#### SessionAuthentication
 
 ```python
 class SessionAuthentication(BaseAuthentication): pass
@@ -2708,7 +2711,7 @@ class SessionAuthentication(BaseAuthentication): pass
  """
 ```
 
-### TokenAuthentication
+#### TokenAuthentication
 
 ```python
 class TokenAuthentication(BaseAuthentication): pass
@@ -2722,7 +2725,7 @@ class TokenAuthentication(BaseAuthentication): pass
     """
 ```
 
-# 权限组件
+## 权限组件
 
 ```python
 """
@@ -2738,7 +2741,7 @@ class TokenAuthentication(BaseAuthentication): pass
 权限需要和认证配合使用 给认证的用户 分配不同的权限
 ```
 
-## 权限源码分析
+### 权限源码分析
 
 ```python
 class APIView(View):
@@ -2760,7 +2763,7 @@ class APIView(View):
                 )    
 ```
 
-## 自定义权限类
+### 自定义权限类
 
 - **编写**
 
@@ -2821,9 +2824,9 @@ permission_classes = []
 }
 ```
 
-## 内置权限类
+### 内置权限类
 
-### IsAdminUser
+#### IsAdminUser
 
 ```python
 # 使用django的Auth模块
@@ -2836,7 +2839,7 @@ class IsAdminUser(BasePermission):
         return bool(request.user and request.user.is_staff)
 ```
 
-### IsAuthenticated
+#### IsAuthenticated
 
 ```python
 class IsAuthenticated(BasePermission):
@@ -2848,7 +2851,7 @@ class IsAuthenticated(BasePermission):
         return bool(request.user and request.user.is_authenticated)
 ```
 
-### IsAuthenticatedOrReadOnly
+#### IsAuthenticatedOrReadOnly
 
 ```python
 class IsAuthenticatedOrReadOnly(BasePermission):
@@ -2867,15 +2870,15 @@ class IsAuthenticatedOrReadOnly(BasePermission):
 
 **其余自带权限类参考drf.permissions模块**
 
-# 频率组件
+## 频率组件
 
 ```python
 可以对接口访问的频次进行限制 以减轻服务器压力
 ```
 
-## 自定义IP频率限制类
+### 自定义IP频率限制类
 
-### 继承BaseThrottle
+#### 继承BaseThrottle
 
 - **BaseThrottle源码分析**
 
@@ -2986,7 +2989,7 @@ class IPThrottle(BaseThrottle):
    }
 ```
 
-### 继承SimpleRateThrottle
+#### 继承SimpleRateThrottle
 
 - **SimpleRateThrottle源码分析**
 
@@ -3146,7 +3149,7 @@ class MyThrottle(SimpleRateThrottle):
 """
 ```
 
-## 内置的频率限制
+### 内置的频率限制
 
 ```python
 from rest_framework.throttling import *
@@ -3161,7 +3164,7 @@ from rest_framework.throttling import *
 },
 ```
 
-### AnonRateThrottle
+#### AnonRateThrottle
 
 ```python
 """
@@ -3185,7 +3188,7 @@ class AnonRateThrottle(SimpleRateThrottle):
         }
 ```
 
-### UserRateThrottle
+#### UserRateThrottle
 
 ```python
 """
@@ -3211,7 +3214,7 @@ class UserRateThrottle(SimpleRateThrottle):
         }
 ```
 
-### ScopedRateThrottle
+#### ScopedRateThrottle
 
 ```python
 """
@@ -3260,7 +3263,7 @@ class ScopedRateThrottle(SimpleRateThrottle):
         }
 ```
 
-## 使用
+### 使用
 
 - **限制匿名用户每分钟访问5次**
 
@@ -3311,7 +3314,7 @@ REST_FRAMEWORK = {
 }
 ```
 
-# 解析组件
+## 解析组件
 
 ```python
 from rest_framework.parsers import *
@@ -3326,11 +3329,11 @@ from rest_framework.parsers import *
 ]
 ```
 
-# 过滤
+## 过滤
 
 [Filtering](https://q1mi.github.io/Django-REST-framework-documentation/api-guide/filtering_zh/)
 
-## 过滤django-filter
+### 过滤django-filter
 
 [DjangoFilterBackend](https://q1mi.github.io/Django-REST-framework-documentation/api-guide/filtering_zh/#djangofilterbackenddjango)
 
@@ -3379,7 +3382,7 @@ from app01.midels import Book
 admin.site.register(Book)
 ```
 
-## 排序OrderingFilter
+### 排序OrderingFilter
 
 [OrderingFilter](https://q1mi.github.io/Django-REST-framework-documentation/api-guide/filtering_zh/#orderingfilter)
 
@@ -3407,7 +3410,7 @@ class Bks(ListAPIView):
 # id  表示针对id字段进行升序排序
 ```
 
-## 搜索SearchFilter
+### 搜索SearchFilter
 
 [SearchFilter](https://q1mi.github.io/Django-REST-framework-documentation/api-guide/filtering_zh/#searchfilter)
 
@@ -3435,14 +3438,14 @@ class Bks(ListAPIView):
 """
 ```
 
-# 异常处理
+## 异常处理
 
 ```python
 # 只要出异常 按照固定的信息返回
 # 就算出错 我们也要返回json数据 然后再里面提示error信息
 ```
 
-## 异常处理部分源码
+### 异常处理部分源码
 
 ```python
 # dispath方法 做了异常捕获
@@ -3511,7 +3514,7 @@ def raise_uncaught_exception(self, exc):
     raise exc  # 未处理的异常 直接raise
 ```
 
-## 自定义异常处理方法
+### 自定义异常处理方法
 
 ```python
 """
@@ -3551,9 +3554,9 @@ return APIResponse(code=0, msg='error', result=ret.data)
 """
 ```
 
-# 书籍管理接口详细
+## 书籍管理接口详细
 
-## 模型类
+### 模型类
 
 ```python
 from django.db import models
@@ -3655,7 +3658,7 @@ models.SET
 """
 ```
 
-## CBV视图
+### CBV视图
 
 ```python
 from rest_framework.views import APIView
@@ -3749,7 +3752,7 @@ class BookAPIView(APIView):
         return Response(data={'msg':'没有要删除的数据'})
 ```
 
-## 序列化器
+### 序列化器
 
 ```python
 from rest_framework import serializers
@@ -3792,7 +3795,7 @@ class BookModelSerializer(serializers.ModelSerializer):
         }
 ```
 
-### 序列化
+#### 序列化
 
 ```python
 """
@@ -3836,7 +3839,7 @@ The `.create()` method does not support writable dotted-source fields by default
 Write an explicit `.create()` method for serializer `api.serializers.BookModelSerializer`, or set `read_only=True` on dotted-source serializer fields.
 ```
 
-### 反序列化
+#### 反序列化
 
 ```python
 """
@@ -3851,7 +3854,7 @@ Write an explicit `.create()` method for serializer `api.serializers.BookModelSe
 }
 ```
 
-## 总结
+### 总结
 
 ```python
 # book其实是5个表(自动生成多对多关系表)
@@ -3871,7 +3874,7 @@ Write an explicit `.create()` method for serializer `api.serializers.BookModelSe
   - 单条删除 批量删除(is_delete) 同一用批量删除 pk__in=[1, 2, 3]
 ```
 
-# 分页器
+## 分页器
 
 **drf内置三个分页器**
 
@@ -3915,7 +3918,7 @@ class BookView(APIView):
         return Response(serializer.data)
 ```
 
-## PageNumberPagination
+### PageNumberPagination
 
 ```python
 # 页码分页 基本分页
@@ -3927,7 +3930,7 @@ class MyPageNumberPagination(PageNumberPagination):
     max_page_size = 5               # 每页最大显示数量 配合上一个参数
 ```
 
-## LimitOffsetPagination
+### LimitOffsetPagination
 
 ```python
 # 偏移分页
@@ -3938,7 +3941,7 @@ class MyLimitOffsetPagination(LimitOffsetPagination):
     max_limit = 200                # limit最大可以设置数量
 ```
 
-## CursorPagination
+### CursorPagination
 
 ```python
 # 效率高 只能选择往前走 或者往后走(只有上一页下一页)
@@ -3948,7 +3951,7 @@ class MyCursorPagination(CursorPagination):
     ordering = '-id'               # 排序字段 默认-created 没有该字段需要修改配置
 ```
 
-# 自动生成接口文档
+## 自动生成接口文档
 
 ```python
 # drf可以自动帮助我们生成接口文档
@@ -3958,14 +3961,14 @@ class MyCursorPagination(CursorPagination):
 # 额外了解：swagger
 ```
 
-## 安装coreapi
+### 安装coreapi
 
 ```python
 # drf生成接口文档需要coreapi库的支持
 pip install coreapi
 ```
 
-## 路由配置
+### 路由配置
 
 ```python
 # 配置路由
@@ -3984,9 +3987,9 @@ REST_FRAMEWORK = {
 }
 ```
 
-## 文档描述说明的定义位置
+### 文档描述说明的定义位置
 
-### 单一方法的视图
+#### 单一方法的视图
 
 ```python
 # 单一方法的视图 可以直接使用类视图的文档字符串
@@ -3994,7 +3997,7 @@ class BookListView(ListAPIView):
     """返回所有图书信息"""
 ```
 
-### 多个方法的视图
+#### 多个方法的视图
 
 ```python
 # 包含多个方法的视图 在类视图的文档字符串中 分开方法定义
@@ -4008,7 +4011,7 @@ class BookListView(ListAPIView):
     """
 ```
 
-### 视图集ViewSet
+#### 视图集ViewSet
 
 ```python
 # 对于视图集 仍在类视图的文档字符串中分开定义 但是应该使用action名称区分
@@ -4031,7 +4034,7 @@ class BookListView(ModelViewSet):
     """
 ```
 
-# JWT认证
+## JWT认证
 
 [JsonWebToken入门教程](http://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html)
 
@@ -4046,7 +4049,7 @@ JWT的声明一般被用来在身份提供者和服务者间传递被认证的�
 """
 ```
 
-## JWT数据结构
+### JWT数据结构
 
 ```python
 # 三段信息
@@ -4069,7 +4072,7 @@ Signature - 签名
 """
 ```
 
-### Header
+#### Header
 
 ```python
 # Header 部分是一个JSON 对象 描述JWT的元数据 通常是下面的样子:
@@ -4087,7 +4090,7 @@ Signature - 签名
 """
 ```
 
-### Payload
+#### Payload
 
 ```python
 # Payload部分也是一个JSON对象 用来存放实际需要传递的数据 JWT规定了7个官方字段 供选用
@@ -4112,7 +4115,7 @@ jti (JWT ID)：编号
 """
 ```
 
-### Signature
+#### Signature
 
 ```python
 """
@@ -4129,7 +4132,7 @@ HMACSHA256(
 # 算出签名以后 把Header Payload Signature三个部分拼成一个字符串 每个部分之间用"点"(.)分隔 就可以返回给用户
 ```
 
-### Base64URL
+#### Base64URL
 
 ```python
 """
@@ -4147,7 +4150,7 @@ Base64有三个字符 -> + / =  在URL里面有特殊含义 所以要被替换�
 """
 ```
 
-### 检验
+#### 检验
 
 ```python
 """
@@ -4157,7 +4160,7 @@ Base64有三个字符 -> + / =  在URL里面有特殊含义 所以要被替换�
 """
 ```
 
-## DRF项目的JWT认证开发流程
+### DRF项目的JWT认证开发流程
 
 ```python
 """
@@ -4169,7 +4172,7 @@ Base64有三个字符 -> + / =  在URL里面有特殊含义 所以要被替换�
 """
 ```
 
-### 第三方JWT的使用
+#### 第三方JWT的使用
 
 ```python
 # 官网
@@ -4185,7 +4188,7 @@ pip install djangorestframework-jwt
 """
 ```
 
-#### 继承DjangoUser表扩展
+##### 继承DjangoUser表扩展
 
 ```python
 """
@@ -4226,7 +4229,7 @@ USE_L10N = True
 USE_TZ = False  # 时区
 ```
 
-#### 登录认证简单使用
+##### 登录认证简单使用
 
 ```python
 from rest_framework_jwt.views import JSONWebTokenAPIView  # 基类 继承APIView
@@ -4286,7 +4289,7 @@ class BookBiew(APIView):
         return Response('ok')
 ```
 
-#### 自定制JWT认证去除headers前缀
+##### 自定制JWT认证去除headers前缀
 
 ```python
 # 自定义重写jwt认证类 重写get_jwt_value方法 去掉认证前缀 JWT token.xx.xx
@@ -4310,7 +4313,7 @@ JWT_AUTH = {
 }
 ```
 
-#### 手动签发JWT
+##### 手动签发JWT
 
 ```python
 # 可以拥有原生登录基于Model类user对象签发JWT
@@ -4327,7 +4330,7 @@ token = jwt_encode_handler(palyload)  # 把payload传入 得到token
 payload = jwt_decode_handler(jwt_value)
 ```
 
-#### 登录接口返回数据格式
+##### 登录接口返回数据格式
 
 ```python
 """
@@ -4375,9 +4378,9 @@ JWT_AUTH = {
 }
 ```
 
-### 基于JWT自定制认证类
+#### 基于JWT自定制认证类
 
-#### 基于BaseAuthentication
+##### 基于BaseAuthentication
 
 ```python
 import jwt
@@ -4413,7 +4416,7 @@ class MyJwtAuthentication(BaseAuthentication):
         raise AuthenticationFailed('你没有携带认证信息')
 ```
 
-#### 基于BaseJSONWebTokenAuthentication
+##### 基于BaseJSONWebTokenAuthentication
 
 ```python
 import jwt
@@ -4442,7 +4445,7 @@ class MyJwtAuthentication(BaseJSONWebTokenAuthentication):
         raise AuthenticationFailed('你没有携带认证信息')
 ```
 
-### 多方式登录
+#### 多方式登录
 
 ```PYTHON
 # 使用用户名 手机号 邮箱 都可以登录
@@ -4518,7 +4521,7 @@ class Login2View(ViewSet):
 path('login2/', views.Login2View.as_view({'post':'login'}))
 ```
 
-### 配置过期时间
+#### 配置过期时间
 
 ```python
 # 过期时间
@@ -4533,7 +4536,7 @@ JWT_AUTH = {
 }
 ```
 
-# RBAC
+## RBAC
 
 ```python
 # RBAC： 基于角色的访问控制 用在公司内部系统居多
@@ -4549,7 +4552,7 @@ User    Group    Permisson
 正常5个就够：Django多一个 UP关系表 单独直接给每一个人加权限
 ```
 
-## DjangoAuth 权限6表
+### DjangoAuth 权限6表
 
 ```python
 """

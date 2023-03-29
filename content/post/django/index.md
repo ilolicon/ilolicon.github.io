@@ -1,7 +1,7 @@
 ---
 title: Django
 description: Django was invented to meet fast-moving newsroom deadlines, while satisfying the tough requirements of experienced web developers.
-date: 2021-02-10 22:00:00
+date: 2020-02-10 22:13:06
 categories:
 - PYTHON
 tags:
@@ -14,6 +14,9 @@ tags:
 [Django英文官方文档](https://docs.djangoproject.com/en/3.1/)
 
 [Django中文官方文档](https://docs.djangoproject.com/zh-hans/3.1/)
+
+<!-- markdownlint-disable-file MD036 -->
+<!-- markdownlint-disable-file MD024 -->
 
 ## Django请求生命周期
 
@@ -390,7 +393,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')]
-	},
+    },
 ]
 ```
 
@@ -489,7 +492,7 @@ html文件：默认都放在templates文件夹下
 </html>
 ```
 
-###  **静态文件配置**
+### 静态文件配置
 
 ```python
 # 类似于访问静态文件的令牌
@@ -649,13 +652,9 @@ def login(request):
     return render(request, 'login.html')
 ```
 
-------
+## ORM
 
-
-
-# ORM
-
-## Django本质
+### Django本质
 
 ```bash
 # Django本质
@@ -672,9 +671,9 @@ Server默认监听80 只不过这个Server正好它能提供http请求报文的�
 ==> 函数返回值
 
 # request
---> uwsgi 
---> wsgi.py 
---> application 注入两个参数调用 
+--> uwsgi
+--> wsgi.py
+--> application 注入两个参数调用
 --> application(environ, start_response)
 --> 返回正文给wsgi封装为response报文
 --> 前端显示
@@ -694,8 +693,7 @@ uwsgi等软件 调用的就是django/flask的wsgi.py 得到 application
 4. 调用start_response后返回get_response返回的响应的结果
 ```
 
-- **Django中的实现** 
-
+- **Django中的实现**
 
 ```python
 # wsgi.py
@@ -708,9 +706,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cmdb.settings')
 application = get_wsgi_application()
 ```
 
-## ORM快速测试
+### ORM快速测试
 
-### 测试脚本
+#### 测试脚本
 
 **根据上面原理得出下面这个脚本**
 
@@ -730,7 +728,7 @@ django.setup(set_prefix=False)
 # application = get_wsgi_application()
 ```
 
-### 配置settings.py
+#### 配置`settings.py`
 
 **详细配置参考官网**
 
@@ -796,23 +794,23 @@ pymysql.install_as_MySQLdb()
 }
 ```
 
-### 依赖
+#### 依赖
 
 ```bash
 pip install mysqlclient
 ```
 
-## ORM初识
+### ORM初识
 
-### 简介
+#### 简介
 
 **ORM 对象关系映射 对象和关系之间的映射 使用面向对象的方式来操作数据库**
 
 ```python
 # 关系模型和Python对象之间的映射
-table  =>  class		# 表 映射为 类
-row    =>  object		# 行 映射为 实例
-column =>  property     # 字段 映射为 属性(类属性)
+table  =>  class     # 表 映射为 类
+row    =>  object    # 行 映射为 实例
+column =>  property  # 字段 映射为 属性(类属性)
 
 # 不足
 封装程度太高 有时候sql语句的效率偏低 需要你自己写SQL语句
@@ -842,7 +840,7 @@ class Student:
         self.age = ?
 ```
 
-### 创建model类
+#### 创建model类
 
 ```python
 # 去应用下面的 models.py 文件
@@ -863,7 +861,7 @@ class Author(models.Model):
     password = models.IntegerField()
 ```
 
-### 数据库迁移
+#### 数据库迁移
 
 ```bash
 # 数据库迁移命令
@@ -872,7 +870,7 @@ $ python manage.py makemigrations    # 将操作记录基础出来(migrations文
 $ python manage.py migrate  # 将操作真正的同步到数据库中
 ```
 
-### 字段类型
+#### 字段类型
 
 [DjangoORM字段类型参考](https://docs.djangoproject.com/zh-hans/3.1/ref/models/fields/)
 
@@ -882,9 +880,9 @@ verbose_name  # 该参数是所有字段都有的 用来对字段的解释
 ...
 ```
 
-## 字段的增删改查
+### 字段的增删改查
 
-### **字段的增加**
+#### 字段的增加
 
 ```python
 # 给表增加字段的时候 表里面已经有数据的情况
@@ -903,7 +901,7 @@ verbose_name  # 该参数是所有字段都有的 用来对字段的解释
     hobby = models.CharField(max_length=32, verbose_name='爱好', null=False, default='study')
 ```
 
-### **字段的修改**
+#### 字段的修改
 
 ```bash
 # models.py 修改后 直接执行迁移命令即可：
@@ -911,7 +909,7 @@ $ python manage.py makemigrations
 $ python manage.py migrate
 ```
 
-### **字段的删除**
+#### 字段的删除
 
 ```python
 # 直接注释对应的字段 然后直接执行迁移命令即可
@@ -931,11 +929,11 @@ $ python manage.py migrate
 # 个人建议： 当你离开你的计算机之后 一定要锁屏
 ```
 
-## 数据的增删改查
+### 数据的增删改查
 
 [QuerySet API 参考](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/)
 
-### 查
+#### 查
 
 [QuerySet.filter](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#filter)
 
@@ -970,7 +968,7 @@ def login(request):
     return render(request, 'login.html')
 ```
 
-### 增
+#### 增
 
 [QuerySet.create](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#create)
 
@@ -983,7 +981,7 @@ user_obj = models.User(username=username, password=password)
 user_obj.save()  # 保存数据
 ```
 
-### 改
+#### 改
 
 [QuerySet.update](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#django.db.models.query.QuerySet.update)
 
@@ -1054,7 +1052,7 @@ def edit_user(request):
     return render(request, 'edit_user.html', {'user_info': user_obj})
 ```
 
-### 删
+#### 删
 
 [QeurySet.delete](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#django.db.models.query.QuerySet.delete)
 
@@ -1090,7 +1088,7 @@ karubin      123         1
 
 ```
 
-## orm创建表关系
+### orm创建表关系
 
 ```python
 """
@@ -1200,7 +1198,7 @@ ORM中如何定义三种关系
 """
 ```
 
-### 多对多的三种创建关系
+#### 多对多的三种创建关系
 
 **需要掌握 全自动 和 半自动(扩展性很高 一般情况下都采用半自动)**
 
@@ -1294,11 +1292,11 @@ through_fields字段先后顺序：
 """
 ```
 
-## Model元编程
+### Model元编程
 
 **Django Model 背后的故事 -- 元编程**
 
-### 测试环境
+#### 测试环境
 
 ```bash
 cd ../project_dir
@@ -1318,7 +1316,7 @@ python manage.py startapp user
 一定要在settings.py INSTALLED_APPS 注册user 否则不能迁移
 ```
 
-### Model数据库模型
+#### Model数据库模型
 
 ```python
 # user/models.py
@@ -1343,7 +1341,7 @@ class User(models.Model):  # 继承的目录 代码复用
 # 迁移：Model类生成数据库中的表和字段
 ```
 
-### 元类
+#### 元类
 
 - **类定义**
 
@@ -1447,11 +1445,9 @@ print(User.pks)
 # python manage.py runserver  # 测试用的wsgi server
 ```
 
+## 路由层
 
-
-# 路由层
-
-## 路由匹配
+### 路由匹配
 
 ```python
 # 路由匹配
@@ -1493,7 +1489,7 @@ Q: 尾页(404页面 所有页面都没找到) 需要放在最后
 A: url(r'', v2.error)  # 了解即可 不这样写
 ```
 
-## URL分组
+### URL分组
 
 ```python
 """
@@ -1503,7 +1499,7 @@ url(r'^test/\d+$', v2.test)  # 正常访问
 url(r'^test/(\d+$)', v2.test)  # 分组后 报错TypeError test() takes 1 positional argument but 2 were given
 ```
 
-### 无名分组
+#### 无名分组
 
 ```python
 url(r'^test/(\d+$)', v2.test)  
@@ -1520,7 +1516,7 @@ def test(request, args):
 """
 ```
 
-### 有名分组
+#### 有名分组
 
 ```python
 """
@@ -1537,7 +1533,7 @@ def testadd(request, years):
     return HttpResponse('testadd')
 ```
 
-### 不能混用
+#### 不能混用
 
 ```python
 url(r'^index/(\d+)/(?P<year>\d+)/', v2.index)
@@ -1559,7 +1555,7 @@ def index(request, *args, **kwargs):
     return HttpResponse("<h1>index</h1>")
 ```
 
-### 反向解析
+#### 反向解析
 
 ```python
 """
@@ -1648,7 +1644,7 @@ reverse('alias_func', kwargs={'year': 2010})
 reverse('alias_func', args=(2021,))
 ```
 
-## 路由分发
+### 路由分发
 
 ```python
 """
@@ -1708,7 +1704,7 @@ url(r'^app02/', include('app02.urls')),
 # 注意事项：总路由的url 千万不能加$结尾 加了之后 无法继续向下匹配
 ```
 
-## 名称空间
+### 名称空间
 
 **解决url别名 命名冲突的问题 了解即可 可以不用 保证别名不同即可**
 
@@ -1755,7 +1751,7 @@ urlpatterns = [url(r'^reg/', views.reg, name='reg')]
 """
 ```
 
-## 伪静态
+### 伪静态
 
 **了解即可**
 
@@ -1784,9 +1780,7 @@ urlpatterns = [
 ]
 ```
 
-
-
-# 视图层
+## 视图层
 
 **视图函数必须返回HttpResponse对象**
 
@@ -1795,7 +1789,7 @@ urlpatterns = [
 The view app01.views.index didn't return an HttpResponse object. It returned None instead.
 ```
 
-## 三板斧
+### 三板斧
 
 ```python
 # HttpResponse
@@ -1817,7 +1811,7 @@ def render(request, template_name, context=None, content_type=None, status=None,
 重定向 也是继承的HttpResponse
 ```
 
-## render简单的内部原理
+### render简单的内部原理
 
 ```python
 def index(request):
@@ -1831,7 +1825,7 @@ def index(request):
 >>> <h1>{&#39;username&#39;: &#39;minho&#39;, &#39;password&#39;: 123}</h1>
 ```
 
-## JsonResponse
+### JsonResponse
 
 ```python
 """
@@ -1879,7 +1873,7 @@ def ab_json(request):
 
 ------
 
-## Django自带的序列化组件
+### Django自带的序列化组件
 
 **DRF铺垫**
 
@@ -1947,7 +1941,7 @@ def user_ser(request):
 """
 ```
 
-## Form表单上传文件及后端如何操作
+### Form表单上传文件及后端如何操作
 
 ```python
 """
@@ -1968,7 +1962,7 @@ def ab_file(request):
     return render(request, 'form.html')
 ```
 
-## request对象方法
+### request对象方法
 
 ```python
 """
@@ -1999,11 +1993,11 @@ request.body  # 原生的 浏览器发过来的二进制数据
 """
 ```
 
-## FBV与CBV
+### FBV与CBV
 
 **视图函数既可以是函数也可以是类**
 
-### FBV
+#### FBV
 
 **基于函数的视图**
 
@@ -2013,7 +2007,7 @@ def index(request):
     return HttpResponse('index')
 ```
 
-### CBV
+#### CBV
 
 - **基于类的视图**
 
@@ -2157,14 +2151,14 @@ __getattribute__  # 特殊 尽量不用
 | setattr(object, name, value)     | object的属性存在则覆盖 不存在则新增                          |
 | hasattr(object, name)            | 判断对象是否具有这个名字的属性 name必须为**字符串**          |
 
-## CBV如何添加装饰器
+### CBV如何添加装饰器
 
 ```python
 CBV中 django不建议你直接给类的方法加装饰器
 无论该装饰器能否正常工作 都不建议增加
 ```
 
-### 加在CBV视图的具体方法上
+#### 加在CBV视图的具体方法上
 
 ```python
 from django.views import View
@@ -2184,7 +2178,7 @@ class MyLogin(View):
         return HttpResponse('POST请求')
 ```
 
-### 加在类视图上
+#### 加在类视图上
 
 ```python
 from django.views import View
@@ -2205,7 +2199,7 @@ class MyLogin(View):
         return HttpResponse('POST请求')
 ```
 
-### 加在dispath方法上
+#### 加在dispath方法上
 
 ```python
 from django.views import View
@@ -2229,11 +2223,11 @@ class MyLogin(View):
         return HttpResponse('POST请求')
 ```
 
-# 模板层
+## 模板层
 
-## 模板语法
+### 模板语法
 
-### 传值
+#### 传值
 
 **模板语法传值**
 
@@ -2300,7 +2294,7 @@ def index(request):
 <p>类方法：{{ obj.get_cls }}</p>
 ```
 
-### 取值
+#### 取值
 
 ```html
 django模板语法的取值 是固定的格式 只能用"句点符" .
@@ -2311,7 +2305,7 @@ django模板语法的取值 是固定的格式 只能用"句点符" .
 <p>info: {{ dic.hobby.3.info}}</p>
 ```
 
-### 过滤器
+#### 过滤器
 
 ```python
 # 过滤器 就类似于是模板语法内置的 内置方法
@@ -2368,7 +2362,7 @@ res = mark_safe('<h1>新新</h1>')
 """
 ```
 
-### 标签
+#### 标签
 
 **不要被名字干扰 标签就是一堆逻辑**
 
@@ -2433,7 +2427,7 @@ res = mark_safe('<h1>新新</h1>')
 {% endwith %}
 ```
 
-## 自定义
+### 自定义
 
 **过滤器/标签及inclusion_tag**
 
@@ -2516,7 +2510,7 @@ def left(n):
 {% left 5 %}
 ```
 
-## 模板继承
+### 模板继承
 
 ```python
 """
@@ -2552,7 +2546,7 @@ def left(n):
   3. js区域
     {% block js %}
       子页面自己的js
-	{% endblock %}
+    {% endblock %}
 
 """
 一般情况下 模板的页面上 划定的区域越多 那么该模板的扩展性就越高
@@ -2561,7 +2555,7 @@ def left(n):
 """
 ```
 
-## 模板导入
+### 模板导入
 
 ```python
 """
@@ -2572,11 +2566,11 @@ def left(n):
 {% include 'ok.html' %}
 ```
 
-# 模型层
+## 模型层
 
 **重要：跟数据打交道**
 
-## 测试脚本
+### 测试脚本
 
 **参考ORM部分得出的测试脚本**
 
@@ -2593,7 +2587,7 @@ from app.model import User  # 不能拿到最上面 所有的代码都必须等�
 ...
 ```
 
-## 单表查询
+#### 单表查询
 
 ```python
 # django自带的sqlite3数据库对日期格式不是很敏感 处理的时候 容易出错
@@ -2612,7 +2606,7 @@ class User(models.Model):
     """
 ```
 
-### 增
+#### 增
 
 ```python
 # 1. create() 推荐 
@@ -2628,7 +2622,7 @@ user_obj = User(name='kimi', age=25, register_time=ctime)
 user_obj.save()
 ```
 
-### 删
+#### 删
 
 ```python
 # 删
@@ -2646,7 +2640,7 @@ user_obj = User.objects.filter(pk=6).first()
 user_obj.delete()
 ```
 
-### 改
+#### 改
 
 ```python
 # 改 
@@ -2667,7 +2661,7 @@ get方法返回的直接就是当前数据对象
 """
 ```
 
-### 必知必会13条
+#### 必知必会13条
 
 ```python
 1. all()         # 查询所有数据
@@ -2716,7 +2710,7 @@ res = User.objects.filter(pk=10).exists()
 """
 ```
 
-### 双下划线查询
+#### 双下划线查询
 
 ```python
 # age 大于35 __gt
@@ -2752,7 +2746,7 @@ res = User.objects.filter(reg_time__month='1')
 res = User.objects.filter(reg_time__year='2020')
 ```
 
-## 多表操作
+### 多表操作
 
 ```python
 # models.py 模型准备
@@ -2797,7 +2791,7 @@ class AuthorDetail(models.Model):
     address = models.CharField(max_length=32)
 ```
 
-### 一对多
+#### 一对多
 
 **一对一 一对多外键的增删改查**
 
@@ -2831,7 +2825,7 @@ publish_obj = models.Publish.objects.filter(pk=2).first()
 models.Book.objects.filter(pk=2).update(publish=publish_obj)
 ```
 
-### 多对多
+#### 多对多
 
 **多对多的 增删改查 就是在操作第三张表**
 
@@ -2909,7 +2903,7 @@ clear()
 """
 ```
 
-## 跨表查询(重点)
+### 跨表查询(重点)
 
 ```python
 # 正反向的概念
@@ -2974,7 +2968,7 @@ publish >>> 外键字段在书哪儿(反向) >>> book
   models.Book.objects.filter(pk=1).values('authors__author_detail__phone')
 ```
 
-### 子查询
+#### 子查询
 
 **基于对象的跨表查询**
 
@@ -3042,7 +3036,7 @@ print(res, res.name)
 """
 ```
 
-### 联表查询
+#### 联表查询
 
 **基于双下划线的跨表查询**
 
@@ -3079,7 +3073,7 @@ print(res)
 """
 ```
 
-## 聚合查询
+### 聚合查询
 
 ```python
 # 原生：max min sum count avg
@@ -3102,7 +3096,7 @@ res = models.Book.objects.aggregate(Max('price'), Min('price'), Sum('price'), Co
 print(res)
 ```
 
-## 分组查询
+### 分组查询
 
 ```python
 # 原生：group by
@@ -3150,7 +3144,7 @@ print(res)
 """
 ```
 
-## F与Q查询
+### F与Q查询
 
 - **F查询**
 
@@ -3203,7 +3197,7 @@ res = models.Book.objects.filter(q)  # filter括号内支持直接放Q对象 默
 print(res)
 ```
 
-## django中如何开启事务
+### django中如何开启事务
 
 ```python
 """
@@ -3242,7 +3236,7 @@ except Exception as err:
 print('执行其他操作')
 ```
 
-## orm中常用字段及参数
+### orm中常用字段及参数
 
 [DjangoORM字段类型参考](https://docs.djangoproject.com/zh-hans/3.1/ref/models/fields/)
 
@@ -3324,7 +3318,7 @@ class MyCharField(models.Field):
 myfield = MyCharField(max_length=16, null=True)
 ```
 
-## choices参数
+### choices参数
 
 **数据库字段设计常见**
 
@@ -3406,7 +3400,7 @@ user_obj = models.User.objects.filter(pk=12).first()
 print(user_obj.get_gender_display())
 ```
 
-## 数据库查询优化
+### 数据库查询优化
 
 ```python
 """
@@ -3420,7 +3414,7 @@ ORM语句的特点：惰性查询
 # select_related 与 prefetch_related
 ```
 
-### only与defer
+#### only与defer
 
 ```python
 # only
@@ -3453,7 +3447,7 @@ defer与only刚好相反
 """
 ```
 
-### select_related与prefetch_related
+#### select_related与prefetch_related
 
 **跟跨表操作有关**
 
@@ -3492,7 +3486,7 @@ for i in res:
 # select_related与prefetch_related各有优缺点 不一定谁一定好 根据实际请况来看
 ```
 
-## 批量插入数据
+### 批量插入数据
 
 ```python
 # 循环一次次插入数据
@@ -3520,11 +3514,11 @@ def ab_pl(request):
     return render(request, 'ab_pl.html', locals())
 ```
 
-# Forms组件
+## Forms组件
 
 [使用表单](https://docs.djangoproject.com/zh-hans/3.1/topics/forms/)
 
-## 前戏
+### 前戏
 
 ```python
 """
@@ -3595,7 +3589,7 @@ V1版本中 需要自己做下面三件事情
 """
 ```
 
-## 基本使用
+### 基本使用
 
 ```python
 from django import forms
@@ -3608,7 +3602,7 @@ class MyForm(forms.Form):
     email = forms.EmailField()
 ```
 
-## 校验数据
+### 校验数据
 
 **环境准备及基本使用**
 
@@ -3658,7 +3652,7 @@ False
 """
 ```
 
-## 渲染标签
+### 渲染标签
 
 **forms组件只会自动帮你渲染用户输入的标签(input select radio checkbox) 不会帮你渲染提交按钮**
 
@@ -3695,7 +3689,7 @@ label属性默认展示的是Form类中字段首字母大写的形式
 """
 ```
 
-## 展示提示信息
+### 展示提示信息
 
 ```python
 """
@@ -3762,7 +3756,7 @@ class MyForm(forms.Form):
     })
 ```
 
-## 钩子函数(hook)
+### 钩子函数(hook)
 
 ```python
 """
@@ -3811,7 +3805,7 @@ class MyForm(forms.Form):
 
 ```
 
-## 重要参数
+### 重要参数
 
 [Django官网表单字段详解](https://docs.djangoproject.com/zh-hans/3.1/ref/forms/fields/)
 
@@ -3822,7 +3816,6 @@ label              自定义字段名
 error_messages     自定义报错信息
 initial            默认值
 required           是否必填 默认是True
-
 
 
 """
@@ -3854,11 +3847,11 @@ validators=[RegexValidator(r'^[0-9]+$', '请输入数字'),
             RegexValidator(r'^159[0-9]+$', '数字必须以159开头')]
 ```
 
-## 其他字段类型
+### 其他字段类型
 
 [选择器和复选框部件](https://docs.djangoproject.com/zh-hans/3.1/ref/forms/widgets/#selector-and-checkbox-widgets)
 
-## Forms组件源码
+### Forms组件源码
 
 ```python
 """
@@ -3958,7 +3951,7 @@ def _clean_form(self):
             self.cleaned_data = cleaned_data
 ```
 
-### _post_clean
+#### _post_clean
 
 ```python
 """内部预留钩子 An internal hook"""
@@ -3970,7 +3963,7 @@ def _post_clean(self):
     pass
 ```
 
-# Cookie和Session
+## Cookie和Session
 
 ```python
 """
@@ -4028,7 +4021,7 @@ def _post_clean(self):
   3. session是基于cookie工作的(其实大部分的保存用户状态的操作 都需要使用到cookie)
 ```
 
-## Cookie操作
+### Cookie操作
 
 ```python
 """
@@ -4054,7 +4047,7 @@ obj3 = redirect()
 return obj3
 ```
 
-### 设置cookie
+#### 设置cookie
 
 ```python
 # obj in [obj1, obj2, obj3]
@@ -4071,7 +4064,7 @@ obj.set_cookie('username', 'minho123123', max_age=5/expires=5)
 obj.set_signed_cokkie(key, value, salt='盐')
 ```
 
-### 获取cookie
+#### 获取cookie
 
 ```python
 # obj in [obj1, obj2, obj3]
@@ -4082,7 +4075,7 @@ obj.set_signed_cokkie(key, value, salt='盐')
 request.get_signed_cookie(key, salt='盐')
 ```
 
-### 删除cookie
+#### 删除cookie
 
 ```python
 # 如何主动删除cookie - 退出登录|注销
@@ -4093,7 +4086,7 @@ def logout(request):
     return obj
 ```
 
-### cookie版登录验证
+#### cookie版登录验证
 
 ```python
 from django.shortcuts import render, HttpResponse, redirect, reverse
@@ -4202,7 +4195,7 @@ def users(request):
     return HttpResponse('Users Page, Need Login')
 ```
 
-## Session操作
+### Session操作
 
 [如何使用会话](https://docs.djangoproject.com/zh-hans/3.1/topics/http/sessions/)
 
@@ -4246,7 +4239,7 @@ session数据是保存在服务端的(存到哪儿? 数据库 -> session表) 给
 """
 ```
 
-### 设置session
+#### 设置session
 
 ```python
 # views.py
@@ -4300,7 +4293,7 @@ def get_session(r):
 | --------- | -------------------------------- |
 | sessionid | 0mzz5pprookey7rjd4m3pl6onoa5jdtm |
 
-### 获取session
+#### 获取session
 
 ```python
 def get_session(request):
@@ -4316,7 +4309,7 @@ def get_session(request):
     return HttpResponse('Session Get')
 ```
 
-### 清除session
+#### 清除session
 
 ```python
 def del_session(request):
@@ -4325,7 +4318,7 @@ def del_session(request):
     return HttpResponse('Session Delete')
 ```
 
-### django中session配置
+#### django中session配置
 
 ```python
 1. 数据库Session
@@ -4356,7 +4349,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False                  # 是否关闭浏览器
 SESSION_SAVE_EVERY_REQUEST = False                       # 是否每次请求都保存Session，默认修改之后才保存（默认）
 ```
 
-### session版登录验证
+#### session版登录验证
 
 ```python
 from functools import wraps
@@ -4412,15 +4405,9 @@ def index(request):
 """
 ```
 
+## Django中间件
 
-
-------
-
-
-
-# Django中间件
-
-## 中间件
+### 中间件
 
 ```python
 django自带七个中间件 每个中间件都有各自对应的功能 并且django还支持程序员自定义中间件
@@ -4442,7 +4429,7 @@ django中间件是django的门户(请求来和走 两个方向都要经过)
 - 研究django中间件代码规律
 ```
 
-### 自带七个中间件
+#### 自带七个中间件
 
 ```python
 # 列表里面其实不是字符串 是在导入模块(字符串方式导入模块) 模块路径的字符串形式
@@ -4489,14 +4476,14 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return self._accept(request)
     
     def process_response(self, request, response):
-		return response
+        return response
 
 class AuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.user = SimpleLazyObject(lambda: get_user(request))
 ```
 
-### 自定义中间件
+#### 自定义中间件
 
 ```python
 """
@@ -4524,7 +4511,7 @@ MIDDLEWARE = [
 """
 ```
 
-### 中间件方法详解
+#### 中间件方法详解
 
 ```python
 """
@@ -4540,7 +4527,7 @@ django支持程序员自定义中间件 并且暴露给程序员五个可以自�
 """
 ```
 
-#### process_request
+##### process_request
 
 **使用频率最高 最好用的 重点**
 
@@ -4564,7 +4551,7 @@ django支持程序员自定义中间件 并且暴露给程序员五个可以自�
 """
 ```
 
-#### process_response
+##### process_response
 
 **重点**
 
@@ -4581,7 +4568,7 @@ django支持程序员自定义中间件 并且暴露给程序员五个可以自�
    如果你没有定义的话 直接跳过执行下一个
 ```
 
-#### process_view
+##### process_view
 
 ```python
 def process_view(self, request, view_name, *args, **kwargs):
@@ -4592,7 +4579,7 @@ def process_view(self, request, view_name, *args, **kwargs):
 顺序是按照配置文件中注册的中间件顺序 从上往下 依次执行
 ```
 
-#### process_template_response
+##### process_template_response
 
 ```python
 def index(request):
@@ -4608,20 +4595,20 @@ def index(request):
 顺序是按照配置文件中注册了的中间件 从下往上 依次经过
 ```
 
-#### process_exception
+##### process_exception
 
 ```python
 当视图函数中出现异常的情况下触发
 顺序是按照配置文件中注册了的中间件 从下往上 依次经过
 ```
 
-## 编程思想
+### 编程思想
 
 ```python
 # 基于django中间件的一个重要的编程思想
 ```
 
-### importlib简单介绍
+#### importlib简单介绍
 
 ```python
 # 有以下目录结构
@@ -4660,7 +4647,7 @@ print(ret)
 # 该方法最小只能到模块(py文件名) 不能到py文件下面的变量(类 函数 变量...)
 ```
 
-### importlib进阶使用##
+#### importlib进阶使用
 
 1. **配置文件注册功能**
 2. **importlib模块**
@@ -4747,7 +4734,7 @@ import notify
 notify.send_all('通知')
 ```
 
-## csrf跨站请求伪造
+### csrf跨站请求伪造
 
 ```python
 """
@@ -4767,7 +4754,7 @@ notify.send_all('通知')
 """
 ```
 
-### Form表单如何校验
+#### Form表单如何校验
 
 ```html
 <form action="" method="post">
@@ -4780,7 +4767,7 @@ notify.send_all('通知')
 <input type="hidden" name="csrfmiddlewaretoken" value="JCVNo1kxO4Z1WSUSmFkLBTFsO6XIYAl3Gr9VUfSQoWo6gBJn4jJxhn8V6YCWJxdQ">
 ```
 
-### Ajax如何校验
+#### Ajax如何校验
 
 - **方式一**
 
@@ -4852,7 +4839,7 @@ $.ajaxSetup({
 
 [django跨站请求伪造保护官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/csrf/)
 
-### csrf相关装饰器
+#### csrf相关装饰器
 
 [装饰器方法](https://docs.djangoproject.com/zh-hans/3.1/ref/csrf/#module-django.views.decorators.csrf)
 
@@ -4891,7 +4878,7 @@ class MyIndex(View):
         return HttpResponse('POST')
 ```
 
-# Auth模块
+## Auth模块
 
 ```python
 # 只要是跟用户相关的登录、注册、检验、修改密码、注销、验证用户是否登录 都能用该模块实现
@@ -4910,7 +4897,8 @@ django在启动之后 就可以直接访问admin路由 需要输入用户名和�
 使用auth模块 要用就用全套 封装的很好
 """
 ```
-## 常用方法总结
+
+### 常用方法总结
 
 ```python
 1. 比对用户名和密码是否正确
@@ -4961,8 +4949,7 @@ User.objects.create_user(username=username, password=password)
 User.objects.create_superuser(username=username, password=password, email='1234567@qq.com')
 ```
 
-## 完整代码示例
-
+### 完整代码示例
 
 ```python
 from django.shortcuts import render, HttpResponse, redirect
@@ -5066,7 +5053,7 @@ def register(request):
     return render(request, 'register.html')
 ```
 
-## 如何扩展auth_user表
+### 如何扩展auth_user表
 
 ```python
 from django.db import models
@@ -5105,17 +5092,14 @@ class UserInfo(AbstractUser):
 """
 ```
 
-------
-
-
-
-# Django版本区别
+## Django版本区别
 
 ```python
 1.x 2.x 3.x区别
 2.x 3.x 差不多
 ```
-## 路由层
+
+### 路由层
 
 ```python
 """
@@ -5134,7 +5118,7 @@ from django.conf.urls import url  # 可以继续使用url 不推荐
 """
 ```
 
-### path转换器
+#### path转换器
 
 [博客参考](https://www.cnblogs.com/xiaoyuanqujing/articles/11642628.html)
 
@@ -5187,7 +5171,7 @@ urlpatterns = [
 ]
 ```
 
-## 模型层
+### 模型层
 
 ```python
 """
