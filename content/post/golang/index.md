@@ -1,6 +1,6 @@
 ---
 title: "Golang"
-description: 
+description: An open-source programming language supported by Google.
 date: 2021-06-29 17:03:46
 categories: 
 - Golang
@@ -5812,7 +5812,7 @@ func main() {
 }
 ```
 
-## Refer Link
+## Reference Link
 
 - Blogs
   - [使用Viper解码自定义格式](https://sagikazarmark.hu/blog/decoding-custom-formats-with-viper/)
