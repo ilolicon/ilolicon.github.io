@@ -1,7 +1,7 @@
 ---
 title: "GO FUNCTIONAL OPTIONS"
-description: 
-date: 2023-04-03T12:36:16+08:00
+description: Functional Options这个编程模式.
+date: 2021-09-03 12:36:16
 categories: 
 - Golang
 tags:
