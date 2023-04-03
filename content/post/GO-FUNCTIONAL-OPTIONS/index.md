@@ -1,6 +1,6 @@
 ---
 title: "GO FUNCTIONAL OPTIONS"
-description: Functional Options这个编程模式.
+description: Functional Options编程模式.
 date: 2021-09-03 12:36:16
 categories: 
 - Golang
