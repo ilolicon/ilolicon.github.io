@@ -5138,7 +5138,7 @@ func main() {
         stage D
     */
     // wg.Add(N) => 启动例程之前执行 stage A阶段；在计数信号量中+N
-    // wg.Done() => 例程执行结束后调用(例程函数退出时) stage C； 如何被整Done一定执行 stage B + defer; 当函数执行结束对计数信号量减1
+    // wg.Done() => 例程执行结束后调用(例程函数退出时) stage C； 如何保证wg.Done()一定执行 stage B + defer; 当函数执行结束对计数信号量减1
     // wg.Wait() => 启动所有例程后调用 等待计数为0之后执行(不是0的时候一直等待)
 
     wg.Add(1) // stage A
