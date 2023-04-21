@@ -7,6 +7,7 @@ categories:
 tags:
 - Go编程模式
 - Golang
+- 函数选项模式
 ---
 
 ## 配置选项问题
