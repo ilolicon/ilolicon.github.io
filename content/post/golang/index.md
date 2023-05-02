@@ -1108,6 +1108,35 @@ func main() {
 
 ```
 
+##### 循环删除切片多个元素
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    sli := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+    // 使用for循环遍历切片 并记录需要删除的元素的索引
+    indexesToDelete := []int{}
+    for i, v := range sli { 
+        if v%2 == 0 {
+            indexesToDelete = append(indexesToDelete, i)
+        }
+    }
+
+    // 倒序遍历需要删除的元素的索引 因为删除元素后 切片的长度会发生变化
+    // 如果正序遍历 则可能会漏掉一些元素或发生`panic: runtime error: slice bounds out of range`
+    for i := len(indexesToDelete) - 1; i >= 0; i-- {
+        sli = append(sli[:indexesToDelete[i]], sli[indexesToDelete[i]+1:]...)
+    }
+
+    fmt.Println(sli) // [1 3 5 7 9]
+}
+
+```
+
 #### 映射(map)
 
 ```go
@@ -5817,6 +5846,7 @@ func main() {
 - Blogs
   - [使用Viper解码自定义格式](https://sagikazarmark.hu/blog/decoding-custom-formats-with-viper/)
   - [String padding in Go](https://gosamples.dev/string-padding/)
+  - [Set indentaton on yaml.v3](https://hashnode.com/post/set-indentation-on-new-golang-yaml-v3-library-ckbrwl63001skn8s1lj3jmtln)
 
 - Github Issues
   - [YAML库关于等同json.RawMessage的Issue](https://github.com/go-yaml/yaml/issues/13)
