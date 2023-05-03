@@ -5847,6 +5847,7 @@ func main() {
   - [使用Viper解码自定义格式](https://sagikazarmark.hu/blog/decoding-custom-formats-with-viper/)
   - [String padding in Go](https://gosamples.dev/string-padding/)
   - [Set indentaton on yaml.v3](https://hashnode.com/post/set-indentation-on-new-golang-yaml-v3-library-ckbrwl63001skn8s1lj3jmtln)
+  - [Go slice tricks cheat sheet](https://ueokande.github.io/go-slice-tricks/)
 
 - Github Issues
   - [YAML库关于等同json.RawMessage的Issue](https://github.com/go-yaml/yaml/issues/13)
