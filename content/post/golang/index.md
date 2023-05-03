@@ -1127,7 +1127,7 @@ func main() {
     }
 
     // 倒序遍历需要删除的元素的索引 因为删除元素后 切片的长度会发生变化
-    // 如果正序遍历 则可能会漏掉一些元素或发生`panic: runtime error: slice bounds out of range`
+    // 如果正序遍历 则可能产生索引越界
     for i := len(indexesToDelete) - 1; i >= 0; i-- {
         sli = append(sli[:indexesToDelete[i]], sli[indexesToDelete[i]+1:]...)
     }
