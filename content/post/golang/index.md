@@ -2427,7 +2427,7 @@ func init() {
 
 ```
 
-## 标准库
+## 标准库及第三方库
 
 [标准库官网文档](https://golang.google.cn/pkg/)
 
@@ -2781,10 +2781,131 @@ func NumGoroutine() int // 获取协程数量
 
 ```
 
-### logrus
+### logr
+
+#### logrus
 
 ```go
-第三方日志库
+package logger
+
+import (
+    "fmt"
+    "path"
+    "runtime"
+    "strconv"
+
+    log "github.com/sirupsen/logrus"
+    "gopkg.in/natefinch/lumberjack.v2"
+)
+
+func RotateLogger(logName string) *lumberjack.Logger {
+    cfg := global.CFG.Log
+    return &lumberjack.Logger{
+        Filename:   logName,
+        MaxSize:    cfg.MaxSize,
+        MaxBackups: cfg.MaxBackups,
+        LocalTime:  cfg.LocalTime,
+        Compress:   cfg.Compress,
+    }
+}
+
+func Logger(cfg *config.Config) *log.Logger {
+    if cfg.ServerLog == "" || cfg.MaxSize == 0 {
+        log.Fatal("invalid configurations, please check")
+    }
+
+    l := RotateLogger(cfg.ServerLog)
+    logger := log.New()
+    logger.SetOutput(l)
+    level, err := log.ParseLevel(cfg.LogLevel)
+    if err != nil {
+        log.Fatalf("invalid log level: %s", cfg.LogLevel)
+    }
+    logger.SetLevel(level)
+    logger.SetReportCaller(cfg.ReportCaller)
+    logger.SetFormatter(&log.TextFormatter{
+        DisableColors:   true,
+        TimestampFormat: "2006-01-02 15:04:05",
+        CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+            return "", fmt.Sprintf("%s:%s", path.Base(f.File), strconv.Itoa(f.Line))
+        },
+    })
+
+    if err := l.Close(); err != nil {
+        log.Fatal(err)
+    }
+    return logger
+}
+
+```
+
+#### zap
+
+```go
+package logger
+
+import (
+    "os"
+    "time"
+
+    "go.uber.org/zap"
+    "go.uber.org/zap/zapcore"
+    "gopkg.in/natefinch/lumberjack.v2"
+)
+
+func Logger(cfg *config.Config) *zap.Logger {
+    var (
+        customLevelEncoder = func(level zapcore.Level, encoder zapcore.PrimitiveArrayEncoder) {
+            encoder.AppendString(level.String())
+        }
+        customTimeEncoder = func(t time.Time, encoder zapcore.PrimitiveArrayEncoder) {
+            encoder.AppendString(t.Format("2006-01-02 15:04:05.000"))
+        }
+    )
+
+    encoderConfig := zapcore.EncoderConfig{
+        MessageKey:     "msg",
+        LevelKey:       "level",
+        TimeKey:        "time",
+        NameKey:        "logger",
+        CallerKey:      "caller",
+        StacktraceKey:  "stacktrace",
+        LineEnding:     zapcore.DefaultLineEnding,
+        EncodeLevel:    customLevelEncoder,
+        EncodeTime:     customTimeEncoder,
+        EncodeDuration: zapcore.SecondsDurationEncoder,
+        EncodeCaller:   zapcore.ShortCallerEncoder,
+    }
+    var encoder zapcore.Encoder
+    if cfg.Log.JsonFormat {
+        encoder = zapcore.NewJSONEncoder(encoderConfig)
+    } else {
+        encoder = zapcore.NewConsoleEncoder(encoderConfig)
+    }
+
+    // 日志轮询
+    lumberjackLogger := &lumberjack.Logger{
+        Filename:   cfg.Log.Filename,
+        MaxSize:    cfg.Log.MaxSize,
+        MaxAge:     cfg.Log.MaxAge,
+        MaxBackups: cfg.Log.MaxBackups,
+        Compress:   cfg.Log.Compress,
+    }
+    var syncer zapcore.WriteSyncer
+    if cfg.Log.LogInConsole {
+        syncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(lumberjackLogger))
+    } else {
+        syncer = zapcore.AddSync(lumberjackLogger)
+    }
+
+    core := zapcore.NewCore(encoder, syncer, cfg.Log.UnmarshalLevel())
+    logger := zap.New(core)
+    if cfg.Log.ShowLine {
+        logger = logger.WithOptions(zap.AddCaller())
+    }
+    return logger
+}
+
 ```
 
 ## 面向对象
