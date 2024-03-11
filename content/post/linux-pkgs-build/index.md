@@ -1,5 +1,5 @@
 ---
-title: Linux pkg build
+title: Linux pkgs build
 description: package build for Debian series or Redhat series.
 date: 2024-03-11 19:53:00
 categories: 
