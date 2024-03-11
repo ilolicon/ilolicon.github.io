@@ -17,6 +17,8 @@ tags:
 
 ### rpm包构建
 
+[RPM打包原理、示例、详解及备查](https://www.cnblogs.com/yipianchuyun/p/15442896.html)
+
 ### rpm配置文件处理
 
 ```bash
