@@ -1,7 +1,7 @@
 ---
 title: "GO FUNCTIONAL OPTIONS"
 description: Functional Options编程模式.
-date: 2021-09-03 12:36:16
+date: 2021-09-03 12:36:16+08:00
 categories: 
 - Golang
 tags:

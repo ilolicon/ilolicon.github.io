@@ -1,7 +1,7 @@
 ---
 title: Django
 description: Django was invented to meet fast-moving newsroom deadlines, while satisfying the tough requirements of experienced web developers.
-date: 2020-02-10 22:13:06
+date: 2020-02-10 22:13:06+08:00
 categories:
 - PYTHON
 tags:

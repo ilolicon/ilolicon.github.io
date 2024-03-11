@@ -1,7 +1,7 @@
 ---
-title: Linux pkgs build
-description: package build for Debian series or Redhat series.
-date: 2024-03-11 19:53:00
+title: Build installation package on linux
+description: Build installation package on Debian series or Redhat series.
+date: 2024-03-11 19:53:00+08:00
 categories: 
 - Linux
 tags:

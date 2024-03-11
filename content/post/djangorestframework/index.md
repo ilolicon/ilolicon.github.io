@@ -1,7 +1,7 @@
 ---
 title: DjangoRESTframework
 description: Django REST framework is a powerful and flexible toolkit for building Web APIs.
-date: 2020-02-22 21:10:17
+date: 2020-02-22 21:10:17+08:00
 categories: 
 - PYTHON
 tags:

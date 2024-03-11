@@ -1,7 +1,7 @@
 ---
 title: "GO SINGLETON"
 description: Go语言中实现单例模式.
-date: 2023-04-21 11:43:42
+date: 2023-04-21 11:43:42+08:00
 categories: 
 - Golang
 tags:

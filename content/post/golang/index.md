@@ -1,7 +1,7 @@
 ---
 title: "Golang"
 description: An open-source programming language supported by Google.
-date: 2021-06-29 17:03:46
+date: 2021-06-29 17:03:46+08:00
 categories: 
 - Golang
 tags:
