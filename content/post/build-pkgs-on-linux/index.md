@@ -74,6 +74,11 @@ systemctl daemon-reload
 
 ```
 
+### 问题处理
+
+- Q: `GO`源码包构建遇到`RPM build warnings: Missing build-id in /bin/xxx`问题
+- A: 参考该文档解决 [也谈GO的可移植性](https://tonybai.com/2017/06/27/an-intro-about-go-portability/)
+
 ## deb
 
 ### deb包构建
