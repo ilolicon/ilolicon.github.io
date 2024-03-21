@@ -5968,7 +5968,7 @@ func main() {
 1. 配置GOPRIVATE变量
 比如: go env -w GOPRIVATE=gitee.com
 
-2. 配置SSH密钥对(步骤省略)
+2. 配置SSH密钥(步骤省略)
 
 3. 使用ssh替换https拉取依赖
 git config --global url."git@$GOPRIVATE:".insteadOf "https://$GOPRIVATE"
