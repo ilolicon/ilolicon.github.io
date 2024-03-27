@@ -1,0 +1,390 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Go语言中实现单例模式."><title>GO SINGLETON</title><link rel=canonical href=https://ilolicon.github.io/p/go-singleton/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="GO SINGLETON"><meta property="og:description" content="Go语言中实现单例模式."><meta property="og:url" content="https://ilolicon.github.io/p/go-singleton/"><meta property="og:site_name" content="ilolicon's Blog"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Go编程模式"><meta property="article:tag" content="Golang"><meta property="article:tag" content="单例模式"><meta property="article:published_time" content="2023-04-21T11:43:42+08:00"><meta property="article:modified_time" content="2023-04-21T11:43:42+08:00"><meta name=twitter:title content="GO SINGLETON"><meta name=twitter:description content="Go语言中实现单例模式."><link rel="shortcut icon" href=/img/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu96a5ab8e0364e843af4687201b687892_162934_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ilolicon's Blog</a></h1><h2 class=site-description>Keep Calm and Carry On.</h2></div></header><ol class=social-menu><li><a href=https://github.com/ilolicon target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#单例模式>单例模式</a></li><li><a href=#适用场景>适用场景</a></li><li><a href=#实现方式及解析>实现方式及解析</a><ol><li><a href=#饿汉模式>饿汉模式</a></li><li><a href=#懒汉模式>懒汉模式</a></li><li><a href=#双重检查模式激进加锁>双重检查模式(激进加锁)</a></li><li><a href=#synconce>Sync.Once</a><ol><li><a href=#go语言单例惯用实现解析>Go语言单例惯用实现解析</a></li><li><a href=#完整示例>完整示例</a></li></ol></li></ol></li><li><a href=#参考文档>参考文档</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/golang/ style=background-color:#38a8d2;color:#fff>Golang</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/go-singleton/>GO SINGLETON</a></h2><h3 class=article-subtitle>Go语言中实现单例模式.</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Apr 21, 2023</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><h2 id=单例模式>单例模式</h2><ul><li>单例模式(singleton) 保证一个类只有一个实例 并提供一个访问它的全局访问点</li><li>通常让一个全局变量成为一个对象被访问 但不能防止实例化多个对象</li><li>常见做法：让类自身负责保证它的唯一实例 这个类可以保证没有其他实例可以被创建 并且可以提供一个访问该实例的方法</li></ul><h2 id=适用场景>适用场景</h2><ul><li>当某个对象只能存在一个实例的情况下使用单例模式 比如：<ul><li>全局Config配置对象</li><li>全局Logger日志对象</li><li>&mldr;</li></ul></li><li>优点：<ul><li>提供了对唯一实例的受控访问</li><li>由于在系统内存中只存在一个对象 因此可以节约系统资源 对于一些需要频繁创建和销毁的对象 单例模式可以提高系统性能</li></ul></li></ul><h2 id=实现方式及解析>实现方式及解析</h2><h3 id=饿汉模式>饿汉模式</h3><ul><li>在程序加载时就创建对象实例</li><li>Go语言中我们可以放到<code>init</code>函数中 保证线程安全<ul><li>会减慢程序启动速度(<code>init</code>启动时会先加载)</li><li>如果实例不被调用 则会浪费一段内存空间 特别是该对象比较大的时候</li></ul></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>init</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=懒汉模式>懒汉模式</h3><ul><li>在获取对象实例时 如果实例为空则创建</li><li>避免饿汉模式的内存空间浪费</li><li>在Go中并发非常容易 容易被不正确使用 导致忽略并发安全</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>instance</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>在上述情况下 多个goroutine都可以执行第一个检查</li><li>并且它们都将创建该singleton类型的实例并相互覆盖 无法保证它将在此处返回哪个实例 并且对该实例的其他进一步操作可能与开发人员的期望不一致</li><li>如果有代码保留了对该单例实例的引用 则可能存在具有不同状态的该类型的多个实例 从而产生潜在的不同代码行为 这也成为调试过程中的一个噩梦 并且很难发现该错误</li><li>因为在调试时 由于运行时暂停而没有出现任何错误 这使非并发安全执行的可能性降到了最低 并且很容易隐藏开发人员的问题</li></ul><h3 id=双重检查模式激进加锁>双重检查模式(激进加锁)</h3><ul><li>解决懒汉模式的非线程安全 避免资源竞争导致数据不一致</li><li>潜在问题：<ul><li>如果实例存在 没有必要加锁</li><li>每次请求都加锁(执行过多的锁定) 降低性能/增加瓶颈</li></ul></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;sync&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>    <span class=nx>mutex</span>    <span class=nx>sync</span><span class=p>.</span><span class=nx>Mutex</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>mutex</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span> <span class=c1>// 如果实例存在没有必要加锁
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>defer</span> <span class=nx>mutex</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>instance</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>优化：检查对应是否为空之后再加锁</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;sync&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>    <span class=nx>mutex</span>    <span class=nx>sync</span><span class=p>.</span><span class=nx>Mutex</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>instance</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span> <span class=c1>// // 不太完美 因为这里不是完全原子的
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>mutex</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>defer</span> <span class=nx>mutex</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>instance</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>上面的方式仍然不太完美 因为判断实例是否为空的过程仍然不是完全原子的</li><li>我们可以使用<code>sync/atomic</code>包 原子化加载并设置一个标志 该标志表明我们是否已初始化实例</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;sync&#34;</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;sync/atomic&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nx>initialized</span> <span class=kt>uint32</span>
+</span></span><span class=line><span class=cl>    <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>    <span class=nx>mutex</span>    <span class=nx>sync</span><span class=p>.</span><span class=nx>Mutex</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>atomic</span><span class=p>.</span><span class=nf>LoadUInt32</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>initialized</span><span class=p>)</span> <span class=o>==</span> <span class=mi>1</span> <span class=p>{</span>  <span class=c1>// 原子操作 
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>mu</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>defer</span> <span class=nx>mu</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>initialized</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>         <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>         <span class=nx>atomic</span><span class=p>.</span><span class=nf>StoreUint32</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>initialized</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=synconce>Sync.Once</h3><h4 id=go语言单例惯用实现解析>Go语言单例惯用实现解析</h4><ul><li>上面实现原子操作的写法稍显繁琐</li><li>Go标准库<code>sync</code>中的<code>Once</code>类型 它能保证某个操作仅且只执行一次</li><li><code>sync.Once</code>源码</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Copyright 2009 The Go Authors. All rights reserved.
+</span></span></span><span class=line><span class=cl><span class=c1>// Use of this source code is governed by a BSD-style
+</span></span></span><span class=line><span class=cl><span class=c1>// license that can be found in the LICENSE file.
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=kn>package</span> <span class=nx>sync</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;sync/atomic&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1>// Once is an object that will perform exactly one action.
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>// A Once must not be copied after first use.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Once</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// done indicates whether the action has been performed.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// It is first in the struct because it is used in the hot path.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// The hot path is inlined at every call site.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// Placing done first allows more compact instructions on some architectures (amd64/386),
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// and fewer instructions (to calculate offset) on other architectures.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>done</span> <span class=kt>uint32</span>
+</span></span><span class=line><span class=cl>    <span class=nx>m</span>    <span class=nx>Mutex</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Do calls the function f if and only if Do is being called for the
+</span></span></span><span class=line><span class=cl><span class=c1>// first time for this instance of Once. In other words, given
+</span></span></span><span class=line><span class=cl><span class=c1>//  var once Once
+</span></span></span><span class=line><span class=cl><span class=c1>// if once.Do(f) is called multiple times, only the first call will invoke f,
+</span></span></span><span class=line><span class=cl><span class=c1>// even if f has a different value in each invocation. A new instance of
+</span></span></span><span class=line><span class=cl><span class=c1>// Once is required for each function to execute.
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>// Do is intended for initialization that must be run exactly once. Since f
+</span></span></span><span class=line><span class=cl><span class=c1>// is niladic, it may be necessary to use a function literal to capture the
+</span></span></span><span class=line><span class=cl><span class=c1>// arguments to a function to be invoked by Do:
+</span></span></span><span class=line><span class=cl><span class=c1>//  config.once.Do(func() { config.init(filename) })
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>// Because no call to Do returns until the one call to f returns, if f causes
+</span></span></span><span class=line><span class=cl><span class=c1>// Do to be called, it will deadlock.
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1>// If f panics, Do considers it to have returned; future calls of Do return
+</span></span></span><span class=line><span class=cl><span class=c1>// without calling f.
+</span></span></span><span class=line><span class=cl><span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>Once</span><span class=p>)</span> <span class=nf>Do</span><span class=p>(</span><span class=nx>f</span> <span class=kd>func</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Note: Here is an incorrect implementation of Do:
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// if atomic.CompareAndSwapUint32(&amp;o.done, 0, 1) {
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//      f()
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//  }
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// Do guarantees that when it returns, f has finished.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// This implementation would not implement that guarantee:
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// given two simultaneous calls, the winner of the cas would
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// call f, and the second would return immediately, without
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// waiting for the first&#39;s call to f to complete.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// This is why the slow path falls back to a mutex, and why
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// the atomic.StoreUint32 must be delayed until after f returns.
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>atomic</span><span class=p>.</span><span class=nf>LoadUint32</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>o</span><span class=p>.</span><span class=nx>done</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// Outlined slow-path to allow inlining of the fast-path.
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nx>o</span><span class=p>.</span><span class=nf>doSlow</span><span class=p>(</span><span class=nx>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>o</span> <span class=o>*</span><span class=nx>Once</span><span class=p>)</span> <span class=nf>doSlow</span><span class=p>(</span><span class=nx>f</span> <span class=kd>func</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>o</span><span class=p>.</span><span class=nx>m</span><span class=p>.</span><span class=nf>Lock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>defer</span> <span class=nx>o</span><span class=p>.</span><span class=nx>m</span><span class=p>.</span><span class=nf>Unlock</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nx>o</span><span class=p>.</span><span class=nx>done</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>defer</span> <span class=nx>atomic</span><span class=p>.</span><span class=nf>StoreUint32</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>o</span><span class=p>.</span><span class=nx>done</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nf>f</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>通过上面源码发现 我们可以借助这个实现只执行一次某个函数/方法</li><li>once.Do()的用法如下</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>once</span> <span class=nx>sync</span><span class=p>.</span><span class=nx>Once</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>once</span><span class=p>.</span><span class=nf>Do</span><span class=p>(</span><span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 在这里执行安全的初始化
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=完整示例>完整示例</h4><ul><li>使用sync.Once包是安全地实现此目标的首选方式</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;sync&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=nx>instance</span> <span class=o>*</span><span class=nx>singleton</span>
+</span></span><span class=line><span class=cl>    <span class=nx>once</span>     <span class=nx>sync</span><span class=p>.</span><span class=nx>Once</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>singleton</span> <span class=kd>struct</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>GetInstance</span><span class=p>()</span> <span class=o>*</span><span class=nx>singleton</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>once</span><span class=p>.</span><span class=nf>Do</span><span class=p>(</span><span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>instance</span> <span class=p>=</span> <span class=o>&amp;</span><span class=nx>singleton</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>instance</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=参考文档>参考文档</h2><p><a class=link href=http://marcio.io/2015/07/singleton-pattern-in-go/ target=_blank rel=noopener>singleton-pattern-in-go</a></p></section><footer class=article-footer><section class=article-tags><a href=/tags/go%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%BC%8F/>Go编程模式</a>
+<a href=/tags/golang/>Golang</a>
+<a href=/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/>单例模式</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/go-functional-options/><div class=article-details><h2 class=article-title>GO FUNCTIONAL OPTIONS</h2></div></a></article><article><a href=/p/golang/><div class=article-details><h2 class=article-title>Golang</h2></div></a></article></div></div></aside><script src=https://utteranc.es/client.js repo=ilolicon/ilolicon.github.io issue-term=pathname crossorigin=anonymous async></script><style>.utterances{max-width:unset}</style><script>let utterancesLoaded=!1;function setUtterancesTheme(e){let t=document.querySelector(".utterances iframe");t&&t.contentWindow.postMessage({type:"set-theme",theme:`github-${e}`},"https://utteranc.es")}addEventListener("message",e=>{if(e.origin!=="https://utteranc.es")return;utterancesLoaded=!0,setUtterancesTheme(document.documentElement.dataset.scheme)}),window.addEventListener("onColorSchemeChange",e=>{if(!utterancesLoaded)return;setUtterancesTheme(e.detail)})</script><footer class=site-footer><section class=copyright>&copy;
+2017 -
+2024 ilolicon's Blog</section><section class=powerby>Vicissitude🐳<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.21.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

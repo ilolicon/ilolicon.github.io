@@ -1,0 +1,451 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Functional Options编程模式."><title>GO FUNCTIONAL OPTIONS</title><link rel=canonical href=https://ilolicon.github.io/p/go-functional-options/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="GO FUNCTIONAL OPTIONS"><meta property="og:description" content="Functional Options编程模式."><meta property="og:url" content="https://ilolicon.github.io/p/go-functional-options/"><meta property="og:site_name" content="ilolicon's Blog"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Go编程模式"><meta property="article:tag" content="Golang"><meta property="article:tag" content="函数选项模式"><meta property="article:published_time" content="2021-09-03T12:36:16+08:00"><meta property="article:modified_time" content="2021-09-03T12:36:16+08:00"><meta name=twitter:title content="GO FUNCTIONAL OPTIONS"><meta name=twitter:description content="Functional Options编程模式."><link rel="shortcut icon" href=/img/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu96a5ab8e0364e843af4687201b687892_162934_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ilolicon's Blog</a></h1><h2 class=site-description>Keep Calm and Carry On.</h2></div></header><ol class=social-menu><li><a href=https://github.com/ilolicon target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#配置选项问题>配置选项问题</a></li><li><a href=#配置对象方案分离可选项>配置对象方案(分离可选项)</a></li><li><a href=#builder模式>Builder模式</a></li><li><a href=#functional-options>Functional Options</a><ol><li><a href=#基于闭包实现>基于闭包实现</a></li><li><a href=#基于接口实现>基于接口实现</a></li></ol></li><li><a href=#总结>总结</a></li><li><a href=#参考文档>参考文档</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/golang/ style=background-color:#38a8d2;color:#fff>Golang</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/go-functional-options/>GO FUNCTIONAL OPTIONS</a></h2><h3 class=article-subtitle>Functional Options编程模式.</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Sep 03, 2021</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><h2 id=配置选项问题>配置选项问题</h2><p>在我们编程中 我们会经常对一个对象(或是业务实体)进行相关的配置 比如下面这个业务实体</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Addr</span>     <span class=kt>string</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Port</span>     <span class=kt>string</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Protocol</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Timeout</span>  <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span>
+</span></span><span class=line><span class=cl>    <span class=nx>MaxConns</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>    <span class=nx>TLS</span>      <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>在这个<code>Server</code>对象中 我们可以看到：</p><ul><li>要有监听的地址<code>Addr</code>和端口<code>Port</code> 这两个选项是必须配置的(当然可以设置默认值 这里举例我们认为没有默认值且不能为空)</li><li>然后 还有协议<code>Protocol</code> <code>Timeout</code>和<code>MaxConns</code>字段 这几个字段是不能为空的 但是可以有默认值<ul><li>比如: 协议是<code>tcp</code>超时<code>30s</code>和最大连接数<code>1024</code>个</li></ul></li><li>还有一个<code>TLS</code>安全链接 需要配置相关的证书和私钥 这个可以为空</li></ul><p>针对上述这样的配置 我们需要有多种不同的创建配置<code>Server</code>的函数签名 如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewDefaultServer</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span><span class=nx>addr</span><span class=p>,</span> <span class=nx>port</span><span class=p>,</span> <span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=kc>nil</span><span class=p>},</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewTLSServer</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>tls</span> <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span><span class=nx>addr</span><span class=p>,</span> <span class=nx>port</span><span class=p>,</span> <span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=nx>tls</span><span class=p>},</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewServerWithTimeout</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span><span class=nx>addr</span><span class=p>,</span> <span class=nx>port</span><span class=p>,</span> <span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=nx>timeout</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=kc>nil</span><span class=p>},</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewTLSServerWithMaxConnAndTimeout</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span><span class=p>,</span> <span class=nx>maxconns</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>,</span> <span class=nx>tls</span> <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span><span class=nx>addr</span><span class=p>,</span> <span class=nx>port</span><span class=p>,</span> <span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>,</span> <span class=nx>maxconns</span><span class=p>,</span> <span class=nx>tls</span><span class=p>},</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>因为Go语言不支持重载函数 所以 你得用不同得函数名来应对不同的配置选项
+上面方案的缺点：</p><ul><li>创建太多的NewServer函数</li><li>代码冗余</li><li>可扩展性差</li></ul><h2 id=配置对象方案分离可选项>配置对象方案(分离可选项)</h2><p>要解决上面的问题 最常见的方式是使用一个配置对象 如下所示：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Config</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Protocol</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Timeout</span>  <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Maxconns</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>    <span class=nx>TLS</span>      <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>我们把那些非必须的选项都分离到一个结构体里 于是新的<code>Server</code>对象如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Addr</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Port</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Cfg</span> <span class=o>*</span><span class=nx>Config</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>于是 我们只需要一个<code>NewServer()</code>函数即可 在使用前需要构造<code>Config</code>对象</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewServer</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>cfg</span> <span class=o>*</span><span class=nx>Config</span><span class=p>)</span> <span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Using the default configuratrion
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>s</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;localhost&#34;</span><span class=p>,</span> <span class=mi>9000</span><span class=p>,</span> <span class=kc>nil</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>cfg</span> <span class=o>:=</span> <span class=nx>ServerConfig</span><span class=p>{</span><span class=nx>Protocol</span><span class=p>:</span><span class=s>&#34;tcp&#34;</span><span class=p>,</span> <span class=nx>Timeout</span><span class=p>:</span> <span class=mi>60</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=nx>s</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;locahost&#34;</span><span class=p>,</span> <span class=mi>9000</span><span class=p>,</span> <span class=o>&amp;</span><span class=nx>cfg</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>上面这种<code>分离可选项</code>的方式 <code>Config</code>对象并不是必须的 所以 你需要判断其是否是<code>nil</code>或者是Empty<code>Config{}</code></p><h2 id=builder模式>Builder模式</h2><p>如果你是一个Java程序员 熟悉设计模式的一定会很自然的使用上Builder模式
+比如如下代码:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=n>User</span> <span class=n>user</span> <span class=o>=</span> <span class=k>new</span> <span class=n>User</span><span class=o>.</span><span class=na>Builder</span><span class=o>()</span>
+</span></span><span class=line><span class=cl>    <span class=o>.</span><span class=na>name</span><span class=o>(</span><span class=s>&#34;ilolicon&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=o>.</span><span class=na>email</span><span class=o>(</span><span class=s>&#34;97431110@qq.com&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=o>.</span><span class=na>role</span><span class=o>(</span><span class=s>&#34;admin&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=o>.</span><span class=na>build</span><span class=o>();</span>
+</span></span></code></pre></td></tr></table></div></div><p>仿照上面这个模式 我们可以把上面的代码改写成如下代码(注：下面的代码没有考虑出错处理)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 使用一个builder类来做包装
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>ServerBuilder</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Server</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>Create</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>)</span> <span class=o>*</span><span class=nx>ServerBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>Server</span><span class=p>.</span><span class=nx>Addr</span> <span class=p>=</span> <span class=nx>addr</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>Server</span><span class=p>.</span><span class=nx>Port</span> <span class=p>=</span> <span class=nx>port</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 其他代码设置其他成员的模式值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nx>sb</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=nx>protocol</span> <span class=kt>string</span><span class=p>)</span> <span class=o>*</span><span class=nx>ServerBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>Server</span><span class=p>.</span><span class=nx>Protocol</span> <span class=p>=</span> <span class=nx>protocol</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>sb</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>WithMaxConns</span><span class=p>(</span><span class=nx>maxconns</span> <span class=kt>int</span><span class=p>)</span> <span class=o>*</span><span class=nx>ServerBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>MaxConns</span> <span class=p>=</span> <span class=nx>maxconns</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>sb</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=o>*</span><span class=nx>ServerBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=nx>timeout</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>sb</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>WithTLS</span><span class=p>(</span><span class=nx>tls</span> <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span><span class=p>)</span> <span class=o>*</span><span class=nx>ServerBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>sb</span><span class=p>.</span><span class=nx>Server</span><span class=p>.</span><span class=nx>TLS</span> <span class=p>=</span> <span class=nx>tls</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>sb</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>sb</span> <span class=o>*</span><span class=nx>ServerBuilder</span><span class=p>)</span> <span class=nf>Build</span><span class=p>()</span> <span class=nx>Server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>sb</span><span class=p>.</span><span class=nx>Server</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>于是 我们可以这样去使用：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>sb</span> <span class=o>:=</span> <span class=nx>ServerBuilder</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl><span class=nx>server</span> <span class=o>:=</span> <span class=nx>sb</span><span class=p>.</span><span class=nf>Create</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>8080</span><span class=p>).</span>
+</span></span><span class=line><span class=cl>    <span class=nf>WithProtocol</span><span class=p>(</span><span class=s>&#34;udp&#34;</span><span class=p>).</span>
+</span></span><span class=line><span class=cl>    <span class=nf>WithMaxConns</span><span class=p>(</span><span class=mi>1024</span><span class=p>).</span>
+</span></span><span class=line><span class=cl>    <span class=nf>WithTimeout</span><span class=p>(</span><span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>).</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Build</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><p>上面这样的方式也很清楚 不需要额外的<code>Config</code>对象 使用链式的函数调用的方式来构造一个对象 只需要多增加一个Builder类</p><p>但是这个Builder类似乎有点多余 我们似乎可以直接在<code>Server</code>上进行这样的Builder构造 事实也是如此 但是在处理错误的时候可能就有点麻烦(需要为<code>Server</code>结构增加一个error成员 破坏了<code>Server</code>结构体的"纯洁") 不如一个包装类更好一些</p><p>如果我们想省掉这个包装的结构体 那就就轮到<code>FUNCTIONAL OPTIONS</code> 函数式编程</p><h2 id=functional-options>Functional Options</h2><p>函数选项模式的实现 主要有两种</p><ul><li>基于闭包的实现</li><li>基于接口的实现</li></ul><h3 id=基于闭包实现>基于闭包实现</h3><p>1.定义一个函数类型Option</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Option</span> <span class=kd>func</span><span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>2.闭包的方式定义如下一组函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=nx>proto</span> <span class=kt>string</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>s</span><span class=p>.</span><span class=nx>Protocol</span> <span class=p>=</span> <span class=nx>proto</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>s</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=nx>timeout</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithMaxConns</span><span class=p>(</span><span class=nx>maxConns</span> <span class=kt>int</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>s</span><span class=p>.</span><span class=nx>MaxConns</span> <span class=p>=</span> <span class=nx>maxConns</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithTLS</span><span class=p>(</span><span class=nx>tls</span> <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=kd>func</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>s</span><span class=p>.</span><span class=nx>TLS</span> <span class=p>=</span> <span class=nx>tls</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>以<code>WithMaxConns()</code>函数为例 传入一个参数maxConns 返回一个函数 这个函数会将参数maxConns赋值给<code>Server</code>对应的MaxConns字段</p><ul><li>当我们调用其中一个函数用<code>WithMaxConns(30)</code>时</li><li>其返回值时一个 <code>func(s *Server) {s.MaxConns = 30}</code>的函数</li></ul><p>3.定义<code>NewServer()</code>函数</p><p>函数参数是必填字段和可选字段(可变参数类型)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// NewServer先填上必须的字段 然后是可选字段
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>NewServer</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=o>*</span><span class=nx>Server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 创建Server对象并填写可选项的默认值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Addr</span><span class=p>:</span>     <span class=nx>addr</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Port</span><span class=p>:</span>     <span class=nx>port</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Protocol</span><span class=p>:</span> <span class=s>&#34;tcp&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Timeout</span><span class=p>:</span>  <span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>MaxConns</span><span class=p>:</span> <span class=mi>1024</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TLS</span><span class=p>:</span>      <span class=kc>nil</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 对选项列表中的每项用for-loop来设置Server对象属性
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>option</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>opts</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>option</span><span class=p>(</span><span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>s</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>首先 <code>NewServer()</code>函数当然opts是可变参数 可以传递上面的<code>WithXXX()</code>一个或多个函数</li><li>然后 创建<code>Server</code>对象 并填写可选项的默认值 如Timeout超时时间为30s</li><li>最后 for-loop循环opts可变参数 执行函数option去设置s对象中的各个属性</li></ul><p>4.测试<code>NewServer()</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span> <span class=o>:=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>8080</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;Default Server: %v\n&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span> <span class=p>=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>8080</span><span class=p>,</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=s>&#34;udp&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;ServerWithProto: %v\n&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span> <span class=p>=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>8080</span><span class=p>,</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=s>&#34;udp&#34;</span><span class=p>),</span> <span class=nf>WithMaxConns</span><span class=p>(</span><span class=mi>5000</span><span class=p>),</span> <span class=nf>WithTimeout</span><span class=p>(</span><span class=mi>5</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;ServerWithAll: %v\n&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ go run main.go
+</span></span><span class=line><span class=cl>Default Server : <span class=p>&amp;</span><span class=o>{</span>127.0.0.1 <span class=m>8080</span> tcp 30s <span class=m>1024</span> &lt;nil&gt;<span class=o>}</span>
+</span></span><span class=line><span class=cl>ServerWithProto: <span class=p>&amp;</span><span class=o>{</span>127.0.0.1 <span class=m>8080</span> udp 30s <span class=m>1024</span> &lt;nil&gt;<span class=o>}</span>
+</span></span><span class=line><span class=cl>ServerWithAll  : <span class=p>&amp;</span><span class=o>{</span>127.0.0.1 <span class=m>8080</span> udp 5s <span class=m>5000</span> &lt;nil&gt;<span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=基于接口实现>基于接口实现</h3><p>1.定义接口</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Server结构体
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Server</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>Addr</span>     <span class=kt>string</span>        <span class=c1>// 必填dd
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>Port</span>     <span class=kt>int</span>           <span class=c1>// 必填
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>Protocol</span> <span class=kt>string</span>        <span class=c1>// 非必填
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>Timeout</span>  <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span> <span class=c1>// 非必填
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>MaxConns</span> <span class=kt>int</span>           <span class=c1>// 非必填
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>TLS</span>      <span class=o>*</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span>   <span class=c1>// 非必填 可以为空
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Option接口 定义需要实现的apply方法
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Option</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>apply</span><span class=p>(</span><span class=o>*</span><span class=nx>Server</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Option接口定义<code>apply(server *Server)</code>方法 然后可选项需要实现接口</p><p>2.可选项实现接口</p><p>每个可选项都需要实现接口</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ProtoOption 实现Option接口
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>ProtoOption</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>p</span> <span class=nx>ProtoOption</span><span class=p>)</span> <span class=nf>apply</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span><span class=p>.</span><span class=nx>Protocol</span> <span class=p>=</span> <span class=nb>string</span><span class=p>(</span><span class=nx>p</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=nx>proto</span> <span class=kt>string</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nf>ProtoOption</span><span class=p>(</span><span class=nx>proto</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// TimeoutOption 实现Option接口
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>TimeoutOption</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>t</span> <span class=nx>TimeoutOption</span><span class=p>)</span> <span class=nf>apply</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span><span class=p>.</span><span class=nx>Timeout</span> <span class=p>=</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Duration</span><span class=p>(</span><span class=nx>t</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>timeout</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nf>TimeoutOption</span><span class=p>(</span><span class=nx>timeout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// MaxConnsOption 实现Option接口
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>MaxConnsOption</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>m</span> <span class=nx>MaxConnsOption</span><span class=p>)</span> <span class=nf>apply</span><span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Server</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span><span class=p>.</span><span class=nx>MaxConns</span> <span class=p>=</span> <span class=nb>int</span><span class=p>(</span><span class=nx>m</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>WithMaxConns</span><span class=p>(</span><span class=nx>maxConns</span> <span class=kt>int</span><span class=p>)</span> <span class=nx>Option</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nf>MaxConnsOption</span><span class=p>(</span><span class=nx>maxConns</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>以可选项protocol的ProtoOption为例：
+自定义类型ProtoOption实现Option接口的<code>apply()</code>方法</p><p>3.封装函数将可选项包装为接口类型</p><p>提供<code>WithProtocol()</code>函数将<code>string</code>类型的proto转换为<code>ProtoOption</code>类型
+方便以Option接口的形式传递给函数使用</p><p>4.定义<code>NewServer()</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>NewServer</span><span class=p>(</span><span class=nx>addr</span> <span class=kt>string</span><span class=p>,</span> <span class=nx>port</span> <span class=kt>int</span><span class=p>,</span> <span class=nx>opts</span> <span class=o>...</span><span class=nx>Option</span><span class=p>)</span> <span class=o>*</span><span class=nx>Server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 创建Server 并填写可选项的默认值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nx>s</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>Server</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Addr</span><span class=p>:</span>     <span class=nx>addr</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Port</span><span class=p>:</span>     <span class=nx>port</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Protocol</span><span class=p>:</span> <span class=s>&#34;udp&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>Timeout</span><span class=p>:</span>  <span class=mi>30</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>MaxConns</span><span class=p>:</span> <span class=mi>1024</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=nx>TLS</span><span class=p>:</span>      <span class=kc>nil</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>opt</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>opts</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>opt</span><span class=p>.</span><span class=nf>apply</span><span class=p>(</span><span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>s</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>for-loop循环opts可变参数 执行接口中的apply方法去设置s对象中的各个属性
+注意：s一定要传递<strong>指针</strong> 否则无法修改对象属性</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span> <span class=o>:=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>8080</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;Default Server: %v\n&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span> <span class=p>=</span> <span class=nf>NewServer</span><span class=p>(</span><span class=s>&#34;127.0.0.1&#34;</span><span class=p>,</span> <span class=mi>9999</span><span class=p>,</span> <span class=nf>WithMaxConns</span><span class=p>(</span><span class=mi>10240</span><span class=p>),</span> <span class=nf>WithTimeout</span><span class=p>(</span><span class=mi>20</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>),</span> <span class=nf>WithProtocol</span><span class=p>(</span><span class=s>&#34;tcp&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;ALL Server: %v\n&#34;</span><span class=p>,</span> <span class=nx>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>Default</span> <span class=nx>Server</span><span class=p>:</span> <span class=o>&amp;</span><span class=p>{</span><span class=mf>127.0.0.1</span> <span class=mi>8080</span> <span class=nx>udp</span> <span class=mi>30</span><span class=nx>s</span> <span class=mi>1024</span> <span class=p>&lt;</span><span class=kc>nil</span><span class=p>&gt;}</span>
+</span></span><span class=line><span class=cl><span class=nx>ALL</span> <span class=nx>Server</span>    <span class=p>:</span> <span class=o>&amp;</span><span class=p>{</span><span class=mf>127.0.0.1</span> <span class=mi>9999</span> <span class=nx>tcp</span> <span class=mi>20</span><span class=nx>s</span> <span class=mi>10240</span> <span class=p>&lt;</span><span class=kc>nil</span><span class=p>&gt;}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=总结>总结</h2><p>三种解决方法：</p><ul><li>配置对象(分离可选项)</li><li>Builder模式</li><li>函数选项模式(Functional Options) <strong>使用较多</strong></li></ul><p>函数选项模式 优点：</p><ul><li>可读性强 将配置都转化为对应的函数项Option</li><li>扩展性好 新增参数只需要多增加一个方法</li></ul><h2 id=参考文档>参考文档</h2><p><a class=link href=https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html target=_blank rel=noopener>Self-referential functions and the design of options</a></p><p><a class=link href=https://coolshell.cn/articles/21146.html target=_blank rel=noopener>GO 编程模式：FUNCTIONAL OPTIONS</a></p><p><a class=link href="https://zhuanlan.zhihu.com/p/472113355?utm_source=wechat_session&amp;utm_medium=social&amp;utm_oi=27697422008320&amp;utm_campaign=shareopn&amp;s_r=0" target=_blank rel=noopener>深入浅出 Golang函数选项编程模式</a></p></section><footer class=article-footer><section class=article-tags><a href=/tags/go%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%BC%8F/>Go编程模式</a>
+<a href=/tags/golang/>Golang</a>
+<a href=/tags/%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9%E6%A8%A1%E5%BC%8F/>函数选项模式</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/go-singleton/><div class=article-details><h2 class=article-title>GO SINGLETON</h2></div></a></article><article><a href=/p/golang/><div class=article-details><h2 class=article-title>Golang</h2></div></a></article></div></div></aside><script src=https://utteranc.es/client.js repo=ilolicon/ilolicon.github.io issue-term=pathname crossorigin=anonymous async></script><style>.utterances{max-width:unset}</style><script>let utterancesLoaded=!1;function setUtterancesTheme(e){let t=document.querySelector(".utterances iframe");t&&t.contentWindow.postMessage({type:"set-theme",theme:`github-${e}`},"https://utteranc.es")}addEventListener("message",e=>{if(e.origin!=="https://utteranc.es")return;utterancesLoaded=!0,setUtterancesTheme(document.documentElement.dataset.scheme)}),window.addEventListener("onColorSchemeChange",e=>{if(!utterancesLoaded)return;setUtterancesTheme(e.detail)})</script><footer class=site-footer><section class=copyright>&copy;
+2017 -
+2024 ilolicon's Blog</section><section class=powerby>Vicissitude🐳<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.21.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

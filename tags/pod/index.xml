@@ -1,0 +1,1099 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pod on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/pod/</link><description>Recent content in Pod on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 20 Dec 2020 14:21:14 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/pod/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes</title><link>https://ilolicon.github.io/p/kubernetes/</link><pubDate>Sun, 20 Dec 2020 14:21:14 +0800</pubDate><guid>https://ilolicon.github.io/p/kubernetes/</guid><description>&lt;p>&lt;a class="link" href="https://kubernetes.io/zh/docs/home/" target="_blank" rel="noopener"
+>&lt;img src="https://img.shields.io/badge/Kubernetes-README-356DE3"
+loading="lazy"
+alt="kubernetes readme"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/" target="_blank" rel="noopener"
+>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/kubernetes.svg"
+loading="lazy"
+alt="kubernetes"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;code>container evolution&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/container_evolution.svg"
+loading="lazy"
+alt="container_evolution"
+>&lt;/p>
+&lt;h2 id="容器编排">容器编排&lt;/h2>
+&lt;ul>
+&lt;li>Ansible/Saltstack &lt;strong>传统应用&lt;/strong>编排工具&lt;/li>
+&lt;li>Docker
+&lt;ul>
+&lt;li>docker compose(docker单机编排)&lt;/li>
+&lt;li>docker swarm(docker主机加入docker swarm资源池)&lt;/li>
+&lt;li>docker machine(完成docker主机加入docker swarm资源池的先决条件/预处理工具)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Mesos(IDC OS) + marathon(面向容器编排的框架)&lt;/li>
+&lt;li>kubernetes(Borg)
+&lt;ul>
+&lt;li>自动装箱(基于依赖 自动完成容器部署 不影响其可用性)&lt;/li>
+&lt;li>自我修复&lt;/li>
+&lt;li>水平扩展&lt;/li>
+&lt;li>服务发现和负载均衡&lt;/li>
+&lt;li>自动发布和回滚&lt;/li>
+&lt;li>密钥和配置管理&lt;/li>
+&lt;li>存储编排&lt;/li>
+&lt;li>任务批量处理运行&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>概念: &lt;code>DevOps&lt;/code> &lt;code>MicroServices&lt;/code> &lt;code>Blockchain&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>CI: 持续集成&lt;/li>
+&lt;li>CD: 持续交互 Delivery&lt;/li>
+&lt;li>CD: 持续部署 Deployment&lt;/li>
+&lt;/ul>
+&lt;h2 id="kubernetes架构概述">Kubernetes架构概述&lt;/h2>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster.png"
+width="576"
+height="335"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster_hu5d0dab3c0d7d17e817e2f0f85b092344_117781_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster_hu5d0dab3c0d7d17e817e2f0f85b092344_117781_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="kubernetes-cluster"
+class="gallery-image"
+data-flex-grow="171"
+data-flex-basis="412px"
+>&lt;/p>
+&lt;ul>
+&lt;li>有中心节点的集群架构系统(抽象各主机资源 统一对外提供计算)&lt;/li>
+&lt;li>Master/Node(Worker)
+&lt;ul>
+&lt;li>Master
+&lt;ul>
+&lt;li>etcd: 兼具一致性和高可用性的键值数据库 可以作为保存Kubernetes所有集群数据的后台数据库&lt;/li>
+&lt;li>API Server(公开kubernetes API)&lt;/li>
+&lt;li>Scheduler(调度器)&lt;/li>
+&lt;li>Controller-Manager(控制器)
+&lt;ul>
+&lt;li>节点控制器(Node Controller): 负责在节点出现故障时进行通知和响应&lt;/li>
+&lt;li>任务控制器(Job controller): 监测代表一次性任务的Job对象 然后创建Pods来运行这些任务直至完成&lt;/li>
+&lt;li>端点控制器(Endpoints Controller): 填充端点(Endpoints)对象(即加入Service与Pod)&lt;/li>
+&lt;li>服务帐户和令牌控制器(Service Account &amp;amp; Token Controllers): 为新的命名空间创建默认帐户和API访问令牌&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Node
+&lt;ul>
+&lt;li>kubelet: 集群代理 并不运行容器&lt;/li>
+&lt;li>kube-proxy: 网络代理 管理Service的创建 更新(iptables/ipvs)&lt;/li>
+&lt;li>容器运行时(容器引擎): 运行容器 支持&lt;a class="link" href="https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/" target="_blank" rel="noopener"
+>Docker&lt;/a>/&lt;a class="link" href="https://containerd.io/docs/" target="_blank" rel="noopener"
+>containerd&lt;/a>/&lt;a class="link" href="https://cri-o.io/#what-is-cri-o" target="_blank" rel="noopener"
+>CRI-O&lt;/a>以及任何实现 &lt;a class="link" href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md" target="_blank" rel="noopener"
+>Kubernetes CRI (容器运行环境接口)&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh/docs/concepts/overview/components/" target="_blank" rel="noopener"
+>kubernetes组件&lt;/a>&lt;/p>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster02.png"
+width="821"
+height="568"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster02_hu5ddc702c3d24b1f991acd583b33b036e_257528_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/kubernetes_cluster02_hu5ddc702c3d24b1f991acd583b33b036e_257528_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="kuberbetes-cluster02"
+class="gallery-image"
+data-flex-grow="144"
+data-flex-basis="346px"
+>&lt;/p>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/components-of-kubernetes.svg"
+loading="lazy"
+alt="components-of-kubernetes"
+>&lt;/p>
+&lt;h2 id="pod">Pod&lt;/h2>
+&lt;ul>
+&lt;li>Pod
+&lt;ul>
+&lt;li>自主式Pod&lt;/li>
+&lt;li>控制器管理的Pod(建议使用)
+&lt;ul>
+&lt;li>ReplicationController(副本控制器)&lt;/li>
+&lt;li>ReplicaSet(副本集控制器 不直接使用 有一个声明式更新的控制器Deployment)&lt;/li>
+&lt;li>Deployment(管理无状态应用)
+&lt;ul>
+&lt;li>HPA(HorizontalPodAutoscaler) 水平Pod自动伸缩控制器&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>StatefulSet(有状态副本集)&lt;/li>
+&lt;li>DaemonSet&lt;/li>
+&lt;li>Job/CronJob&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Label
+&lt;ul>
+&lt;li>Label Selector&lt;/li>
+&lt;li>Label: key=value&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="service">Service&lt;/h2>
+&lt;ul>
+&lt;li>iptables的DNAT规则(调度多个service后端 ipvs规则)&lt;/li>
+&lt;li>靠标签选择器 关联Pod对象&lt;/li>
+&lt;li>service 名称 可以被解析(DNS Pod实现解析 - 基础架构级的Pod)
+&lt;ul>
+&lt;li>基础架构级Pod &lt;code>AddOns&lt;/code>集群附加组件 支撑其他服务需要使用到的服务&lt;/li>
+&lt;li>动态更新DNS解析&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="网络通信">网络通信&lt;/h2>
+&lt;ul>
+&lt;li>同一个Pod内的多个容器间: lo&lt;/li>
+&lt;li>各Pod之间的通信(不直接通信 通过Service通信)
+&lt;ul>
+&lt;li>二层广播 -&amp;gt; 广播风暴&lt;/li>
+&lt;li>Overlay Network 叠加网络
+&lt;ul>
+&lt;li>需要确保每一个Pod网络地址不会冲突&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Pod和Service之间的通信&lt;/li>
+&lt;/ul>
+&lt;p>依赖第三方插件(附件) 通过CNI(容器网络接口)接入&lt;/p>
+&lt;ul>
+&lt;li>flannel: 网络配置 Pod网络-10.244.0.0/16&lt;/li>
+&lt;li>calico: 网络配置 网络策略(Pod之间、Namespace&amp;hellip;之间的访问或隔离)&lt;/li>
+&lt;li>canel: 上面两种搭配使用&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/k8s-network.png"
+width="2156"
+height="1074"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/k8s-network_hu450a176e8d46831d14cdc75349a18d18_2340849_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/k8s-network_hu450a176e8d46831d14cdc75349a18d18_2340849_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="k8s-network"
+class="gallery-image"
+data-flex-grow="200"
+data-flex-basis="481px"
+>&lt;/p>
+&lt;h2 id="namespace">Namespace&lt;/h2>
+&lt;ul>
+&lt;li>管理的边界&lt;/li>
+&lt;li>隔离不同名称空间的网络&lt;/li>
+&lt;/ul>
+&lt;h2 id="初始化kubernetes集群">初始化Kubernetes集群&lt;/h2>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/structure.png"
+width="600"
+height="498"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/structure_hu12b93151174b3e04ef92f8cdd319b528_196054_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/structure_hu12b93151174b3e04ef92f8cdd319b528_196054_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="structure"
+class="gallery-image"
+data-flex-grow="120"
+data-flex-basis="289px"
+>&lt;/p>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/k8s-network-structure02.png"
+width="2418"
+height="1128"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/k8s-network-structure02_hu86518e8c49d554475a7b0c3fae4a2e9e_2485545_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/k8s-network-structure02_hu86518e8c49d554475a7b0c3fae4a2e9e_2485545_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="structure02"
+class="gallery-image"
+data-flex-grow="214"
+data-flex-basis="514px"
+>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/kubernetes/kubeadm" target="_blank" rel="noopener"
+>kubeadm&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>master/nodes: 安装&lt;code>kubetlet&lt;/code> &lt;code>kubeadm&lt;/code> &lt;code>docker&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>master: &lt;code>kubeadm init&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># master init&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo kubeadm init &lt;span class="se">\ &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> --kubernetes-version&lt;span class="o">=&lt;/span>v1.20.15 &lt;span class="se">\ &lt;/span> &lt;span class="c1"># k8s版本&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> --pod-network-cidr&lt;span class="o">=&lt;/span>10.244.0.0/16 &lt;span class="se">\ &lt;/span> &lt;span class="c1"># pod网段&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> --service-cidr&lt;span class="o">=&lt;/span>10.96.0.0/12 &lt;span class="se">\ &lt;/span> &lt;span class="c1"># service网段&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> --ignore-preflight-errors&lt;span class="o">=&lt;/span>Swap &lt;span class="c1"># 忽略预检错误&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>nodes: &lt;code>kubeadm join&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># nodes join&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo kubeadm join &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> 10.211.55.57:6443 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --token hewmhd.fro3dttm001dohys &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --discovery-token-ca-cert-hash sha256:826faddde57dc07d0fbf31e7aa809eb5fc22613787a2fc8ab50f55c4e706cd45
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>Images&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">ilolicon@master:~$ sudo docker image ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REPOSITORY TAG IMAGE ID CREATED SIZE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/kube-apiserver v1.20.15 3ecdeee1255c &lt;span class="m">7&lt;/span> months ago 113MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/kube-controller-manager v1.20.15 403106abce42 &lt;span class="m">7&lt;/span> months ago 108MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/kube-scheduler v1.20.15 bfc1b1725466 &lt;span class="m">7&lt;/span> months ago 44.1MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/kube-proxy v1.20.15 3c1b1abd329d &lt;span class="m">7&lt;/span> months ago 93.6MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/etcd 3.4.13-0 05b738aa1bc6 &lt;span class="m">24&lt;/span> months ago 312MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/coredns 1.7.0 db91994f4ee8 &lt;span class="m">2&lt;/span> years ago 42.8MB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k8s.gcr.io/pause 3.2 2a060e2e7101 &lt;span class="m">2&lt;/span> years ago 484kB &lt;span class="c1"># 创建基础架构容器使用 为Pod提供底层基础结构 无需启动和运行&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="kuberntes资源概述">Kuberntes资源概述&lt;/h2>
+&lt;ul>
+&lt;li>RESTful风格API
+&lt;ul>
+&lt;li>GET、POST、DELETE、PUT&amp;hellip;&lt;/li>
+&lt;li>kubectl run、get、expose、edit&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>资源(对象)
+&lt;ul>
+&lt;li>workload: Pod、ReplicaSet、Deployment、StatefulSet、DaemonSet、Job、Cronjob&amp;hellip;&lt;/li>
+&lt;li>服务发现与均衡: Service、Ingress&amp;hellip;&lt;/li>
+&lt;li>配置与存储: Volume、CSI&amp;hellip;
+&lt;ul>
+&lt;li>ConfigMap、Secret&lt;/li>
+&lt;li>DownwardAPI&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>集群级资源
+&lt;ul>
+&lt;li>Namespace、Node、Role、ClusterRole、RoleBinding、ClusterRoleBinding&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>元数据型资源
+&lt;ul>
+&lt;li>HPA、PodTemplate、LimitRange&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="资源清单定义">资源清单定义&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>创建资源的方法&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>apiserver仅接收json格式的资源定义&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>yaml格式提供配置清单 apiserver可自动将其转换为json格式 而后再提交&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>大部分资源的配置清单 主要都有五个主要的部分组成&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>apiversion&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>kubectl api-versions&lt;/code> # 所属API群组&lt;/li>
+&lt;li>标识方式: &lt;code>group/version&lt;/code> 省略组名则为core group&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>kind: 资源类别&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>metadata: 元数据&lt;/p>
+&lt;ul>
+&lt;li>name: 同一类别中 name需要唯一&lt;/li>
+&lt;li>namespace: 所属k8s的哪个名称空间&lt;/li>
+&lt;li>labels&lt;/li>
+&lt;li>annotations&lt;/li>
+&lt;li>每个资源的引用PATH
+&lt;ul>
+&lt;li>&lt;code>/api/${GROUP/VERSION}/namespace/${NAMESPACE}/${TYPE}/${NAME}&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>spec(重要): 定义用户期望的状态 disired state&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>status: 当前状态 current state 本字段由Kubernetes集群维护&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>字段太多 可以借助&lt;code>kubectl explain --help&lt;/code>命令查看详细信息&lt;/p>
+&lt;ul>
+&lt;li>kubectl explain pod&lt;/li>
+&lt;li>kubectl explain pod.metadata&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="pod概述">Pod概述&lt;/h3>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/" target="_blank" rel="noopener"
+>pods&lt;/a>&lt;/p>
+&lt;h4 id="自主式pod">自主式Pod&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">pod-demo&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">namespace&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">default&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tier&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">frontend&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx:alpine&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;-c&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;sleep 3600&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="pod资源">Pod资源&lt;/h4>
+&lt;ul>
+&lt;li>
+&lt;p>spec.containers &amp;lt;[]object&amp;gt;&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># kubectl explain pod.spec.containers&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;string&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;string&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullPolicy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;string&amp;gt; &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># Always Never IfNotPresent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 修改镜像中的默认应用&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="l">command/args&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>标签&lt;/p>
+&lt;ul>
+&lt;li>key = value
+&lt;ul>
+&lt;li>key: 字母 数字 _ - .&lt;/li>
+&lt;li>value: 可以为空 只能字母或数字开头及结尾&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>标签选择器&lt;/p>
+&lt;ul>
+&lt;li>等值关系: =、==、!=(不等于会筛选出不具有该标签的资源)&lt;/li>
+&lt;li>集合关系
+&lt;ul>
+&lt;li>KEY in (VALUE1,VALUE2,&amp;hellip;)&lt;/li>
+&lt;li>KEY notin (VALUE1,VALUE2,&amp;hellip;)&lt;/li>
+&lt;li>KEY # 存在这个KEY就行&lt;/li>
+&lt;li>!KEY # 不存在此键的资源&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>许多资源支持内嵌字段来使用标签选择器&lt;/p>
+&lt;ul>
+&lt;li>matchLabels: 直接给定键值&lt;/li>
+&lt;li>matchExpressions: 基于给定的表达式来定义使用标签选择器
+&lt;ul>
+&lt;li>{key: &amp;ldquo;KEY&amp;rdquo;, operator: &amp;ldquo;OPERATOR&amp;rdquo;,values:[VAL1,VAL2,VAL3,&amp;hellip;]&lt;/li>
+&lt;li>操作符
+&lt;ul>
+&lt;li>In、NotIn: values字段的值必须为非空列表&lt;/li>
+&lt;li>Exists、NotExists: values字段的值必须为空列表&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>spec.nodeSelector &amp;lt;map[striong]string&amp;gt;&lt;/p>
+&lt;ul>
+&lt;li>节点标签选择器&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>spec.nodeName &lt;code>&amp;lt;string&amp;gt;&lt;/code> # 直接指定运行node&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>annotations&lt;/p>
+&lt;ul>
+&lt;li>与label不同的地方在于 它不能用于挑选资源对象 仅用于为对象提供&lt;strong>元数据&lt;/strong>&lt;/li>
+&lt;li>没有键长度/值长度限制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>spec.restartPolicy&lt;/p>
+&lt;ul>
+&lt;li>重启策略: One of Always, OnFailure, Never. Default to Always&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="pod生命周期">Pod生命周期&lt;/h4>
+&lt;ul>
+&lt;li>
+&lt;p>状态&lt;/p>
+&lt;ul>
+&lt;li>Pending # 调度尚未完成&lt;/li>
+&lt;li>Running # 运行状态&lt;/li>
+&lt;li>Failed&lt;/li>
+&lt;li>Succeeded&lt;/li>
+&lt;li>Unknown&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Pod生命周期中的重要行为&lt;/p>
+&lt;ul>
+&lt;li>初始化容器&lt;/li>
+&lt;li>容器探测(自定义命令/TCP套接字发请求/HTTP应用层请求)
+&lt;ul>
+&lt;li>liveness probe: 探测容器是否存活&lt;/li>
+&lt;li>readiness probe: 探测容器是否准备就绪 能对外提供服务&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>钩子
+&lt;ul>
+&lt;li>post start&lt;/li>
+&lt;li>pre stop&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/pod-lifecycle.png"
+width="1802"
+height="918"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/pod-lifecycle_hu63a9e9cf93a88172974cf2b0b759da82_82884_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/pod-lifecycle_hu63a9e9cf93a88172974cf2b0b759da82_82884_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="pod-lifecycle"
+class="gallery-image"
+data-flex-grow="196"
+data-flex-basis="471px"
+>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="pod容器探针类型">Pod容器探针类型&lt;/h4>
+&lt;p>&lt;code>kubectl explain pod.spec.containers.livenessProbe&lt;/code>&lt;/p>
+&lt;p>&lt;code>kubectl explain pod.spec.containers.readinessProbe&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>exec Action&lt;/li>
+&lt;li>httpGet Action&lt;/li>
+&lt;li>tcpSocket Action&lt;/li>
+&lt;/ul>
+&lt;h4 id="pod控制器">Pod控制器&lt;/h4>
+&lt;ul>
+&lt;li>
+&lt;p>ReplicaSet&lt;/p>
+&lt;ul>
+&lt;li>Kubectl explain replicaset&lt;/li>
+&lt;li>用户期望副本数 标签选择器 Pod资源模版&lt;/li>
+&lt;li>不建议直接使用ReplicaSet&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">apps/v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ReplicaSet&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">namespace&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">default&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">replicas&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">selector&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">matchLabels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">release&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">canary&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp-pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">release&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">canary&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">environment&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">qa&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp-container&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx:alpine&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ports&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">http&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containerPort&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">80&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>Deployment&lt;/p>
+&lt;ul>
+&lt;li>构建在ReplicaSet之上 而非Pod
+&lt;ul>
+&lt;li>实现滚动更新(多出或少于N个副本 控制更新粒度)、回滚&lt;/li>
+&lt;li>通常管理10个历史版本(ReplicaSet)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>管理无状态应用最好的控制器&lt;/li>
+&lt;li>无状态(只关注群体、不关注个体)、持续运行应用&lt;/li>
+&lt;li>声明式管理(即可以创建 也可以更新 &lt;code>kubectl apply -f deployment.yaml&lt;/code>)&lt;/li>
+&lt;li>&lt;code>kubectl rollout history&lt;/code> 查看滚动历史&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/deployment-update.png"
+width="1728"
+height="566"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/deployment-update_hu1b11393a4a96395d8bc44f2effe78eee_1490645_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/deployment-update_hu1b11393a4a96395d8bc44f2effe78eee_1490645_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="deployment-update"
+class="gallery-image"
+data-flex-grow="305"
+data-flex-basis="732px"
+>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>DaemonSet&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>kubectl explain deployment.spec.strategy.rollingUpdate&lt;/code> # 滚动更新策略&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>确保集群中的每一个节点(或部分满足条件的节点)精确运行一个Pod副本&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>通常用于一些系统级的后台任务&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>无状态、持续运行应用&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Job&lt;/p>
+&lt;ul>
+&lt;li>只做一次 只要完成就正常退出 没完成才进行重构&lt;/li>
+&lt;li>执行一次性的作业&lt;/li>
+&lt;li>不需要持续在后台运行 执行完成就退出&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Cronjob&lt;/p>
+&lt;ul>
+&lt;li>周期性Job&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>StatefulSet&lt;/p>
+&lt;ul>
+&lt;li>管理有状态应用&lt;/li>
+&lt;li>每一个pod副本单独管理 拥有自己独有的标识和独有的数据集&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>TPR: Third Party Resources 1.2+ - 1.7&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>CDE: Custom Defined Resources 1.8+&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Operator&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="service概述">Service概述&lt;/h3>
+&lt;h4 id="service代理">Service代理&lt;/h4>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/" target="_blank" rel="noopener"
+>services-networking&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>userspace
+&lt;ul>
+&lt;li>kube-proxy会监视Kubernetes控制平面对Service对象和Endpoints对象的添加和移除操作&lt;/li>
+&lt;li>对每个Service它会在本地Node上打开一个端口(随机选择) 任何连接到&lt;strong>代理端口&lt;/strong>的请求 都会被代理到Service的后端&lt;code>Pods&lt;/code>中的某个上面
+&lt;ul>
+&lt;li>使用哪个后端Pod是 kube-proxy 基于&lt;code>SessionAffinity&lt;/code>来确定的&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>最后 它配置 iptables 规则 捕获到达该 Service 的&lt;code>clusterIP&lt;/code>(是虚拟 IP)和&lt;code>Port&lt;/code>的请求 并重定向到代理端口 代理端口再代理请求到后端Pod
+&lt;ul>
+&lt;li>默认情况下 用户空间模式下的kube-proxy通过轮转算法选择后端&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>流量来回在内核和用户空间切换 效率较低&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/services-userspace-overview.svg"
+loading="lazy"
+alt="services-userspace-overview"
+>&lt;/p>
+&lt;ul>
+&lt;li>iptables
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>kube-proxy&lt;/code>会监视Kubernetes控制节点对Service对象和Endpoints对象的添加和移除&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>对每个Service 它会配置iptables规则 从而捕获到达该Service的&lt;code>clusterIP&lt;/code>和端口的请求 进而将请求重定向到 Service 的一组后端中的某个Pod上面&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>对于每个Endpoints对象 它也会配置iptables规则 这个规则会选择一个后端组合&lt;/p>
+&lt;ul>
+&lt;li>默认的策略是 kube-proxy在iptables模式下随机选择一个后端&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>使用iptables处理流量具有较低的系统开销 因为流量由Linux netfilter处理 而无需在用户空间和内核空间之间切换 这种方法也可能更可靠&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果kube-proxy在iptables模式下运行 并且所选的第一个 Pod 没有响应 则连接失败&lt;/p>
+&lt;ul>
+&lt;li>这与用户空间模式不同: 在这种情况下 kube-proxy将检测到与第一个Pod的连接已失败 并会自动使用其他后端Pod 重试&lt;/li>
+&lt;li>可以使用Pod&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/#container-probes" target="_blank" rel="noopener"
+>就绪探测器&lt;/a> 验证后端Pod可以正常工作 以便iptables模式下的kube-proxy仅看到测试正常的后端 避免将流量通过kube-proxy发送到已知已失败的 Pod&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/services-iptables-overview.svg"
+loading="lazy"
+alt="services-iptables-overview"
+>&lt;/p>
+&lt;ul>
+&lt;li>ipvs
+&lt;ul>
+&lt;li>
+&lt;p>特性状态： Kubernetes v1.11 [stable]&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>在&lt;code>ipvs&lt;/code>模式下 kube-proxy监视Kubernetes服务和端点 调用&lt;code>netlink&lt;/code>接口创建相应的IPVS规则 并定期将IPVS规则与Kubernetes服务和端点同步 该控制循环可确保 IPVS 状态与所需状态匹配&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>访问服务时 IPVS将流量定向到后端Pod之一&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>IPVS代理模式基于类似于iptables模式的netfilter挂钩函数 但是使用哈希表作为基础数据结构 并且在内核空间中工作&lt;/p>
+&lt;ul>
+&lt;li>这意味着 与iptables模式下的kube-proxy相比 IPVS模式下的kube-proxy重定向通信的延迟要短 并且在同步代理规则时具有更好的性能&lt;/li>
+&lt;li>与其他代理模式相比 IPVS模式还支持更高的网络流量吞吐量&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>IPVS提供了更多选项来平衡后端Pod的流量&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>rr&lt;/code>: 轮询(Round-Robin)&lt;/li>
+&lt;li>&lt;code>lc&lt;/code>: 最少链接(Least Connection) 即打开链接数量最少者优先&lt;/li>
+&lt;li>&lt;code>dh&lt;/code>: 目标地址哈希(Destination Hashing)&lt;/li>
+&lt;li>&lt;code>sh&lt;/code>: 源地址哈希(Source Hashing)&lt;/li>
+&lt;li>&lt;code>sed&lt;/code>: 最短预期延迟(Shortest Expected Delay)&lt;/li>
+&lt;li>&lt;code>nq&lt;/code>: 从不排队(Never Queue)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>备注&lt;/p>
+&lt;ul>
+&lt;li>要在IPVS模式下运行kube-proxy必须在启动kube-proxy之前使IPVS在节点上可用&lt;/li>
+&lt;li>当kube-proxy以IPVS代理模式启动时 它将验证IPVS内核模块是否可用
+&lt;ul>
+&lt;li>如果未检测到IPVS内核模块 则kube-proxy将退回到以iptables代理模式运行&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/services-ipvs-overview.svg"
+loading="lazy"
+alt="services-ipvs-overview"
+>&lt;/p>
+&lt;h4 id="service类型">Service类型&lt;/h4>
+&lt;ul>
+&lt;li>ClusterIP: 通过集群的内部IP暴露服务 选择该值时服务只能够在集群内部访问 这也是默认的&lt;code>ServiceType&lt;/code>&lt;/li>
+&lt;li>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/#type-nodeport" target="_blank" rel="noopener"
+>NodePort&lt;/a>: 通过每个节点上的IP和静态端口(NodePort)暴露服务 NodePort服务会路由到自动创建的ClusterIP服务
+&lt;ul>
+&lt;li>通过请求 &lt;code>&amp;lt;节点IP&amp;gt;:&amp;lt;节点端口&amp;gt;&lt;/code> 你可以从集群的外部访问一个NodePort服务&lt;/li>
+&lt;li>Client -&amp;gt; NodeIP:NodePort -&amp;gt; ClusterIP:ServicePort -&amp;gt; PodIP:containerPort&lt;/li>
+&lt;li>为避免单Node压力过大 会在外面再加一层负载均衡
+&lt;ul>
+&lt;li>公有云环境: LBaaS(参考下面LoadBalancer类型)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/#loadbalancer" target="_blank" rel="noopener"
+>LoadBalancer&lt;/a>: 使用云提供商的负载均衡器向外部暴露服务 外部负载均衡器可以将流量路由到自动创建的NodePort服务和ClusterIP服务上&lt;/li>
+&lt;li>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/service/#externalname" target="_blank" rel="noopener"
+>ExternalName&lt;/a>: 通过返回CNAME和对应值 可以将服务映射到externalName字段的内容(例如&lt;code>foo.bar.example.com&lt;/code>) 无需创建任何类型代理
+&lt;ul>
+&lt;li>FQDN(CoreDNS 内部解析)
+&lt;ul>
+&lt;li>CNAME -&amp;gt; FQDN(外部真正的FQDN )&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="headless-services无头service">Headless Services(无头Service)&lt;/h4>
+&lt;ul>
+&lt;li>有时不需要或不想要负载均衡 以及单独的Service IP 遇到这种情况 可以通过指定Cluster IP(&lt;code>spec.clusterIP&lt;/code>)的值为 &lt;code>&amp;quot;None&amp;quot;&lt;/code>来创建 &lt;code>Headless&lt;/code> Service&lt;/li>
+&lt;li>你可以使用一个无头Service与其他服务发现机制进行接口 而不必与Kubernetes的实现捆绑在一起&lt;/li>
+&lt;li>对于无头&lt;code>Services&lt;/code>并不会分配Cluster IP kube-proxy不会处理它们 而且平台也不会为它们进行负载均衡和路由 DNS如何实现自动配置 依赖于Service是否定义了选择算符&lt;/li>
+&lt;/ul>
+&lt;h3 id="ingress">Ingress&lt;/h3>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/ingress-flow.png"
+width="1182"
+height="886"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/ingress-flow_hu9c99a0266fa357bab5ac86316de97a76_1018969_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/ingress-flow_hu9c99a0266fa357bab5ac86316de97a76_1018969_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ingress-flow"
+class="gallery-image"
+data-flex-grow="133"
+data-flex-basis="320px"
+>&lt;/p>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress/" target="_blank" rel="noopener"
+>ingress&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>Service对后端特定类型Pod分类(label selector)&lt;/li>
+&lt;li>Ingress基于上面的分类识别后端Pod 并生成配置信息注入到nginx(需要重载配置)/envoy/traefik等&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress-controllers/" target="_blank" rel="noopener"
+>ingress-controllers&lt;/a>&lt;/p>
+&lt;h3 id="存储卷">存储卷&lt;/h3>
+&lt;p>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/storage/" target="_blank" rel="noopener"
+>kubernetes-storage&lt;/a>&lt;/p>
+&lt;p>&lt;code>kubectl explain pods.spec.volumes&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>emptyDir # 临时目录 随pod删除而消失(生命周期同pod)
+&lt;ul>
+&lt;li>gitRepo(clone到机器 修改不会同步 需要同步可以自己再做一个sidecar)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>hostPath # 宿主机路径&lt;/li>
+&lt;li>SAN(iSCSI&amp;hellip;)、NAS(nfs、cifs&amp;hellip;)&lt;/li>
+&lt;li>分布式存储
+&lt;ul>
+&lt;li>glusterfs、rdb、cephfs&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>云存储
+&lt;ul>
+&lt;li>EBS、Azure Disk&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="pvpvc">PV/PVC&lt;/h4>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/pvc.png"
+width="2068"
+height="1350"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/pvc_hufc33b2495877c5db5264e9558db08b3f_2577789_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/pvc_hufc33b2495877c5db5264e9558db08b3f_2577789_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="pvc"
+class="gallery-image"
+data-flex-grow="153"
+data-flex-basis="367px"
+>&lt;/p>
+&lt;h4 id="storageclass">StorageClass&lt;/h4>
+&lt;ul>
+&lt;li>存储设备需支持RESTful风格的创建请求&lt;/li>
+&lt;li>根据请求动态创建PV&lt;/li>
+&lt;/ul>
+&lt;h4 id="configmap">ConfigMap&lt;/h4>
+&lt;ul>
+&lt;li>ConfigMap是一种 API 对象 用来将非机密性的数据保存到键值对中&lt;/li>
+&lt;li>使用时&lt;a class="link" href="https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/" target="_blank" rel="noopener"
+>Pods&lt;/a>可以将其用作环境变量、命令行参数或者存储卷中的配置文件&lt;/li>
+&lt;li>ConfigMap将你的环境配置信息和&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-image" target="_blank" rel="noopener"
+>容器镜像&lt;/a>解耦 便于应用配置的修改&lt;/li>
+&lt;/ul>
+&lt;h5 id="容器化配置应用方式">容器化配置应用方式&lt;/h5>
+&lt;ul>
+&lt;li>自定义命令行参数
+&lt;ul>
+&lt;li>args: []&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>把配置文件直接打包至镜像&lt;/li>
+&lt;li>环境变量
+&lt;ul>
+&lt;li>CloudNative的应用程序一般可直接通过环境变量加载配置&lt;/li>
+&lt;li>通过entrypoint脚本来预处理变量为配置文件中的配置信息&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>存储卷&lt;/li>
+&lt;/ul>
+&lt;h4 id="secret">Secret&lt;/h4>
+&lt;ul>
+&lt;li>Secret是一种包含少量敏感信息例如密码、令牌或密钥的对象 这样的信息可能会被放在&lt;a class="link" href="https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/" target="_blank" rel="noopener"
+>Pod&lt;/a>规约中或者镜像中&lt;/li>
+&lt;li>使用Secret意味着你不需要在应用程序代码中包含机密数据&lt;/li>
+&lt;li>Secret类似于&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-pod-configmap/" target="_blank" rel="noopener"
+>ConfigMap&lt;/a>但专门用于保存敏感数据&lt;/li>
+&lt;/ul>
+&lt;h2 id="statefulset控制器">StatefulSet控制器&lt;/h2>
+&lt;ul>
+&lt;li>
+&lt;p>CoreOS Operator&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>cattle/pet # 一个关注群体 一个关注个体(和无状态应用的区别)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>PetSet(1.3) -&amp;gt; StatefulSet(1.5+)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>StatefulSet主要用于管理有以下特性的应用程序&lt;/p>
+&lt;ul>
+&lt;li>稳定且唯一的网络标识符&lt;/li>
+&lt;li>稳定且持久的存储&lt;/li>
+&lt;li>有序、平滑的部署和扩展&lt;/li>
+&lt;li>有序、平滑的终止和删除&lt;/li>
+&lt;li>有序的滚动更新&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>一般来说 一个典型的StatefulSet由三个组件组成&lt;/p>
+&lt;ul>
+&lt;li>handless service # 无头服务 确保名称唯一&lt;/li>
+&lt;li>StatefulSet # 控制器&lt;/li>
+&lt;li>volumeClaimTemplate # 存储卷申请模版(不能使用同一存储卷 pod模版创建的存储卷都是一样的 所以需要卷申请模版)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>kubelet explain sts.spec.updateStrategy.rollingUpdate&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>partition &amp;lt;inter&amp;gt; # 控制更新的Pod&lt;/li>
+&lt;li>partition: N # 大于等于编号N的Pod将被更新 默认值: 0&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="认证及serviceaccount">认证及ServiceAccount&lt;/h2>
+&lt;h3 id="认证授权">认证授权&lt;/h3>
+&lt;ul>
+&lt;li>认证(支持多种认证方式) # 认证插件
+&lt;ul>
+&lt;li>令牌认证 bearer token&lt;/li>
+&lt;li>ssl认证(确认服务端/客户端身份) 双向证书认证(https)&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>授权检查(权限) # 授权插件
+&lt;ul>
+&lt;li>RBAC # kubeadm部署的集群强制开启RBAC&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>准入控制(关联的其他资源或操作 是否有权限 进一步补充授权机制)&lt;/li>
+&lt;li>API Server需要信息去识别客户端的操作
+&lt;ul>
+&lt;li>user: username + uid&lt;/li>
+&lt;li>group&lt;/li>
+&lt;li>extra&lt;/li>
+&lt;li>API(请求的Kubernetes API)
+&lt;ul>
+&lt;li>Request Path
+&lt;ul>
+&lt;li>&lt;code>kubectl proxy --port=8080&lt;/code>&lt;/li>
+&lt;li>&lt;code>curl http://localhost:8080/api/v1/namespaces&lt;/code>&lt;/li>
+&lt;li>&lt;code>curl http://localhost:8080/apis/apps/v1/namespaces/default/deployments/myapp-deploy/&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>HTTP request verb
+&lt;ul>
+&lt;li>GET POST PUT DELETE&lt;/li>
+&lt;li>get list create update patch watch proxy redirect delete deletecollection&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Resources&lt;/li>
+&lt;li>SubResources&lt;/li>
+&lt;li>Namespace&lt;/li>
+&lt;li>API Group&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="serviceaccount">ServiceAccount&lt;/h3>
+&lt;ul>
+&lt;li>访问APIServer的两种客户端
+&lt;ul>
+&lt;li>kubectl/dashborad 集群外部客户端(userAccount)&lt;/li>
+&lt;li>pod 集群内部客户端(serviceAccount)
+&lt;ul>
+&lt;li>&lt;code>kubectl explain pods.spec.serviceAccountName&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>kubeconfig
+&lt;ul>
+&lt;li>&lt;code>kubectl config view&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="rbac授权">RBAC授权&lt;/h3>
+&lt;ul>
+&lt;li>授权插件
+&lt;ul>
+&lt;li>Node&lt;/li>
+&lt;li>ABAC(&lt;em>Attribute-based access control&lt;/em>)&lt;/li>
+&lt;li>RBAC(&lt;em>Role-based access contro&lt;/em>)&lt;/li>
+&lt;li>Webhook&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/k8s-RBAC.png"
+width="1364"
+height="768"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/k8s-RBAC_hu93382d84de46ca6bdd4d6c35df8f4890_1483186_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/k8s-RBAC_hu93382d84de46ca6bdd4d6c35df8f4890_1483186_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="k8s-RBAC"
+class="gallery-image"
+data-flex-grow="177"
+data-flex-basis="426px"
+>&lt;/p>
+&lt;ul>
+&lt;li>K8S-RBAC
+&lt;ul>
+&lt;li>role
+&lt;ul>
+&lt;li>operations&lt;/li>
+&lt;li>objects&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>rolebinding
+&lt;ul>
+&lt;li>user account OR service account&lt;/li>
+&lt;li>role&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>kubectl create role pods-reader --verb=get,list,watch --resource=pods --dry-run -o yaml&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/kubernetes/icons/role-binding.png"
+width="1498"
+height="1096"
+srcset="https://ilolicon.github.io/p/kubernetes/icons/role-binding_hue49744d6898b8c4106d004f8692e3f91_1070895_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/kubernetes/icons/role-binding_hue49744d6898b8c4106d004f8692e3f91_1070895_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="role-binding"
+class="gallery-image"
+data-flex-grow="136"
+data-flex-basis="328px"
+>&lt;/p>
+&lt;h2 id="helm">Helm&lt;/h2>
+&lt;ul>
+&lt;li>类似yum&lt;/li>
+&lt;/ul>
+&lt;h2 id="reference">Reference&lt;/h2>
+&lt;ul>
+&lt;li>ubuntu&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://askubuntu.com/questions/428772/how-to-install-specific-version-of-some-package/428778#428778?newreg=d056242a7a0340598dd1d2d4fad63e81" target="_blank" rel="noopener"
+>apt install speciffic version&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.serverlab.ca/tutorials/containers/docker/how-to-set-the-proxy-for-docker-on-ubuntu/" target="_blank" rel="noopener"
+>set-proxy-on-ubuntu-docker&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://askubuntu.com/questions/2493/apt-get-or-aptitude-equivalent-to-yum-whatprovides" target="_blank" rel="noopener"
+>apt-get-like-yum-whatprovides&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>kubetnetes&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://stackoverflow.com/questions/63136175/kubectl-get-componentstatus-shows-unhealthy" target="_blank" rel="noopener"
+>kubectl-get-commponentstatus-shows-unhealthy&lt;/a>&lt;/p></description></item></channel></rss>
