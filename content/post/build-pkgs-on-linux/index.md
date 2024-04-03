@@ -293,3 +293,7 @@ EXAMPLE
            machine example.net login apt password debian
 
 ```
+
+### deb镜像同步
+
+[镜像同步说明](https://bbs.lingmo.org/blog/61-jing-xiang-tong-bu-shuo-ming)
