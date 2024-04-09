@@ -5971,6 +5971,7 @@ func main() {
 2. 配置SSH密钥(步骤省略)
 
 3. 使用ssh替换https拉取依赖
+# 使用环境变量$GOPRIVATE 需要提前export
 git config --global url."git@$GOPRIVATE:".insteadOf "https://$GOPRIVATE"
 
 ```
