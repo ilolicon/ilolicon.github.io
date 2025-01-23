@@ -50,6 +50,8 @@ tags:
 
 ### 二进制安装
 
+[参考kubeasz项目](https://github.com/easzlab/kubeasz)
+
 ### kubeadm安装
 
 [使用kubeadm引导集群](https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/)
@@ -92,19 +94,19 @@ tags:
 
 - 安装docker-ce
 
-  ```bash
-  apt -y install apt-transport-https ca-certificates curl software-properties-common
-  curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
-  add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
-  apt update
+```bash
+apt -y install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+apt update
 
-  # 安装docker-ce
-  apt -y install docker-ce
+# 安装docker-ce
+apt -y install docker-ce
 
-  # 进行完下面配置后 重启服务
-  systemctl restart docker
-  ststemctl enable docker
-  ```
+# 进行完下面配置后 重启服务
+systemctl restart docker
+ststemctl enable docker
+```
 
 - docker配置
   - kubelet需要让docker容器引擎使用systemd作为CGroup的驱动 其默认值为cgroupfs
@@ -112,19 +114,19 @@ tags:
   - 其中的registry-mirrors用于指明使用的镜像加速服务 参考[国内无法下载Docker镜像的多种解决方案](https://isedu.top/index.php/archives/225/)
   - 提示: 自Kubernetes v1.22版本开始 未明确设置kubelet的cgroup driver时 则默认即会将其设置为systemd
 
-  ```json
-  {
-  "registry-mirrors": [
-    "https://dockerpull.cn"
-  ],
-  "exec-opts": ["native.cgroupdriver=systemd"],
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "200m"
-  },
-  "storage-driver": "overlay2"  
-  }
-  ```
+```json
+{
+"registry-mirrors": [
+  "https://dockerpull.cn"
+],
+"exec-opts": ["native.cgroupdriver=systemd"],
+"log-driver": "json-file",
+"log-opts": {
+  "max-size": "200m"
+},
+"storage-driver": "overlay2"  
+}
+```
 
 - 为docker设置代理(可选)
   - Kubeadm部署Kubernetes集群的过程中 默认使用Google的Registry服务registry.k8s.io上的镜像
@@ -133,24 +135,24 @@ tags:
   - 若选择使用国内的镜像服务 则配置代理服务的步骤为可选
   - 设置代理配置 编辑/lib/systemd/system/docker.service
 
-  ```bash
-  # 重要提示: 
-    # 节点网络(例如本示例中使用的192.168.0.0/16)
-    # Pod网络(例如本示例中使用的10.244.0.0/16)
-    # Service网络(例如本示例中使用的10.96.0.0/12)以及127网络等本地使用的网络
-    # 必须明确定义为不使用所配置的代理 否则将很有可能带来无法预知的本地网络通信故障
+```bash
+# 重要提示: 
+  # 节点网络(例如本示例中使用的192.168.0.0/16)
+  # Pod网络(例如本示例中使用的10.244.0.0/16)
+  # Service网络(例如本示例中使用的10.96.0.0/12)以及127网络等本地使用的网络
+  # 必须明确定义为不使用所配置的代理 否则将很有可能带来无法预知的本地网络通信故障
 
-  # 请将下面配置段中的 $PROXY_SERVER_IP 替换为你的代理服务器地址
-  # 将$PROXY_PORT 替换为你的代理服所监听的端口
-  # 另外还要注意所使用的协议http是否同代理服务器提供服务的协议相匹配 如有必要 请自行修改为https
-  Environment="HTTP_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
-  Environment="HTTPS_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
-  Environment="NO_PROXY=127.0.0.0/8,172.17.0.0/16,172.29.0.0/16,10.244.0.0/16,192.168.0.0/16,10.96.0.0/12,magedu.com,cluster.local"
+# 请将下面配置段中的 $PROXY_SERVER_IP 替换为你的代理服务器地址
+# 将$PROXY_PORT 替换为你的代理服所监听的端口
+# 另外还要注意所使用的协议http是否同代理服务器提供服务的协议相匹配 如有必要 请自行修改为https
+Environment="HTTP_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
+Environment="HTTPS_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
+Environment="NO_PROXY=127.0.0.0/8,172.17.0.0/16,172.29.0.0/16,10.244.0.0/16,192.168.0.0/16,10.96.0.0/12,magedu.com,cluster.local"
 
-  # 修改完配置重启服务
-  systemctl daemon-reload
-  systemctl restart docker
-  ```
+# 修改完配置重启服务
+systemctl daemon-reload
+systemctl restart docker
+```
 
 - 安装cri-dockerd
   - 直接去对应的[Github](https://github.com/Mirantis/cri-dockerd)项目下载对应的deb包安装
@@ -163,58 +165,58 @@ tags:
     - Docker社区提供的`containerd.io`(本文选择该种方式)
   - 安装并启动containerd.io
 
-  ```bash
-  # 生成containerd.io相关程序包的仓库 这里以阿里云的镜像服务器为例
-  apt -y install apt-transport-https ca-certificates curl software-properties-common
-  curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
-  add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
-  apt update
-  apt-get -y install containerd.io
-  ```
+```bash
+# 生成containerd.io相关程序包的仓库 这里以阿里云的镜像服务器为例
+apt -y install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+apt update
+apt-get -y install containerd.io
+```
 
 - 配置`containerd.io`
   - 运行如下命令打印并保存如下配置
 
-  ```bash
-  mkdir /etc/containerd
-  containerd config default > /etc/containerd/config.toml
-  ```
+```bash
+mkdir /etc/containerd
+containerd config default > /etc/containerd/config.toml
+```
 
-  - 编辑生成的配置文件 完成如下几项相关的配置
+- 编辑生成的配置文件 完成如下几项相关的配置
 
-  ```bash
-  # 1. 修改containerd使用SystemdCgroup
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-    SystemdCgroup = true
+```bash
+# 1. 修改containerd使用SystemdCgroup
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+  SystemdCgroup = true
 
-  # 2. 配置Containerd使用国内Mirror站点上的pause镜像及指定的版本
-  [plugins."io.containerd.grpc.v1.cri"]
-  sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
+# 2. 配置Containerd使用国内Mirror站点上的pause镜像及指定的版本
+[plugins."io.containerd.grpc.v1.cri"]
+sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
 
-  # 3. 配置Containerd使用国内的Image加速服务 以加速Image获取
-  [plugins."io.containerd.grpc.v1.cri".registry]
-  [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-      endpoint = ["https://docker.mirrors.ustc.edu.cn", "https://registry.docker-cn.com"]
+# 3. 配置Containerd使用国内的Image加速服务 以加速Image获取
+[plugins."io.containerd.grpc.v1.cri".registry]
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+    endpoint = ["https://docker.mirrors.ustc.edu.cn", "https://registry.docker-cn.com"]
 
-  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
-  endpoint = ["https://registry.aliyuncs.com/google_containers"]
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
+endpoint = ["https://registry.aliyuncs.com/google_containers"]
 
-  # 4. 配置Containerd使用私有镜像仓库 不存在要使用的私有ImageRegistry时 本步骤可省略
-  [plugins."io.containerd.grpc.v1.cri".registry]
-  [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.minho.com"]
-      endpoint = ["https://registry.minho.com"]
+# 4. 配置Containerd使用私有镜像仓库 不存在要使用的私有ImageRegistry时 本步骤可省略
+[plugins."io.containerd.grpc.v1.cri".registry]
+[plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.minho.com"]
+    endpoint = ["https://registry.minho.com"]
 
-  # 5. 配置私有镜像仓库跳过tls验证 若私有ImageRegistry能正常进行tls认证 则本步骤可省略
-  [plugins."io.containerd.grpc.v1.cri".registry.configs]
-    [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.minho.com".tls]
-      insecure_skip_verify = true
+# 5. 配置私有镜像仓库跳过tls验证 若私有ImageRegistry能正常进行tls认证 则本步骤可省略
+[plugins."io.containerd.grpc.v1.cri".registry.configs]
+  [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.minho.com".tls]
+    insecure_skip_verify = true
 
-  # 6. 重启服务
-  systemctl restart containerd
-  ```
+# 6. 重启服务
+systemctl restart containerd
+```
 
 - 配置crictl客户端
   - 安装containerd.io时 会自动安装命令行客户端工具crictl
@@ -223,12 +225,12 @@ tags:
   - 随后即可正常使用crictl程序管理Image/Container和Pod等对象
   - 另外containerd.io还有另一个名为ctr的客户端程序可以使用 其功能也更为丰富
 
-  ```bash
-  runtime-endpoint: unix:///run/containerd/containerd.sock
-  image-endpoint: unix:///run/containerd/containerd.sock
-  timeout: 10
-  debug: true
-  ```
+```bash
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 10
+debug: true
+```
 
 #### 安装kubelet/kubeadm/kubectl
 
