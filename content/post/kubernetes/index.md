@@ -16,19 +16,19 @@ tags:
 
 [![kubernetes](icons/kubernetes.svg)](https://kubernetes.io/)
 
-`container evolution`
+`Container Evolution`
 
 ![container_evolution](icons/container_evolution.svg)
 
 ## 容器编排
 
-- Ansible/Saltstack **传统应用**编排工具
-- Docker
-  - docker compose(docker单机编排)
-  - docker swarm(docker主机加入docker swarm资源池)
-  - docker machine(完成docker主机加入docker swarm资源池的先决条件/预处理工具)
-- Mesos(IDC OS) + marathon(面向容器编排的框架)
-- kubernetes(Borg)
+- `ansible/saltstack` **传统应用**编排工具
+- `docker`
+  - `docker compose` docker单机编排
+  - `docker swarm` docker主机加入docker swarm资源池
+  - `docker machine` 完成docker主机加入docker swarm资源池的先决条件/预处理工具
+- `mesos(idc os) + marathon` 面向容器编排的框架
+- `kubernetes(borg)`
   - 自动装箱(基于依赖 自动完成容器部署 不影响其可用性)
   - 自我修复
   - 水平扩展
@@ -38,145 +38,541 @@ tags:
   - 存储编排
   - 任务批量处理运行
 
-概念: `DevOps` `MicroServices` `Blockchain`
+## 概述
 
-- CI: 持续集成
-- CD: 持续交互 Delivery
-- CD: 持续部署 Deployment
+[概述](https://kubernetes.io/zh-cn/docs/concepts/overview/)
 
-## Kubernetes架构概述
+## 组件
 
-![kubernetes-cluster](icons/kubernetes_cluster.png)
+[Kubernetes组件](https://kubernetes.io/zh-cn/docs/concepts/overview/components/)
 
-- 有中心节点的集群架构系统(抽象各主机资源 统一对外提供计算)
-- Master/Node(Worker)
-  - Master
-    - etcd: 兼具一致性和高可用性的键值数据库 可以作为保存Kubernetes所有集群数据的后台数据库
-    - API Server(公开kubernetes API)
-    - Scheduler(调度器)
-    - Controller-Manager(控制器)
-      - 节点控制器(Node Controller): 负责在节点出现故障时进行通知和响应
-      - 任务控制器(Job controller): 监测代表一次性任务的Job对象 然后创建Pods来运行这些任务直至完成
-      - 端点控制器(Endpoints Controller): 填充端点(Endpoints)对象(即加入Service与Pod)
-      - 服务帐户和令牌控制器(Service Account & Token Controllers): 为新的命名空间创建默认帐户和API访问令牌
-  - Node
-    - kubelet: 集群代理 并不运行容器
-    - kube-proxy: 网络代理 管理Service的创建 更新(iptables/ipvs)
-    - 容器运行时(容器引擎): 运行容器 支持[Docker](https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/)/[containerd](https://containerd.io/docs/)/[CRI-O](https://cri-o.io/#what-is-cri-o)以及任何实现 [Kubernetes CRI (容器运行环境接口)](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md)
+## 集群安装
 
-[kubernetes组件](https://kubernetes.io/zh/docs/concepts/overview/components/)
+### 二进制安装
 
-![kuberbetes-cluster02](icons/kubernetes_cluster02.png)
+### kubeadm安装
 
-![components-of-kubernetes](icons/components-of-kubernetes.svg)
+[使用kubeadm引导集群](https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/)
 
-## Pod
-
-- Pod
-  - 自主式Pod
-  - 控制器管理的Pod(建议使用)
-    - ReplicationController(副本控制器)
-    - ReplicaSet(副本集控制器 不直接使用 有一个声明式更新的控制器Deployment)
-    - Deployment(管理无状态应用)
-      - HPA(HorizontalPodAutoscaler) 水平Pod自动伸缩控制器
-    - StatefulSet(有状态副本集)
-    - DaemonSet
-    - Job/CronJob
-  - Label
-    - Label Selector
-    - Label: key=value
-
-## Service
-
-- iptables的DNAT规则(调度多个service后端 ipvs规则)
-- 靠标签选择器 关联Pod对象
-- service 名称 可以被解析(DNS Pod实现解析 - 基础架构级的Pod)
-  - 基础架构级Pod `AddOns`集群附加组件 支撑其他服务需要使用到的服务
-  - 动态更新DNS解析
-
-## 网络通信
-
-- 同一个Pod内的多个容器间: lo
-- 各Pod之间的通信(不直接通信 通过Service通信)
-  - 二层广播 -> 广播风暴
-  - Overlay Network 叠加网络
-    - 需要确保每一个Pod网络地址不会冲突
-- Pod和Service之间的通信
-
-依赖第三方插件(附件) 通过CNI(容器网络接口)接入
-
-- flannel: 网络配置 Pod网络-10.244.0.0/16
-- calico: 网络配置 网络策略(Pod之间、Namespace...之间的访问或隔离)
-- canel: 上面两种搭配使用
-- ...
-
-![k8s-network](icons/k8s-network.png)
-
-## Namespace
-
-- 管理的边界
-- 隔离不同名称空间的网络
-
-## 初始化Kubernetes集群
+- 图中docker组件可以替换为其他容器运行时组件([CRI](https://kubernetes.io/zh-cn/docs/concepts/architecture/cri/))
+- 参考：[移除Dockershim的常见问题](https://kubernetes.io/zh-cn/blog/2022/02/17/dockershim-faq/)
 
 ![structure](icons/structure.png)
 
+- [CNI](https://kubernetes.io/zh-cn/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/)以[flannel](https://github.com/flannel-io/flannel)为例
+
 ![structure02](icons/k8s-network-structure02.png)
 
-- [kubeadm](https://github.com/kubernetes/kubeadm)
-  
-  - master/nodes: 安装`kubetlet` `kubeadm` `docker`
-  
-  - master: `kubeadm init`
-  
-    ```bash
-    # master init
-    sudo kubeadm init \ 
-      --kubernetes-version=v1.20.15 \     # k8s版本
-      --pod-network-cidr=10.244.0.0/16 \  # pod网段
-      --service-cidr=10.96.0.0/12 \       # service网段
-      --ignore-preflight-errors=Swap      # 忽略预检错误
-    ```
-  
-  - nodes: `kubeadm join`
-  
-    ```bash
-    # nodes join
-    sudo kubeadm join \
-      10.211.55.57:6443 \
-      --token hewmhd.fro3dttm001dohys \
-      --discovery-token-ca-cert-hash sha256:826faddde57dc07d0fbf31e7aa809eb5fc22613787a2fc8ab50f55c4e706cd45
-    ```
-  
-  - Images
-  
-    ```bash
-    ilolicon@master:~$ sudo docker image ls
-    REPOSITORY                           TAG        IMAGE ID       CREATED         SIZE
-    k8s.gcr.io/kube-apiserver            v1.20.15   3ecdeee1255c   7 months ago    113MB
-    k8s.gcr.io/kube-controller-manager   v1.20.15   403106abce42   7 months ago    108MB
-    k8s.gcr.io/kube-scheduler            v1.20.15   bfc1b1725466   7 months ago    44.1MB
-    k8s.gcr.io/kube-proxy                v1.20.15   3c1b1abd329d   7 months ago    93.6MB
-    k8s.gcr.io/etcd                      3.4.13-0   05b738aa1bc6   24 months ago   312MB
-    k8s.gcr.io/coredns                   1.7.0      db91994f4ee8   2 years ago     42.8MB
-    k8s.gcr.io/pause                     3.2        2a060e2e7101   2 years ago     484kB  # 创建基础架构容器使用 为Pod提供底层基础结构 无需启动和运行
-    ```
+#### 主机环境预设
 
-## Kuberntes资源概述
+- OS: Ubuntu 22.04 LTS
+- Kubernetes: v1.29.13
+- Container Runtime(二选一即可)
+  - containerd
+    - 官方仓库containerd
+    - 或Docker社区提供的containerd.io
+  - DockerCE-27.5.0 和 [cri-dockerd-0.3.16](https://github.com/Mirantis/cri-dockerd)
 
-- RESTful风格API
-  - GET、POST、DELETE、PUT...
-  - kubectl run、get、expose、edit...
-- 资源(对象)
-  - workload: Pod、ReplicaSet、Deployment、StatefulSet、DaemonSet、Job、Cronjob...
-  - 服务发现与均衡: Service、Ingress...
-  - 配置与存储: Volume、CSI...
-    - ConfigMap、Secret
-    - DownwardAPI
-  - 集群级资源
-    - Namespace、Node、Role、ClusterRole、RoleBinding、ClusterRoleBinding
-  - 元数据型资源
-    - HPA、PodTemplate、LimitRange
+#### 测试环境说明
+
+- 1master/2+node 也可以多master 根据自己环境安排
+- 集群节点需要做时间同步
+- 禁用swap
+  - swapoff -a
+  - systemctl --type swap
+  - systemctl mask SWAP_DEV
+- 禁用默认配置的iptables
+- 加载br_netfilter模块
+  - modprobe br_netfilter
+  - 写入/etc/modules(开机启动)
+
+#### 安装容器运行时
+
+##### docker+cri-docekrd
+
+- 安装docker-ce
+
+  ```bash
+  apt -y install apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
+  add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+  apt update
+
+  # 安装docker-ce
+  apt -y install docker-ce
+
+  # 进行完下面配置后 重启服务
+  systemctl restart docker
+  ststemctl enable docker
+  ```
+
+- docker配置
+  - kubelet需要让docker容器引擎使用systemd作为CGroup的驱动 其默认值为cgroupfs
+  - 我们还需要编辑docker的配置文件/etc/docker/daemon.json 参考下面配置
+  - 其中的registry-mirrors用于指明使用的镜像加速服务 参考[国内无法下载Docker镜像的多种解决方案](https://isedu.top/index.php/archives/225/)
+  - 提示: 自Kubernetes v1.22版本开始 未明确设置kubelet的cgroup driver时 则默认即会将其设置为systemd
+
+  ```json
+  {
+  "registry-mirrors": [
+    "https://dockerpull.cn"
+  ],
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "200m"
+  },
+  "storage-driver": "overlay2"  
+  }
+  ```
+
+- 为docker设置代理(可选)
+  - Kubeadm部署Kubernetes集群的过程中 默认使用Google的Registry服务registry.k8s.io上的镜像
+  - 例如`registry.k8s.io/kube-apiserver`等 但国内部分用户可能无法访问到该服务
+  - 我们也可以使用国内的镜像服务来解决这个问题 例如`registry.aliyuncs.com/google_containers`
+  - 若选择使用国内的镜像服务 则配置代理服务的步骤为可选
+  - 设置代理配置 编辑/lib/systemd/system/docker.service
+
+  ```bash
+  # 重要提示: 
+    # 节点网络(例如本示例中使用的192.168.0.0/16)
+    # Pod网络(例如本示例中使用的10.244.0.0/16)
+    # Service网络(例如本示例中使用的10.96.0.0/12)以及127网络等本地使用的网络
+    # 必须明确定义为不使用所配置的代理 否则将很有可能带来无法预知的本地网络通信故障
+
+  # 请将下面配置段中的 $PROXY_SERVER_IP 替换为你的代理服务器地址
+  # 将$PROXY_PORT 替换为你的代理服所监听的端口
+  # 另外还要注意所使用的协议http是否同代理服务器提供服务的协议相匹配 如有必要 请自行修改为https
+  Environment="HTTP_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
+  Environment="HTTPS_PROXY=http://$PROXY_SERVER_IP:$PROXY_PORT"
+  Environment="NO_PROXY=127.0.0.0/8,172.17.0.0/16,172.29.0.0/16,10.244.0.0/16,192.168.0.0/16,10.96.0.0/12,magedu.com,cluster.local"
+
+  # 修改完配置重启服务
+  systemctl daemon-reload
+  systemctl restart docker
+  ```
+
+- 安装cri-dockerd
+  - 直接去对应的[Github](https://github.com/Mirantis/cri-dockerd)项目下载对应的deb包安装
+
+##### containerd
+
+- 安装容器运行时containerd
+  - Ubuntu 2204上安装Containerd有两种选择
+    - Ubuntu系统官方程序包仓库中的containerd
+    - Docker社区提供的`containerd.io`(本文选择该种方式)
+  - 安装并启动containerd.io
+
+  ```bash
+  # 生成containerd.io相关程序包的仓库 这里以阿里云的镜像服务器为例
+  apt -y install apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | apt-key add -
+  add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+  apt update
+  apt-get -y install containerd.io
+  ```
+
+- 配置`containerd.io`
+  - 运行如下命令打印并保存如下配置
+
+  ```bash
+  mkdir /etc/containerd
+  containerd config default > /etc/containerd/config.toml
+  ```
+
+  - 编辑生成的配置文件 完成如下几项相关的配置
+
+  ```bash
+  # 1. 修改containerd使用SystemdCgroup
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true
+
+  # 2. 配置Containerd使用国内Mirror站点上的pause镜像及指定的版本
+  [plugins."io.containerd.grpc.v1.cri"]
+  sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
+
+  # 3. 配置Containerd使用国内的Image加速服务 以加速Image获取
+  [plugins."io.containerd.grpc.v1.cri".registry]
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+      endpoint = ["https://docker.mirrors.ustc.edu.cn", "https://registry.docker-cn.com"]
+
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
+  endpoint = ["https://registry.aliyuncs.com/google_containers"]
+
+  # 4. 配置Containerd使用私有镜像仓库 不存在要使用的私有ImageRegistry时 本步骤可省略
+  [plugins."io.containerd.grpc.v1.cri".registry]
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.minho.com"]
+      endpoint = ["https://registry.minho.com"]
+
+  # 5. 配置私有镜像仓库跳过tls验证 若私有ImageRegistry能正常进行tls认证 则本步骤可省略
+  [plugins."io.containerd.grpc.v1.cri".registry.configs]
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.minho.com".tls]
+      insecure_skip_verify = true
+
+  # 6. 重启服务
+  systemctl restart containerd
+  ```
+
+- 配置crictl客户端
+  - 安装containerd.io时 会自动安装命令行客户端工具crictl
+  - 该客户端通常需要通过正确的unix sock文件才能接入到containerd服务
+  - 编辑配置文件/etc/crictl.yaml 添加如下内容即可
+  - 随后即可正常使用crictl程序管理Image/Container和Pod等对象
+  - 另外containerd.io还有另一个名为ctr的客户端程序可以使用 其功能也更为丰富
+
+  ```bash
+  runtime-endpoint: unix:///run/containerd/containerd.sock
+  image-endpoint: unix:///run/containerd/containerd.sock
+  timeout: 10
+  debug: true
+  ```
+
+#### 安装kubelet/kubeadm/kubectl
+
+- 自v1.28版本开始 Kubernetes官方变更了仓库的存储路径及使用方式(不同的版本将会使用不同的仓库) 并提供了向后兼容至v1.24版本
+- 因此 对于v1.24及之后的版本来说 可以使用如下有别于传统配置的方式来安装相关的程序包
+- 以本示例中要安装的v1.29版本为例来说 配置要使用的程序包仓库 需要使用的命令如下
+- 如若需要安装其它版本 则将下面命令中的版本号`v1.29`予以替换即可
+
+```bash
+apt-get update && apt-get install -y apt-transport-https
+curl -fsSL https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.29/deb/Release.key |    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.29/deb/ /" |    tee /etc/apt/sources.list.d/kubernetes.list
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+```
+
+- 安装完成后 要确保kubeadm等程序文件的版本
+- 这将也是后面初始化Kubernetes集群时需要明确指定的版本号
+
+#### 整合kubelet和cri-dockerd
+
+- 仅支持CRI规范的kubelet需要经由遵循该规范的cri-dockerd完成与docker-ce的整合
+- 该步骤仅使用docker-ce和cri-dockerd运行时的场景中需要配置
+
+##### 配置cri-dockerd
+
+- 配置cri-dockerd 确保其能够正确加载到CNI插件
+- 编辑`/usr/lib/systemd/system/cri-docker.service`文件 确保其[Service]配置段中的ExecStart的值类似如下内容
+
+```bash
+ExecStart=/usr/bin/cri-dockerd --container-runtime-endpoint fd:// --network-plugin=cni --cni-bin-dir=/opt/cni/bin --cni-cache-dir=/var/lib/cni/cache --cni-conf-dir=/etc/cni/net.d --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.9
+```
+
+- 需要添加的各配置参数(各参数的值要与系统部署的CNI插件的实际路径相对应)
+  - `--network-plugin` 指定网络插件规范的类型 这里要使用CNI
+  - `--cni-bin-dir` 指定CNI插件二进制程序文件的搜索目录
+  - `--cni-cache-dir` CNI插件使用的缓存目录
+  - `--cni-conf-dir` CNI插件加载配置文件的目录
+  - `--pod-infra-container-image` Pod中的puase容器要使用的Image 默认为registry.k8s.io上的pause仓库中的镜像 不能直接获取到该Image时 要明确指定为从指定的位置加载 例如`registry.aliyuncs.com/google_containers/pause:3.9`
+  - 配置完成后重启服务`systemctl restart cri-docker`
+
+##### 配置kubelet
+
+- 配置kubelet 为其指定cri-dockerd在本地打开的Unix Sock文件的路径
+- 该路径一般默认为`/run/cri-dockerd.sock` 编辑文件/etc/sysconfig/kubelet 为其添加如下指定参数
+  - 若/etc/sysconfig目录不存在 则需要先创建该目录
+  - `KUBELET_KUBEADM_ARGS="--container-runtime=remote --container-runtime-endpoint=/run/cri-dockerd.sock"`
+
+#### 初始化第一个主节点
+
+- 该步骤开始尝试构建Kubernetes集群的master节点 配置完成后 各worker节点直接加入到集群中的即可
+- 由于kubeadm部署的Kubernetes集群上 集群核心组件kube-apiserver、kube-controller-manager、kube-scheduler和etcd等均会以静态Pod的形式运行 它们所依赖的镜像文件默认来自于registry.k8s.io这一Registry服务之上
+- 但我们无法直接访问该服务 常用的解决办法有如下两种
+  - 使用能够到达该服务的代理服务
+  - 使用国内的镜像服务器上的服务 例如`registry.aliyuncs.com/google_containers`等
+
+##### 初始化master节点
+
+- 在运行初始化命令之前先运行如下命令单独获取相关的镜像文件 而后再运行后面的`kubeadm init`命令 以便于观察到镜像文件的下载过程
+- 若您选择使用的是docker-ce和cri-dockerd这一容器运行时环境 本文后续内容中使用的kubeadm命令 都需要额外添加`--cri-socket=unix:///var/run/cri-dockerd.sock`选项 以明确指定其所要关联的容器运行时
+- 这是因为docker-ce和cri-dockerd都提供unix sock类型的socket地址 这会导致kubeadm在自动扫描和加载该类文件时无法自动判定要使用哪个文件 而使用containerd.io运行时 则不存在该类问题
+
+```bash
+# 下面的命令会列出类似如下的Image信息 由如下的命令结果可以看出 
+# 相关的Image都来自于registry.k8s.io 该服务上的Image通常需要借助于代理服务才能访问到
+root@k8s-master01:~# kubeadm config images list
+registry.k8s.io/kube-apiserver:v1.29.13
+registry.k8s.io/kube-controller-manager:v1.29.13
+registry.k8s.io/kube-scheduler:v1.29.13
+registry.k8s.io/kube-proxy:v1.29.13
+registry.k8s.io/coredns/coredns:v1.11.1
+registry.k8s.io/pause:3.9
+registry.k8s.io/etcd:3.5.16-0
+
+# 若需要从国内的Mirror站点下载Image 
+# 还需要在命令上使用--image-repository选项来指定Mirror站点的相关URL
+# 例如 下面的命令中使用了该选项将Image Registry指向国内可用的Aliyun的镜像服务 
+# 其命令结果显示的各Image也附带了相关的URL
+root@k8s-master01:~# kubeadm config images list --image-repository=registry.aliyuncs.com/google_containers
+registry.aliyuncs.com/google_containers/kube-apiserver:v1.29.13
+registry.aliyuncs.com/google_containers/kube-controller-manager:v1.29.13
+registry.aliyuncs.com/google_containers/kube-scheduler:v1.29.13
+registry.aliyuncs.com/google_containers/kube-proxy:v1.29.13
+registry.aliyuncs.com/google_containers/coredns:v1.11.1
+registry.aliyuncs.com/google_containers/pause:3.9
+registry.aliyuncs.com/google_containers/etcd:3.5.16-0
+
+# 运行下面的命令即可下载需要用到的各Image
+# 需要注意的是 如果需要从国内的Mirror站点下载Image
+# 同样需要在命令上使用--image-repository选项来指定Mirror站点的相关URL
+kubeadm config images pull --image-repository=registry.aliyuncs.com/google_containers
+
+---
+[config/images] Pulled registry.aliyuncs.com/google_containers/kube-apiserver:v1.29.13
+[config/images] Pulled registry.aliyuncs.com/google_containers/kube-controller-manager:v1.29.13
+[config/images] Pulled registry.aliyuncs.com/google_containers/kube-scheduler:v1.29.13
+[config/images] Pulled registry.aliyuncs.com/google_containers/kube-proxy:v1.29.13
+[config/images] Pulled registry.aliyuncs.com/google_containers/coredns:v1.11.1
+[config/images] Pulled registry.aliyuncs.com/google_containers/pause:3.9
+[config/images] Pulled registry.aliyuncs.com/google_containers/etcd:3.5.16-0
+```
+
+- 而后即可进行master节点初始化
+- kubeadm init命令支持两种初始化方式
+  - 一是通过命令行选项传递关键的部署设定
+  - 另一个是基于yaml格式的专用配置文件(建议)
+  - 后一种允许用户自定义各个部署参数 在配置上更为灵活和便捷 下面分别给出了两种实现方式的配置步骤 建议读者采用第二种方式进行。
+
+###### 方式1
+
+- 运行如下命令完成k8s-master01节点的初始化
+- 需要注意的是 若使用docker-ce和cri-dockerd运行时 则还要在如下命令上明确配置使用`--cri-socket=unix:///run/cri-dockerd.sock`选项
+
+```bash
+kubeadm init \
+  --control-plane-endpoint="k8s-master01.minho.com" \
+  --kubernetes-version=v1.29.13 \
+  --pod-network-cidr=10.244.0.0/16 \
+  --service-cidr=10.96.0.0/12 \
+  --token-ttl=0 \
+  --upload-certs \
+  --cri-socket=unix:///run/cri-dockerd.sock
+```
+
+- 各选项含义
+  - `--image-repository` 指定要使用的镜像仓库 默认为`registry.k8s.io`
+  - `--kubernetes-version` kubernetes程序组件的版本号 它必须要与安装的kubelet程序包的版本号相同
+  - `--control-plane-endpoint` 控制平面的固定访问端点 可以是IP地址或DNS名称 会被用于集群管理员及集群组件的kubeconfig配置文件的API Server的访问地址 单控制平面部署时可以不使用该选项
+  - `--pod-network-cidr` Pod网络的地址范围 其值为CIDR格式的网络地址 通常Flannel网络插件的默认为10.244.0.0/16 Calico插件的默认值为192.168.0.0/16 而Cilium的默认值为10.0.0.0/8
+  - `--service-cidr` Service的网络地址范围 其值为CIDR格式的网络地址 kubeadm使用的默认为10.96.0.0/12 通常 仅在使用Flannel一类的网络插件需要手动指定该地址
+  - `--apiserver-advertise-address` apiserver通告给其他组件的IP地址 一般应该为Master节点的用于集群内部通信的IP地址 0.0.0.0表示节点上所有可用地址
+  - `--token-ttl` 共享令牌(token)的过期时长 默认为24小时 0表示永不过期 为防止不安全存储等原因导致的令牌泄露危及集群安全 建议为其设定过期时长 未设定该选项时 在token过期后 若期望再向集群中加入其它节点 可以使用如下命令重新创建token 并生成节点加入命令
+    - `kubeadm token create --print-join-command`
+  - 提示：无法访问`registry.k8s.io`时 同样可以在上面的命令中使用`--image-repository=registry.aliyuncs.com/google_containers`选项 以便从国内的镜像服务中获取各Image
+  - 注意：若各节点未禁用Swap设备 还需要附加选项`--ignore-preflight-errors=Swap` 从而让kubeadm忽略该错误设定
+
+###### 方式二
+
+- kubeadm也可通过配置文件加载配置 以定制更丰富的部署选项 获取内置的初始配置文件的命令
+- `kubeadm config print init-defaults`
+- 下面的配置示例 是以上面命令的输出结果为框架进行修改的 它明确定义了kubeProxy的模式为ipvs 并支持通过修改imageRepository的值修改获取系统镜像时使用的镜像仓库
+
+```yaml
+apiVersion: kubeadm.k8s.io/v1beta3
+bootstrapTokens:
+- groups:
+- system:bootstrappers:kubeadm:default-node-token
+token: minho.comc4mu9kzd5q7ur
+ttl: 24h0m0s
+usages:
+- signing
+- authentication
+kind: InitConfiguration
+localAPIEndpoint:
+# 这里的地址即为初始化的控制平面第一个节点的IP地址
+advertiseAddress: 172.29.7.1
+bindPort: 6443
+nodeRegistration:
+# 注意 使用docker-ce和cri-dockerd时 要启用如下配置的cri socket文件的路径 
+# criSocket: unix:///run/cri-dockerd.sock
+imagePullPolicy: IfNotPresent
+# 第一个控制平面节点的主机名称
+name: k8s-master01.minho.com
+taints:
+- effect: NoSchedule
+  key: node-role.kubernetes.io/master
+- effect: NoSchedule
+  key: node-role.kubernetes.io/control-plane
+---
+apiServer:
+timeoutForControlPlane: 4m0s
+# 将下面配置中的certSANS列表中的值 修改为客户端接入API Server时可能会使用的各类目标地址
+certSANs:
+- kubeapi.minho.com
+- 172.29.7.1
+- 172.29.7.2
+- 172.29.7.3
+- 172.29.7.253
+apiVersion: kubeadm.k8s.io/v1beta3
+# 控制平面的接入端点 我们这里选择适配到kubeapi.minho.com这一域名上
+controlPlaneEndpoint: "kubeapi.minho.com:6443"
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
+dns: {}
+etcd:
+local:
+  dataDir: /var/lib/etcd
+imageRepository: registry.aliyuncs.com/google_containers
+kind: ClusterConfiguration
+kubernetesVersion: v1.29.2
+networking:
+# 集群要使用的域名 默认为cluster.local
+dnsDomain: cluster.local
+# service网络的地址
+serviceSubnet: 10.96.0.0/12
+# pod网络的地址 flannel网络插件默认使用10.244.0.0/16
+podSubnet: 10.244.0.0/16
+scheduler: {}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+# 用于配置kube-proxy上为Service指定的代理模式 默认为iptables
+mode: "ipvs"
+```
+
+- 将上面的内容保存于配置文件中 例如kubeadm-config.yaml
+- 而后执行如下命令即能实现类似前一种初始化方式中的集群初始配置 但这里将Service的代理模式设定为ipvs
+- `kubeadm init --config kubeadm-config.yaml --upload-certs`
+
+#### 初始化完成后的操作步骤
+
+- 对于Kubernetes系统的新用户来说 无论使用上述哪种方法 命令运行结束后 请记录最后的kubeadm join命令输出的最后提示的操作步骤
+- 下面的内容是需要用户记录的一个命令输出示例 它提示了后续需要的操作步骤
+
+```bash
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of the control-plane node running the following command on each as root:
+
+  kubeadm join k8s-master01.minho.com:6443 --token tkzmlw.406h8d9g8x9sf8z1 \
+  --discovery-token-ca-cert-hash sha256:a32fe9b88096c3c0c22570a486302f58d3c479a8f1ccaf74b8fa4538a1a9d904 \
+  --control-plane --certificate-key 502f1f1c87aea5a99dea3ee197878159f06a1f4178a8e7610ed228e6629a9414 \
+  --cri-socket=unix:///run/cri-dockerd.sock
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+"kubeadm init phase upload-certs --upload-certs" to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join k8s-master01.minho.com:6443 --token tkzmlw.406h8d9g8x9sf8z1 \
+  --discovery-token-ca-cert-hash sha256:a32fe9b88096c3c0c22570a486302f58d3c479a8f1ccaf74b8fa4538a1a9d904 \
+  --cri-socket=unix:///run/cri-dockerd.sock
+```
+
+- `kubeadm init`命令完整参考指南请移步[官方文档](https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/)
+
+##### 设定kubectl
+
+- kubectl是kube-apiserver的命令行客户端程序 实现了除系统部署之外的几乎全部的管理操作 是kubernetes管理员使用最多的命令之一
+- kubectl需经由API server认证及授权后方能执行相应的管理操作 kubeadm部署的集群为其生成了一个具有管理员权限的认证配置文件/etc/kubernetes/admin.conf
+- 它可由kubectl通过默认的`$HOME/.kube/config`的路径进行加载 当然 用户也可在kubectl命令上使用--kubeconfig选项指定一个别的位置
+- 下面复制认证为Kubernetes系统管理员的配置文件至目标用户(例如当前用户root)的家目录下
+  - `mkdir ~/.kube` && `cp /etc/kubernetes/admin.conf  ~/.kube/config`
+
+##### 部署网络插件
+
+- Kubernetes系统上Pod网络的实现依赖于第三方插件进行 这类插件有近数十种之多 较为著名的有flannel、calico、canal和kube-router等 简单易用的实现为CoreOS提供的flannel项目
+- 下面的命令用于在线部署flannel至Kubernetes系统之上 我们需要在初始化的第一个master节点k8s-master01上运行如下命令 以完成部署
+- `kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml`
+- 而后使用如下命令确认其输出结果中Pod的状态为`Running` 类似如下命令及其输入的结果所示
+- `kubectl get pods -n kube-flannel`
+
+##### 验证master节点已经就绪
+
+```bash
+kubectl get nodes
+
+# 上述命令应该会得到类似如下输出 这表示k8s-master01节点已经就绪
+NAME                     STATUS   ROLES           AGE     VERSION
+k8s-master01.minho.com   Ready    control-plane   5d22h   v1.29.12
+
+# 若准备有其它的master节点 以构建高可用的控制平面
+# 可按照初始化控制平面第一个节点时输出的信息 在额外的master节点上运行添加命令 以完成控制平面其它节点的添加
+# 相关的命令是形如下在的相关信息
+kubeadm join k8s-master01.minho.com:6443 \
+  --token tkzmlw.406h8d9g8x9sf8z1 \
+  --discovery-token-ca-cert-hash sha256:a32fe9b88096c3c0c22570a486302f58d3c479a8f1ccaf74b8fa4538a1a9d904 \
+  --control-plane --certificate-key 502f1f1c87aea5a99dea3ee197878159f06a1f4178a8e7610ed228e6629a9414 \
+  --cri-socket=unix:///run/cri-dockerd.sock
+```
+
+##### 添加节点到集群中
+
+- 下面的两个步骤 需要分别在k8s-node01、k8s-node02和k8s-node03上各自完成
+  - 若未禁用Swap设备 编辑kubelet的配置文件/etc/default/kubelet 设置其忽略Swap启用的状态错误
+    - 内容如下：KUBELET_EXTRA_ARGS="--fail-swap-on=false"
+  - 将节点加入第二步中创建的master的集群中 要使用主节点初始化过程中记录的kubeadm join命令
+    - 再次提示 若使用docker-ce和cri-dockerd运行时环境 则需要在如下命令中额外添加`--cri-socket=unix:///run/cri-dockerd.sock`选项
+
+  ```bash
+  kubeadm join k8s-master01.minho.com:6443 --token tkzmlw.406h8d9g8x9sf8z1 \
+    --discovery-token-ca-cert-hash sha256:a32fe9b88096c3c0c22570a486302f58d3c479a8f1ccaf74b8fa4538a1a9d904 \
+    --cri-socket=unix:///run/cri-dockerd.sock
+  ```
+
+##### 验证节点添加结果
+
+- 在每个节点添加完成后 即可通过kubectl验证添加结果
+- 下面的命令及其输出是在所有的三个节点均添加完成后运行的 其输出结果表明三个Worker Node已经准备就绪
+
+```bash
+root@k8s-master01:~# kubectl get nodes
+NAME                     STATUS   ROLES           AGE     VERSION
+k8s-master01.minho.com   Ready    control-plane   5d22h   v1.29.12
+k8s-node01.minho.com     Ready    <none>          5d22h   v1.29.12
+k8s-node02.minho.com     Ready    <none>          5d22h   v1.29.12
+k8s-node03.minho.com     Ready    <none>          5d22h   v1.29.12
+```
+
+##### 测试应用编排及服务访问
+
+- 到此为止 一个master/三个worker的kubernetes集群基础设施已经部署完成 用户随后即可测试其核心功能
+- 例如 下面的命令可将demoapp以Pod的形式编排运行于集群之上 并通过在集群外部进行访问
+
+```bash
+kubectl create deployment demoapp --image=ikubernetes/demoapp:v1.0 --replicas=3
+kubectl create service nodeport demoapp --tcp=80:80
+
+# 而后 使用如下命令了解Service对象demoapp使用的NodePort 以便于在集群外部进行访问
+root@k8s-master01:~# kubectl get svc -l app=demoapp
+NAME     TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)       AGE
+demoapp   NodePort   10.100.84.12   <none>       80:30622/TCP   2s
+```
+
+- demoapp是一个web应用 因此 用户可以于集群外部通过`http://NodeIP:30622`这个URL访问demoapp上的应用
+- 我们也可以在Kubernetes集群上启动一个临时的客户端 对demoapp服务发起访问测试
+- `kubectl run client-$RANDOM --image=ikubernetes/admin-box:v1.2 --rm --restart=Never -it --command -- /bin/bash`
+- 而后 在打开的交互式接口中 运行如下命令 对demoapp.default.svc服务发起访问请求 验证其负载均衡的效果
+- `root@client-3021 ~# while true; do curl demoapp.default.svc; sleep 1; done`
+- 清理部署的测试应用
+  - `kubectl delete deployments/demoapp services/demoapp`
+
+##### 部署Add-ons(可选步骤)
+
+- MetalLB
+- Ingress Nginx
+- Metrics Server
+- Kuboard
 
 ### 资源清单定义
 
