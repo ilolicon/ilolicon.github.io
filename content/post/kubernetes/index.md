@@ -576,7 +576,36 @@ demoapp   NodePort   10.100.84.12   <none>       80:30622/TCP   2s
 - Metrics Server
 - Kuboard
 
-### 资源清单定义
+## 配置对多集群的访问
+
+[配置对多集群的访问](https://kubernetes.io/zh-cn/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+
+```bash
+# 添加集群信息
+kubectl config --kubeconfig=config-demo set-cluster development --server=https://1.2.3.4 --certificate-authority=fake-ca-file
+
+# 添加用户信息
+kubectl config --kubeconfig=config-demo set-credentials developer --client-certificate=fake-cert-file --client-key=fake-key-seefile
+
+# 添加上下文
+kubectl config --kubeconfig=config-demo set-context dev-frontend --cluster=development --namespace=frontend --user=developer
+
+# 查看配置文件详情
+# 直接打开文件或使用如下命令
+kubectl config --kubeconfig=config-demo view
+
+# 设置当前上下文
+kubectl config --kubeconfig=config-demo use-context dev-frontend
+
+# 使用--minify参数 来查看与当前上下文相关联的配置信息
+kubectl config --kubeconfig=config-demo view --minify
+
+# 设置 KUBECONFIG 环境变量
+export KUBECONFIG="${KUBECONFIG}:config-demo:config-demo-2"
+
+```
+
+## 资源清单定义
 
 - 创建资源的方法
 
