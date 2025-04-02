@@ -378,11 +378,347 @@ func main() {
 
 ### 工厂方法模式(Factory Method)
 
+- 上面的简单工厂模式 一个工厂就负责了多个产品的生产
+- 工厂方法模式则是定义了一个创建对象的接口 但将具体的创建逻辑延迟到子类中 每个子类负责创建一种具体的产品
+  
+#### 特点
+
+- 每个产品对应一个工厂类
+- 符合`开闭原则` 新增产品时只需增加新的工厂类 无需修改现有代码
+- 将对象的实例化推迟到用于创建实例的专用函数
+  
+#### 适用场景
+
+- 产品种类多 且创建逻辑复杂的场景
+
+#### 优点
+
+- 符合开闭原则 扩展性强
+- 每个工厂只负责一种产品的创建 职责单一
+
+#### 缺点
+
+- 类的数量会增加 系统复杂度提高
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+type Database interface {
+    Connect() string
+}
+
+type MySQL struct{}
+
+func (m MySQL) Connect() string {
+    return "Connected to MySQL"
+}
+
+type PostgreSQL struct{}
+
+func (p PostgreSQL) Connect() string {
+    return "Connected to PostgreSQL"
+}
+
+// DatabaseFactory工厂接口
+type DatabaseFactory interface {
+    CreateDatabase() Database
+}
+
+type MySQLFactory struct{}
+
+func (m MySQLFactory) CreateDatabase() Database {
+    return MySQL{}
+}
+
+type PostgreSQLFactory struct{}
+
+func (p PostgreSQLFactory) CreateDatabase() Database {
+    return PostgreSQL{}
+}
+
+func UseDatabaseFactory(factory DatabaseFactory) {
+    db := factory.CreateDatabase()
+    fmt.Println(db.Connect())
+}
+
+func main() {
+    UseDatabaseFactory(&MySQLFactory{})
+    UseDatabaseFactory(&PostgreSQLFactory{})
+}
+
+```
+
 ### 抽象工厂模式(Abstract Factory)
 
-### 创建者模式(Builder)
+- 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口 而无需指定它们的具体类 它适用于需要创建一组相关产品的场景
+
+#### 特点
+
+- 每个工厂类可以创建多个相关产品
+- 强调**产品族**的概念 例如GUI库中的不同风格组件(Windows风格、Mac风格)
+
+#### 适用场景
+
+- 需要创建一组相关对象的场景
+
+#### 优点
+
+- 可以创建一组相关对象 保证对象之间的兼容性
+- 符合开闭原则 扩展性强
+
+#### 缺点
+
+- 类的数量会增加 系统复杂度提高
+- 新增产品族或产品等级结构时 需要修改抽象工厂接口及其所有实现类
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+// 抽象层：数据库连接接口
+type DBConnention interface {
+    Connect() string
+}
+
+// 抽象层：数据库命令接口
+type DBCommand interface {
+    Execute(query string) string
+}
+
+// 具体产品：MySQL连接
+type MySQLConnection struct{}
+
+func (m *MySQLConnection) Connect() string {
+    return "Connected to MySQL"
+}
+
+// 具体产品：MySQL命令
+type MySQLCommand struct{}
+
+func (m *MySQLCommand) Execute(query string) string {
+    return fmt.Sprintf("Executed MySQL query: %s", query)
+}
+
+// 具体产品：Postgres连接
+type PostgresSQLConnection struct{}
+
+func (p *PostgresSQLConnection) Connect() string {
+    return "Connected to Postgres"
+}
+
+// 具体产品：PostgresSQL命令
+type PostgresSQLCommand struct{}
+
+func (p *PostgresSQLCommand) Execute(query string) string {
+    return fmt.Sprintf("Executed PostgresSQL query: %s", query)
+}
+
+// 抽象工厂接口
+type DBFactory interface {
+    CreateConnection() DBConnention
+    CreateCommand() DBCommand
+}
+
+// 具体的MySQL工厂
+type MySQLFactory struct{}
+
+func (m *MySQLFactory) CreateConnection() DBConnention {
+    return &MySQLConnection{}
+}
+
+func (m *MySQLFactory) CreateCommand() DBCommand {
+    return &MySQLCommand{}
+}
+
+// 具体的PostgresSQL工厂
+type PostgresSQLFactory struct{}
+
+func (p *PostgresSQLFactory) CreateConnection() DBConnention {
+    return &PostgresSQLConnection{}
+}
+
+func (p *PostgresSQLFactory) CreateCommand() DBCommand {
+    return &PostgresSQLCommand{}
+}
+
+func UseDatabase(factory DBFactory) {
+    connection := factory.CreateConnection()
+    command := factory.CreateCommand()
+
+    fmt.Println(connection.Connect())
+    fmt.Println(command.Execute("SELECT * FROM table"))
+}
+
+// 业务逻辑
+func main() {
+    UseDatabase(&MySQLFactory{})
+    UseDatabase(&PostgresSQLFactory{})
+}
+
+```
+
+### 建造者模式(Builder)
+
+- 用于分步构建复杂对象
+- 建造者模式的核心思想是将一个复杂对象的构建过程与其表示分离 使得同样的构建过程可以创建不同的表示
+- 建造者模式特别适用于以下场景
+  - 对象的构建过程非常复杂 包含多个步骤
+  - 对象的构建过程需要支持不同的配置或表示
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+type House struct {
+    Walls   string
+    Roof    string
+    Windows string
+    Doors   string
+}
+
+func (h *House) Show() {
+    fmt.Printf("House with %s walls, %s roof, %s windows, and %s doors\n",
+        h.Walls, h.Roof, h.Windows, h.Doors)
+}
+
+// 建造者接口
+type HouseBuilder interface {
+    BuildWalls()
+    BuildRoof()
+    BuildWindows()
+    BuildDoors()
+    GetHouse() *House
+}
+
+// 具体建造者
+type ConcreateHouseBuilder struct {
+    house *House
+}
+
+// 返回一个空House
+func NewConcreateHouseBuilder() *ConcreateHouseBuilder {
+    return &ConcreateHouseBuilder{house: &House{}}
+}
+
+func (b *ConcreateHouseBuilder) BuildWalls() {
+    b.house.Walls = "concrete"
+}
+
+func (b *ConcreateHouseBuilder) BuildRoof() {
+    b.house.Roof = "tile"
+}
+
+func (b *ConcreateHouseBuilder) BuildWindows() {
+    b.house.Windows = "glass"
+}
+
+func (b *ConcreateHouseBuilder) BuildDoors() {
+    b.house.Doors = "wooden"
+}
+
+func (b *ConcreateHouseBuilder) GetHouse() *House {
+    return b.house
+}
+
+// 指挥者
+type Director struct {
+    builder HouseBuilder
+}
+
+func NewDirector(builder HouseBuilder) *Director {
+    return &Director{builder: builder}
+}
+
+func (d *Director) Construct() {
+    d.builder.BuildWalls()
+    d.builder.BuildRoof()
+    d.builder.BuildWindows()
+    d.builder.BuildDoors()
+}
+
+// 客户端代码
+func main() {
+    builder := NewConcreateHouseBuilder() // 常见具体构建者
+    director := NewDirector(builder)      // 创建指挥者
+    director.Construct()                  // 指挥者构建产品
+
+    house := builder.GetHouse() // 获取最终产品
+    house.Show()
+}
+
+```
 
 ### 原型模式(Prototype)
+
+- 它通过复制现有对象来创建新对象 而不是通过新建类的方式
+- 原型模式的核心思想是利用对象的克隆能力 避免重复初始化 特别适用于**创建成本较高**的对象
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+// 原型接口
+type Prototype interface {
+    Clone() Prototype
+}
+
+// 具体原型
+type ConcretePrototype struct {
+    Name string
+    Age  int
+}
+
+func (p *ConcretePrototype) Clone() Prototype {
+    // 创建一个新对象 并复制当前对象的属性
+    return &ConcretePrototype{
+        Name: p.Name,
+        Age:  p.Age,
+    }
+}
+
+func (p *ConcretePrototype) String() string {
+    return fmt.Sprintf("Name: %s, Age: %d", p.Name, p.Age)
+}
+
+func main() {
+    // 创建原型对象
+    prototype := &ConcretePrototype{
+        Name: "Tom",
+        Age:  18,
+    }
+
+    // 克隆原型对象
+    clone := prototype.Clone().(*ConcretePrototype)
+
+    // 修改克隆对象属性
+    clone.Name = "Jerry"
+    clone.Age = 20
+
+    // 输出原型对象和克隆对象
+    fmt.Println("Prototype:", prototype)
+    fmt.Println("Clone:", clone)
+}
+
+```
+
+#### 注意事项
+
+- 使用原型模式 如果有**引用类型** 则需要考虑深拷贝和浅拷贝的问题
+- 浅拷贝只复制对象本身而不复制其引用的对象 深拷贝则会递归地复制整个对象图
+- 这需要根据需求选择适当的拷贝方式
 
 ## 结构型模式
 
@@ -487,7 +823,6 @@ func main() {
 2025/04/02 12:54:19 Func2 lasted 3.0020849s
 */
 
-
 ```
 
 ## 参考文档
@@ -496,4 +831,6 @@ func main() {
 
 [Go24种设计模式](https://www.fengfengzhidao.com/article/JI33Q5QB8lppN5cbFPQR)
 
-[Go Patterns](https://github.com/tmrts/go-patterns#)
+[go-patterns](https://github.com/tmrts/go-patterns.git)
+
+[golang-design-pattern](https://github.com/senghoo/golang-design-pattern.git)
