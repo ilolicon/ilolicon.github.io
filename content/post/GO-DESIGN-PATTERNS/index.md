@@ -26,7 +26,7 @@ tags:
 - 比如标准库: `http.NewRequest()` `bytes.NewReader()` `md5.New()`  等等 ...
 - 创建型模式的核心思想是将对象的创建与使用分离 使得系统不依赖于具体的对象创建方式 而是依赖于抽象
 
-### 单例模式(Singleton)
+### 单例模式(Singleton) ✔
 
 - 单例模式(singleton) 保证一个类只有一个实例 并提供一个访问它的全局访问点
 - 通常让一个全局变量成为一个对象被访问 但不能防止实例化多个对象
@@ -309,7 +309,7 @@ func GetInstance() *singleton {
 
 ```
 
-### 简单工厂模式(Simple Factory)
+### 简单工厂模式(Simple Factory) ✔
 
 - 简单工厂并不是一个正式的设计模式 而是一种编程习惯 它通过一个工厂类来封装对象的创建逻辑 客户端只需要传递参数给工厂类 由工厂类决定创建哪种对象
 
@@ -376,7 +376,7 @@ func main() {
 
 ```
 
-### 工厂方法模式(Factory Method)
+### 工厂方法模式(Factory Method) ✔
 
 - 上面的简单工厂模式 一个工厂就负责了多个产品的生产
 - 工厂方法模式则是定义了一个创建对象的接口 但将具体的创建逻辑延迟到子类中 每个子类负责创建一种具体的产品
@@ -452,7 +452,7 @@ func main() {
 
 ```
 
-### 抽象工厂模式(Abstract Factory)
+### 抽象工厂模式(Abstract Factory) ✘
 
 - 抽象工厂模式提供一个创建一系列相关或相互依赖对象的接口 而无需指定它们的具体类 它适用于需要创建一组相关产品的场景
 
@@ -564,7 +564,7 @@ func main() {
 
 ```
 
-### 建造者模式(Builder)
+### 建造者模式(Builder) ✔
 
 - 用于分步构建复杂对象
 - 建造者模式的核心思想是将一个复杂对象的构建过程与其表示分离 使得同样的构建过程可以创建不同的表示
@@ -658,7 +658,7 @@ func main() {
 
 ```
 
-### 原型模式(Prototype)
+### 原型模式(Prototype) ✘
 
 - 它通过复制现有对象来创建新对象 而不是通过新建类的方式
 - 原型模式的核心思想是利用对象的克隆能力 避免重复初始化 特别适用于**创建成本较高**的对象
@@ -719,9 +719,366 @@ func main() {
 - 使用原型模式 如果有**引用类型** 则需要考虑深拷贝和浅拷贝的问题
 - 浅拷贝只复制对象本身而不复制其引用的对象 深拷贝则会递归地复制整个对象图
 - 这需要根据需求选择适当的拷贝方式
-  
-### 对象池模式(Object Pool Pattern)
 
+## 结构型模式
+
+- 结构型模式`Structural Pattern` 它主要关注如何将类或对象组合成更大的结构 以便在不改变原有类或对象的情况下 实现新的功能或优化系统结构
+- 结构型模式的核心思想是通过组合`Composition`而不是继承`Inheritance`来实现代码的复用和扩展
+- 它们帮助开发者设计出灵活、可扩展的系统结构 同时降低类与类之间的耦合度
+
+### 外观模式(Facade) ✘
+
+### 适配器模式(Adapter) ✘
+
+### 代理模式(Proxy) ✔
+
+- 它通过提供一个代理对象来控制对另一个对象的访问
+- 代理模式的核心思想是在不改变原始对象的情况下 通过代理对象来增强或限制对原始对象的访问
+
+#### 适用场景
+
+- `延迟初始化` 当对象的创建成本较高时 可以通过代理延迟对象的初始化
+- `访问控制` 通过代理对象限制对原始对象的访问权限
+- `日志记录` 通过代理对象记录对原始对象的访问日志
+- `缓存` 通过代理对象缓存原始对象的结果 避免重复计算
+
+#### 示例
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+// 主题接口
+type Subject interface {
+    Request()
+}
+
+// 真实对象
+type RealSubject struct{}
+
+func (r *RealSubject) Request() {
+    fmt.Println("RealSubject: Handling Request")
+}
+
+// 代理对象
+type Proxy struct {
+    realSubject *RealSubject
+}
+
+func NewProxy() *Proxy {
+    return &Proxy{}
+}
+
+func (p *Proxy) Request() {
+    // 延迟初始化真实对象
+    if p.realSubject == nil {
+        fmt.Println("Proxy: Lazy Initialzing RealSubject")
+        p.realSubject = &RealSubject{}
+    }
+
+    // 访问控制
+    fmt.Println("Proxy: Checking Access")
+    time.Sleep(time.Second) //  模拟访问控制逻辑
+
+    // 调用真实对象的方法
+    p.realSubject.Request()
+
+    // 日志记录
+    fmt.Println("Proxy: Logging Request")
+}
+
+func main() {
+    proxy := NewProxy()
+
+    // 通过代理对象访问真实对象
+    proxy.Request()
+}
+
+```
+
+### 组合模式(Composite) ✘
+
+### 享元模式(Flyweight) ✘
+
+### 装饰模式(Decorator) ✔
+
+- 它允许你动态地为对象添加行为或职责 而不需要修改对象的原始类
+- 通过引入装饰者类 可以在运行时灵活地组合不同的功能 而不需要创建大量的子类
+- 装饰者模式的核心思想是将对象包装在一个或多个装饰者中 每个装饰者都可以在调用被装饰对象的方法之前或之后添加额外的行为
+
+#### 优点
+
+- 动态扩展功能
+  - 你可以在运行时为请求处理器添加日志记录和性能监控功能 而无需修改核心请求处理器的代码
+- 单一职责原则
+  - 每个装饰器只负责一个特定的功能(如日志记录或性能监控) 符合单一职责原则
+- 灵活性
+  - 可以轻松地添加或移除装饰器 而不会影响其他部分的代码
+
+#### 示例
+
+- 假设你正在开发一个Web服务 其中有一个核心功能是处理用户请求
+- 现在 你需要在不修改核心功能代码的情况下 为请求处理添加以下功能
+  - 日志记录：记录每个请求的详细信息
+  - 性能监控：记录每个请求的处理时间
+- 使用装饰器模式 你可以轻松地实现这些功能 而无需修改原始请求处理逻辑
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+// 组件接口：请求处理器
+type RequestHandler interface {
+    HandleRequest(url string) string
+}
+
+type CoreRequestHandler struct{}
+
+func (handler *CoreRequestHandler) HandleRequest(url string) string {
+    time.Sleep(100 * time.Millisecond)
+    return fmt.Sprintf("Response from %s", url)
+}
+
+// 装饰器: 日志记录
+type LoggingDecorator struct {
+    handler RequestHandler
+}
+
+func (l *LoggingDecorator) HandleRequest(url string) string {
+    fmt.Printf("LoggingDecorator: Request to %s\n", url)
+    response := l.handler.HandleRequest(url)
+    fmt.Printf("Logging: Response for %s: %s\n", url, response)
+    return response
+}
+
+// 装饰器：性能监控
+type PerformanceMonitorDecorator struct {
+    handler RequestHandler
+}
+
+func (p *PerformanceMonitorDecorator) HandleRequest(url string) string {
+    // 记录开始时间
+    start := time.Now()
+
+    // 调用原始处理器
+    response := p.handler.HandleRequest(url)
+
+    // 记录处理时间
+    duration := time.Since(start)
+    fmt.Printf("Performance: Request for %s took %v\n", url, duration)
+    return response
+}
+
+func main() {
+    // 创建请求处理器
+    handler := &CoreRequestHandler{}
+
+    // 添加日志记录
+    loggingHandler := &LoggingDecorator{handler: handler}
+
+    // 添加性能监控
+    monitorHandler := &PerformanceMonitorDecorator{handler: loggingHandler}
+
+    // 处理请求
+    fmt.Println(monitorHandler.HandleRequest("http://www.baidu.com"))
+}
+
+```
+
+### 桥模式(Bridge) ✘
+
+- 它的核心思想是将抽象部分与实现部分分离 使它们可以独立变化
+- 通过这种方式 桥接模式能够避免类的数量爆炸(即类的组合呈指数增长) 同时提高代码的可扩展性和可维护性
+
+#### 示例
+
+- 假设你有两台电脑：一台 Mac 和一台 Windows 还有两台打印机：爱普生和惠普
+- 这两台电脑和打印机可能会任意组合使用
+- 刚开始功能会这样写 windows组合爱普生和惠普 mac组合爱普生和惠普 打印就调用自己的print方法
+
+```go
+package main
+
+import "fmt"
+
+// Mac + Epson
+type MacEpson struct{}
+
+func (m *MacEpson) Print() {
+    fmt.Println("Print request for mac")
+    fmt.Println("Printing by a EPSON Printer")
+}
+
+// Mac + HP
+type MacHp struct{}
+
+func (m *MacHp) Print() {
+    fmt.Println("Print request for mac")
+    fmt.Println("Printing by a HP Printer")
+}
+
+// Windows + Epson
+type WindowsEpson struct{}
+
+func (w *WindowsEpson) Print() {
+    fmt.Println("Print request for windows")
+    fmt.Println("Printing by a EPSON Printer")
+}
+
+// Windows + HP
+type WindowsHp struct{}
+
+func (w *WindowsHp) Print() {
+    fmt.Println("Print request for windows")
+    fmt.Println("Printing by a HP Printer")
+}
+
+```
+
+- 但是 如果引入新的打印机 代码量会成倍增长
+- 所以 我们需要把计算机和打印机解耦 计算机的print的方法 就桥接到选择的打印机的print方法上
+
+```go
+package main
+
+import "fmt"
+
+// 定义Printer接口
+type Printer interface {
+    PrintFile()
+}
+
+// 定义Epson打印机
+type Epson struct{}
+
+func (e *Epson) PrintFile() {
+    fmt.Println("Printing by Epson printer")
+}
+
+// 定义惠普打印机
+type HP struct{}
+
+func (h *HP) PrintFile() {
+    fmt.Println("Printing by HP printer")
+}
+
+// 定义Computer接口
+type Computer interface {
+    Print()
+    SetPrinter(Printer)
+}
+
+// 定义Mac计算机
+type Mac struct {
+    printer Printer
+}
+
+func (m *Mac) Print() {
+    fmt.Println("Print request for Mac")
+    m.printer.PrintFile()
+}
+
+func (m *Mac) SetPrinter(p Printer) {
+    m.printer = p
+}
+
+// 定义windows计算机
+type Windows struct {
+    printer Printer
+}
+
+func (w *Windows) Print() {
+    fmt.Println("Print request for Windows")
+    w.printer.PrintFile()
+}
+
+func (w *Windows) SetPrinter(p Printer) {
+    w.printer = p
+}
+
+func main() {
+    // 创建打印机实例
+    hpPrinter := &HP{}
+    epsonPrinter := &Epson{}
+
+    // 创建计算机实例
+    macComputer := &Mac{}
+    winComputer := &Windows{}
+
+    // Mac 使用 HP 打印机
+    macComputer.SetPrinter(hpPrinter)
+    macComputer.Print()
+    fmt.Println()
+
+    // Mac 使用 Epson 打印机
+    macComputer.SetPrinter(epsonPrinter)
+    macComputer.Print()
+    fmt.Println()
+
+    // Windows 使用 HP 打印机
+    winComputer.SetPrinter(hpPrinter)
+    winComputer.Print()
+    fmt.Println()
+
+    // Windows 使用 Epson 打印机
+    winComputer.SetPrinter(epsonPrinter)
+    winComputer.Print()
+    fmt.Println()
+}
+
+```
+
+#### 优点
+
+- 解耦
+  - 抽象部分和实现部分可以独立变化 互不影响
+  - 修改实现部分不会影响抽象部分的代码
+- 灵活性
+  - 可以动态地切换实现部分(例如 运行时更换实现)
+- 可扩展性
+  - 新增抽象部分或实现部分时 不需要修改现有代码
+- 避免类爆炸
+  - 通过组合代替继承 避免了类的数量呈指数增长
+
+## 行为型模式
+
+### 中介者模式(Mediator)
+
+### 观察者模式(Observer)
+
+### 命令模式(Command)
+
+### 迭代器模式(Iterator)
+
+### 模板方法模式(Template Method)
+
+### 策略模式(Strategy)
+
+### 状态模式(State)
+
+### 备忘录模式(Memento)
+
+### 解释器模式(Interpreter)
+
+### 职责链模式(Chain of Responsibility)
+
+### 访问者模式(Visitor)
+
+## 其余常用模式
+
+- 除开23种标准模式及简单工厂模式之外的常用设计模式
+
+### 对象池模式(Object Pool Pattern) ✔
+
+- 创建型模式
 - 对象池创建设计模式用于根据需求预期准备和保留多个实例
 
 #### 实现
@@ -767,48 +1124,6 @@ default:
 - 对象池模式在对象初始化比对象维护成本更高的情况下非常有用
 - 如果需求出现峰值 而不是稳定需求 则维护开销可能会超过对象池的优势
 - 由于对象是预先初始化的 因此它对性能有积极影响
-
-## 结构型模式
-
-### 外观模式(Facade)
-
-### 适配器模式(Adapter)
-
-### 代理模式(Proxy)
-
-### 组合模式(Composite)
-
-### 享元模式(Flyweight)
-
-### 装饰模式(Decorator)
-
-### 桥模式(Bridge)
-
-## 行为型模式
-
-### 中介者模式(Mediator)
-
-### 观察者模式(Observer)
-
-### 命令模式(Command)
-
-### 迭代器模式(Iterator)
-
-### 模板方法模式(Template Method)
-
-### 策略模式(Strategy)
-
-### 状态模式(State)
-
-### 备忘录模式(Memento)
-
-### 解释器模式(Interpreter)
-
-### 职责链模式(Chain of Responsibility)
-
-### 访问者模式(Visitor)
-
-## 其余常用模式
 
 ### 性能分析模式(Profiling Patterns)
 
