@@ -1,22 +1,24 @@
 ---
-title: "GO SINGLETON"
-description: Go语言中实现单例模式.
+title: "GO DESIGN PATTERNS"
+description: Go语言设计模式实现.
 date: 2023-04-21 11:43:42+08:00
 categories: 
 - Golang
 tags:
 - Go编程模式
 - Golang
-- 单例模式
+- 设计模式
 ---
 
-## 单例模式
+## 创建型模式
+
+### 单例模式(Singleton)
 
 - 单例模式(singleton) 保证一个类只有一个实例 并提供一个访问它的全局访问点
 - 通常让一个全局变量成为一个对象被访问 但不能防止实例化多个对象
 - 常见做法：让类自身负责保证它的唯一实例 这个类可以保证没有其他实例可以被创建 并且可以提供一个访问该实例的方法
 
-## 适用场景
+#### 适用场景
 
 - 当某个对象只能存在一个实例的情况下使用单例模式 比如：
   - 全局Config配置对象
@@ -26,9 +28,9 @@ tags:
   - 提供了对唯一实例的受控访问
   - 由于在系统内存中只存在一个对象 因此可以节约系统资源 对于一些需要频繁创建和销毁的对象 单例模式可以提高系统性能
 
-## 实现方式及解析
+#### 实现方式及解析
 
-### 饿汉模式
+##### 饿汉模式
 
 - 在程序加载时就创建对象实例
 - Go语言中我们可以放到`init`函数中 保证线程安全
@@ -52,7 +54,7 @@ func GetInstance() *singleton {
 
 ```
 
-### 懒汉模式
+##### 懒汉模式
 
 - 在获取对象实例时 如果实例为空则创建
 - 避免饿汉模式的内存空间浪费
@@ -79,7 +81,7 @@ func GetInstance() *singleton {
 - 如果有代码保留了对该单例实例的引用 则可能存在具有不同状态的该类型的多个实例 从而产生潜在的不同代码行为 这也成为调试过程中的一个噩梦 并且很难发现该错误
 - 因为在调试时 由于运行时暂停而没有出现任何错误 这使非并发安全执行的可能性降到了最低 并且很容易隐藏开发人员的问题
 
-### 双重检查模式(激进加锁)
+##### 双重检查模式(激进加锁)
 
 - 解决懒汉模式的非线程安全 避免资源竞争导致数据不一致
 - 潜在问题：
@@ -173,10 +175,9 @@ func GetInstance() *singleton {
 
 ```
 
-### Sync.Once
+##### Sync.Once
 
-#### Go语言单例惯用实现解析
-
+- Go语言单例惯用实现解析
 - 上面实现原子操作的写法稍显繁琐
 - Go标准库`sync`中的`Once`类型 它能保证某个操作仅且只执行一次
 - `sync.Once`源码
@@ -267,7 +268,7 @@ once.Do(func() {
 
 ```
 
-#### 完整示例
+##### 完整示例
 
 - 使用sync.Once包是安全地实现此目标的首选方式
 
@@ -294,6 +295,56 @@ func GetInstance() *singleton {
 
 ```
 
-## 参考文档
+##### 参考文档
 
-  [singleton-pattern-in-go](http://marcio.io/2015/07/singleton-pattern-in-go/)
+[singleton-pattern-in-go](http://marcio.io/2015/07/singleton-pattern-in-go/)
+
+### 简单工厂模式(Simple Factory)
+
+### 工厂方法模式(Factory Method)
+
+### 抽象工厂模式(Abstract Factory)
+
+### 创建者模式(Builder)
+
+### 原型模式(Prototype)
+
+## 结构性模式
+
+### 外观模式(Facade)
+
+### 适配器模式(Adapter)
+
+### 代理模式(Proxy)
+
+### 组合模式(Composite)
+
+### 享元模式(Flyweight)
+
+### 装饰模式(Decorator)
+
+### 桥模式(Bridge)
+
+## 行为型模式
+
+### 中介者模式(Mediator)
+
+### 观察者模式(Observer)
+
+### 命令模式(Command)
+
+### 迭代器模式(Iterator)
+
+### 模板方法模式(Template Method)
+
+### 策略模式(Strategy)
+
+### 状态模式(State)
+
+### 备忘录模式(Memento)
+
+### 解释器模式(Interpreter)
+
+### 职责链模式(Chain of Responsibility)
+
+### 访问者模式(Visitor)
