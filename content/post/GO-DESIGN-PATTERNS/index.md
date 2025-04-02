@@ -1,6 +1,6 @@
 ---
 title: "GO DESIGN PATTERNS"
-description: Go语言设计模式实现.
+description: Go语言中设计模式的实现细节.
 date: 2023-04-21 11:43:42+08:00
 categories: 
 - Golang
@@ -10,7 +10,21 @@ tags:
 - 设计模式
 ---
 
+<!-- markdownlint-disable MD024 -->
+
+- `设计模式`是软件设计中常见问题的典型解决方案 每个模式就像一张蓝图 你可以通过对其进行定制来解决代码中的特定设计问题
+- 模式是针对软件设计中常见问题的解决方案工具箱 它们定义了一种让你的团队能更高效沟通的通用语言
+- 不同设计模式在其复杂程度、细节层次以及应用范围等方面各不相同 此外 我们可以根据模式的目的来将它们划分为三个不同的组别
+  - `创建型模式` 提供对象的创建机制 增加已有代码的灵活性和复用性
+  - `结构型模式` 介绍如何将对象和类组装成较大的结构 并同时保持结构的灵活和高效
+  - `行为型模式` 负责对象间的高效沟通和职责委派
+
 ## 创建型模式
+
+- 在Go语言中 创建型模式(Creational Patterns)是一类用于处理对象创建的设计模式
+- 它们的主要目标是提供一种灵活的方式来创建对象 同时隐藏对象创建的具体细节 从而降低代码的耦合度 并提高代码的可复用性和可维护性
+- 比如标准库: `http.NewRequest()` `bytes.NewReader()` `md5.New()`  等等 ...
+- 创建型模式的核心思想是将对象的创建与使用分离 使得系统不依赖于具体的对象创建方式 而是依赖于抽象
 
 ### 单例模式(Singleton)
 
@@ -295,11 +309,72 @@ func GetInstance() *singleton {
 
 ```
 
-##### 参考文档
-
-[singleton-pattern-in-go](http://marcio.io/2015/07/singleton-pattern-in-go/)
-
 ### 简单工厂模式(Simple Factory)
+
+- 简单工厂并不是一个正式的设计模式 而是一种编程习惯 它通过一个工厂类来封装对象的创建逻辑 客户端只需要传递参数给工厂类 由工厂类决定创建哪种对象
+
+#### 特点
+
+- 只有一个工厂类 负责创建所有产品
+- 通道条件判断(如`switch`或`if-else`)来决定创建哪种产品
+
+#### 适用场景
+
+- 产品种类少 且创建逻辑简单的场景
+
+#### 优点
+
+- 简单易用 适合小型项目
+  
+#### 缺点
+
+- 不符合开闭原则(OCP) 新增产品时需要修改工厂类
+  
+> [开闭原则](https://zh.wikipedia.org/wiki/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99): 当需求发生变化时 可以通过增加新的代码来扩展系统的功能 而不是修改现有的代码
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+type Product interface {
+    Use()
+}
+
+type ProductA struct{}
+
+func (p *ProductA) Use() {
+    fmt.Println("Using Product A")
+}
+
+type ProductB struct{}
+
+func (p *ProductB) Use() {
+    fmt.Println("Using Product B")
+}
+
+func CreateProduct(productType string) Product {
+    switch productType {
+    case "A":
+        return &ProductA{}
+    case "B":
+        return &ProductB{}
+    default:
+        return nil
+    }
+}
+
+func main() {
+    productA := CreateProduct("A")
+    productA.Use()
+
+    productB := CreateProduct("B")
+    productB.Use()
+}
+
+```
 
 ### 工厂方法模式(Factory Method)
 
@@ -309,7 +384,7 @@ func GetInstance() *singleton {
 
 ### 原型模式(Prototype)
 
-## 结构性模式
+## 结构型模式
 
 ### 外观模式(Facade)
 
@@ -348,3 +423,77 @@ func GetInstance() *singleton {
 ### 职责链模式(Chain of Responsibility)
 
 ### 访问者模式(Visitor)
+
+## 其余常用模式
+
+### 性能分析模式(Profiling Patterns)
+
+#### Timing Functions
+
+- 包装函数并记录执行
+- 在优化代码时 通常需要快速简单的时间测量 以此来验证假设 而不是使用profiler工具/框架
+- 可以使用`time`包和`defer`语句执行时间测量
+
+#### 用法
+
+```go
+// profile.go
+package profile
+
+import (
+    "log"
+    "time"
+)
+
+// 计算函数执行的持续时间
+func Duration(invocation time.Time, name string) {
+    elapsed := time.Since(invocation)
+
+    log.Printf("%s lasted %s", name, elapsed)
+}
+
+// main.go
+package main
+
+import (
+    "time"
+
+    "package/profile"
+)
+
+func Func1() {
+    // Arguments to a defer statement is immediately evaluated and stored.
+    // The deferred function receives the pre-evaluated values when its invoked.
+    // time.Now() 会立即执行并存储 即传入的是该函数的开始执行时间
+    defer profile.Duration(time.Now(), "Func1")
+
+    time.Sleep(5 * time.Second)
+}
+
+func Func2() {
+    defer profile.Duration(time.Now(), "Func2")
+
+    time.Sleep(3 * time.Second)
+}
+
+func main() {
+    Func1()
+    Func2()
+}
+
+/*
+输出示例:
+2025/04/02 12:54:16 Func1 lasted 5.0131114s
+2025/04/02 12:54:19 Func2 lasted 3.0020849s
+*/
+
+
+```
+
+## 参考文档
+
+[singleton-pattern-in-go](http://marcio.io/2015/07/singleton-pattern-in-go/)
+
+[Go24种设计模式](https://www.fengfengzhidao.com/article/JI33Q5QB8lppN5cbFPQR)
+
+[Go Patterns](https://github.com/tmrts/go-patterns#)
