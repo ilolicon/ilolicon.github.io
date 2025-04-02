@@ -719,6 +719,54 @@ func main() {
 - 使用原型模式 如果有**引用类型** 则需要考虑深拷贝和浅拷贝的问题
 - 浅拷贝只复制对象本身而不复制其引用的对象 深拷贝则会递归地复制整个对象图
 - 这需要根据需求选择适当的拷贝方式
+  
+### 对象池模式(Object Pool Pattern)
+
+- 对象池创建设计模式用于根据需求预期准备和保留多个实例
+
+#### 实现
+
+```go
+package pool
+
+type Pool chan *Object
+
+func New(total int) *Pool {
+    p := make(Pool, total)
+
+    for i :=0; i < total; i++ {
+        p <- new(Object)
+    }
+
+    return &p
+}
+
+```
+
+#### 用法
+
+- 下面给出了一个关于对象池的简单生命周期示例
+
+```go
+p := pool.New(2)
+
+select {
+case obj := <-p:
+    obj.Do( /*...*/ )
+
+    p <- obj
+default:
+    // No more objects left — retry later or fail
+    return
+}
+
+```
+
+#### 经验法则
+
+- 对象池模式在对象初始化比对象维护成本更高的情况下非常有用
+- 如果需求出现峰值 而不是稳定需求 则维护开销可能会超过对象池的优势
+- 由于对象是预先初始化的 因此它对性能有积极影响
 
 ## 结构型模式
 
