@@ -1523,27 +1523,1189 @@ func main() {
 
 ## 行为型模式
 
+- 行为型模式`Behavioral pattern` 它主要关注对象之间的职责分配和通信方式
+- 行为型模式的核心思想是通过定义对象之间的交互方式 来更好地实现系统的功能 同时降低对象之间的耦合度
+
 ### 中介者模式(Mediator)
 
-### 观察者模式(Observer)
+- 它通过引入一个中介者对象来封装一组对象之间的交互
+- 中介者模式的核心思想是 将对象之间的复杂交互集中到一个中介者对象中 从而减少对象之间的直接耦合
 
-### 命令模式(Command)
+#### 优点
+
+- 减少耦合：对象之间不直接通信 而是通过中介者进行交互 减少了对象之间的耦合
+- 集中控制：将对象之间的交互逻辑集中到中介者中 便于维护和扩展
+- 简化对象职责：每个对象只需要关注自己的行为 而不需要知道其他对象的存在
+
+#### 示例
+
+- 假设我们有一个聊天室系统 用户(同事类)之间通过聊天室(中介者)发送消息
+- 用户之间不直接通信 而是通过聊天室来转发消息
+
+```go
+package main
+
+import "fmt"
+
+// 定义中介者接口
+type Mediator interface {
+    SendMessage(message string, sender Colleague)
+}
+
+// 具体中介者
+type ChatRoom struct {
+    users []Colleague
+}
+
+func (c *ChatRoom) Register(user Colleague) {
+    c.users = append(c.users, user)
+}
+
+func (c *ChatRoom) SendMessage(message string, sender Colleague) {
+    for _, user := range c.users {
+        if user != sender {
+            user.Receive(message)
+        }
+    }
+}
+
+// 定义同事类接口
+type Colleague interface {
+    Send(message string)
+    Receive(message string)
+}
+
+// 具体同事类
+type User struct {
+    name     string
+    mediator Mediator
+}
+
+func (u *User) Send(message string) {
+    fmt.Printf("%s sends: %s\n", u.name, message)
+    u.mediator.SendMessage(message, u)
+}
+
+func (u *User) Receive(message string) {
+    fmt.Printf("%s receives: %s\n", u.name, message)
+}
+
+func main() {
+    // 创建中介者
+    chatRoom := &ChatRoom{}
+
+    // 创建用户
+    alice := &User{name: "Alice", mediator: chatRoom}
+    bob := &User{name: "Bob", mediator: chatRoom}
+    charlie := &User{name: "Charlie", mediator: chatRoom}
+
+    // 注册用户到聊天室
+    chatRoom.Register(alice)
+    chatRoom.Register(bob)
+    chatRoom.Register(charlie)
+
+    // 用户发送消息
+    alice.Send("Hello, everyone!")
+    bob.Send("Hi, Alice!")
+    charlie.Send("Hey, Bob!")
+}
+
+```
+
+### 观察者模式(Observer) ✔
+
+- 它定义了对象之间的一对多依赖关系
+- 当一个对象(被观察者)的状态发生改变时 所有依赖它的对象(观察者)都会收到通知并自动更新
+- 观察者模式的核心思想是 解耦被观察者和观察者 使得它们可以独立变化
+
+#### 优点
+
+- 解耦：被观察者和观察者之间是松耦合的 它们可以独立变化
+- 支持动态注册和移除观察者：可以在运行时动态地注册和移除观察者
+- 符合开闭原则：新增观察者时 不需要修改被观察者的代码
+
+#### 示例
+
+- 假设我们有一个天气站(被观察者) 当天气数据更新时 通知多个显示设备(观察者)更新显示内容
+
+```go
+package main
+
+import "fmt"
+
+// 定义观察者接口
+type Observer interface {
+    Update(temperature float64, humidity float64, pressure float64)
+}
+
+// 定义被观察者接口
+type Subject interface {
+    RegisterObserver(o Observer)
+    RemoveObserver(o Observer)
+    NotifyObservers()
+}
+
+// 具体被观察者
+type WeatherData struct {
+    observers   []Observer
+    temperature float64
+    humidity    float64
+    pressure    float64
+}
+
+func (w *WeatherData) RegisterObserver(o Observer) {
+    w.observers = append(w.observers, o)
+}
+
+func (w *WeatherData) RemoveObserver(o Observer) {
+    for i, observer := range w.observers {
+        if observer == o {
+            w.observers = append(w.observers[:i], w.observers[i+1:]...)
+            break
+        }
+    }
+}
+
+func (w *WeatherData) NotifyObservers() {
+    for _, observer := range w.observers {
+        observer.Update(w.temperature, w.humidity, w.pressure)
+    }
+}
+
+func (w *WeatherData) SetMeasurements(temperature float64, humidity float64, pressure float64) {
+    w.temperature = temperature
+    w.humidity = humidity
+    w.pressure = pressure
+    w.NotifyObservers()
+}
+
+// 具体观察者
+type DisplayDevice struct {
+    name string
+}
+
+func (d *DisplayDevice) Update(temperature float64, humidity float64, pressure float64) {
+    fmt.Printf("%s: Temperature=%.2f, Humidity=%.2f, Pressure=%.2f\n", d.name, temperature, humidity, pressure)
+}
+
+func main() {
+    // 创建被观察者
+    weatherData := &WeatherData{}
+
+    // 创建观察者
+    display1 := &DisplayDevice{name: "Display 1"}
+    display2 := &DisplayDevice{name: "Display 2"}
+
+    // 注册观察者
+    weatherData.RegisterObserver(display1)
+    weatherData.RegisterObserver(display2)
+
+    // 更新天气数据并通知观察者
+    weatherData.SetMeasurements(25.0, 65.0, 1013.0)
+    weatherData.SetMeasurements(26.5, 70.0, 1012.5)
+
+    // 移除一个观察者
+    weatherData.RemoveObserver(display1)
+
+    // 再次更新天气数据
+    weatherData.SetMeasurements(27.0, 68.0, 1011.0)
+}
+
+```
+
+### 命令模式(Command) ✔
+
+- 它将请求封装为一个对象 从而使你可以用不同的请求对客户进行参数化 并且支持请求的排队、记录日志、撤销操作等功能
+
+#### 核心思想
+
+- 将请求封装为对象：将每个请求(如方法调用)封装为一个独立的对象
+- 解耦请求的发送者和接收者：发送者不需要知道接收者的具体实现 只需要通过命令对象来执行请求
+- 支持扩展：可以轻松地添加新的命令 而不需要修改现有代码
+
+#### 示例
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+// 定义命令接口
+type Command interface {
+    Execute()
+}
+
+// 具体命令 表示打印消息
+type PrintCommand struct {
+    message string
+}
+
+func (c *PrintCommand) Execute() {
+    fmt.Println("Executing PrintCommand:", c.message)
+}
+
+// 具体命令 表示发送邮件
+type EmailCommand struct {
+    to      string
+    subject string
+    body    string
+}
+
+func (c *EmailCommand) Execute() {
+    fmt.Printf("Executing EmailCommand: Sending email to %s\n", c.to)
+    fmt.Printf("Subject: %s\n", c.subject)
+    fmt.Printf("Body: %s\n", c.body)
+}
+
+// 任务队列 用于存储和执行命令
+type TaskQueue struct {
+    commands []Command
+}
+
+func (tq *TaskQueue) AddCommand(cmd Command) {
+    tq.commands = append(tq.commands, cmd)
+}
+
+func (tq *TaskQueue) ProcessCommands() {
+    for _, cmd := range tq.commands {
+        cmd.Execute()
+        time.Sleep(1 * time.Second) // 模拟任务执行的时间
+    }
+    tq.commands = nil // 清空任务队列
+}
+
+func main() {
+    // 创建任务队列
+    taskQueue := &TaskQueue{}
+
+    // 添加任务到队列
+    taskQueue.AddCommand(&PrintCommand{message: "Hello, World!"})
+    taskQueue.AddCommand(&EmailCommand{
+        to:      "user@example.com",
+        subject: "Welcome",
+        body:    "Thank you for signing up!",
+    })
+    taskQueue.AddCommand(&PrintCommand{message: "Task queue is running..."})
+
+    // 处理任务队列
+    fmt.Println("Processing task queue:")
+    taskQueue.ProcessCommands()
+
+    // 添加更多任务
+    taskQueue.AddCommand(&PrintCommand{message: "Another task"})
+    taskQueue.AddCommand(&EmailCommand{
+        to:      "admin@example.com",
+        subject: "Report",
+        body:    "Here is the daily report.",
+    })
+
+    // 再次处理任务队列
+    fmt.Println("\nProcessing task queue again:")
+    taskQueue.ProcessCommands()
+}
+
+```
 
 ### 迭代器模式(Iterator)
 
-### 模板方法模式(Template Method)
+- 它提供了一种方法顺序访问一个聚合对象中的各个元素 而又不需要暴露该对象的内部表示
+- 迭代器模式的核心思想是将遍历逻辑从聚合对象中分离出来 使得聚合对象和遍历逻辑可以独立变化
 
-### 策略模式(Strategy)
+#### 适用场景
+
+- 集合类库：如Go的 slice、map 等集合类型 可以通过迭代器模式提供统一的遍历接口
+- 数据库查询结果：数据库查询结果可以封装为一个聚合对象 并提供迭代器遍历查询结果
+- 文件系统遍历：文件系统中的目录和文件可以封装为一个聚合对象 并提供迭代器遍历文件系统
+- 树形结构遍历：树形结构(如二叉树、多叉树)可以提供多种遍历方式(如深度优先、广度优先)
+
+#### 示例
+
+- 假设我们有一个集合类BookCollection 它包含多本书
+- 我们需要实现一个迭代器 用于遍历这个集合
+
+```go
+package main
+
+import "fmt"
+
+// 定义书籍结构体
+type Book struct {
+    Title  string
+    Author string
+}
+
+// 定义迭代器接口
+type Iterator interface {
+    HasNext() bool
+    Next() *Book
+}
+
+// 具体迭代器
+type BookIterator struct {
+    books    []*Book
+    position int
+}
+
+func (b *BookIterator) HasNext() bool {
+    return b.position < len(b.books)
+}
+
+func (b *BookIterator) Next() *Book {
+    if b.HasNext() {
+        book := b.books[b.position]
+        b.position++
+        return book
+    }
+    return nil
+}
+
+// 定义聚合接口
+type Aggregate interface {
+    CreateIterator() Iterator
+}
+
+// 具体聚合
+type BookCollection struct {
+    books []*Book
+}
+
+func (b *BookCollection) CreateIterator() Iterator {
+    return &BookIterator{books: b.books}
+}
+
+func main() {
+    // 创建书籍集合
+    collection := &BookCollection{
+        books: []*Book{
+            {Title: "The Go Programming Language", Author: "Alan A. A. Donovan"},
+            {Title: "Design Patterns", Author: "Erich Gamma"},
+            {Title: "Clean Code", Author: "Robert C. Martin"},
+        },
+    }
+
+    // 创建迭代器
+    iterator := collection.CreateIterator()
+
+    // 遍历集合
+    for iterator.HasNext() {
+        book := iterator.Next()
+        fmt.Printf("Title: %s, Author: %s\n", book.Title, book.Author)
+    }
+}
+
+```
+
+### 模板方法模式(Template Method) ✔
+
+- 它定义了一个算法的骨架 并将某些步骤延迟到子类中实现
+- 模板方法模式的核心思想是 将算法的通用部分放在父类中 而将可变部分交给子类实现
+- 通过模板方法模式 可以避免代码重复 并确保算法的结构不变
+
+#### 适用场景
+
+- `框架设计` 如Web框架中的请求处理流程(初始化、处理请求、返回响应等)
+- `工作流引擎` 如订单处理流程(创建订单、支付订单、发货订单等)
+- `测试框架` 如测试用例的执行流程(初始化、执行测试、清理资源等)
+- `游戏开发` 如游戏角色的行为流程(移动、攻击、防御等)
+
+#### 优点
+
+- `代码复用` 将算法的通用部分放在父类中 避免了代码重复
+- `扩展性` 新增子类时 只需要实现抽象方法 而不需要修改父类的代码
+- `控制算法结构` 父类控制算法的结构 确保算法的步骤不会被子类改变
+
+#### 示例
+
+- 假设我们有一个饮料制作系统 支持制作咖啡和茶
+- 咖啡和茶的制作过程有一些共同的步骤(如烧水、倒入杯子) 也有一些不同的步骤(如冲泡咖啡、泡茶)
+
+```go
+package main
+
+import "fmt"
+
+// 抽象类，定义饮料制作的模板方法
+type Beverage interface {
+    BoilWater()           // 烧水
+    Brew()                // 冲泡
+    PourInCup()           // 倒入杯子
+    AddCondiments()       // 添加调料
+    WantCondiments() bool // 是否添加调料（钩子方法）
+}
+
+// 模板方法
+func MakeBeverage(b Beverage) {
+    b.BoilWater()
+    b.Brew()
+    b.PourInCup()
+    if b.WantCondiments() {
+        b.AddCondiments()
+    }
+}
+
+// 具体类：咖啡
+type Coffee struct{}
+
+func (c *Coffee) BoilWater() {
+    fmt.Println("Boiling water")
+}
+
+func (c *Coffee) Brew() {
+    fmt.Println("Brewing coffee")
+}
+
+func (c *Coffee) PourInCup() {
+    fmt.Println("Pouring coffee into cup")
+}
+
+func (c *Coffee) AddCondiments() {
+    fmt.Println("Adding sugar and milk")
+}
+
+func (c *Coffee) WantCondiments() bool {
+    return true
+}
+
+// 具体类：茶
+type Tea struct{}
+
+func (t *Tea) BoilWater() {
+    fmt.Println("Boiling water")
+}
+
+func (t *Tea) Brew() {
+    fmt.Println("Steeping tea")
+}
+
+func (t *Tea) PourInCup() {
+    fmt.Println("Pouring tea into cup")
+}
+
+func (t *Tea) AddCondiments() {
+    fmt.Println("Adding lemon")
+}
+
+func (t *Tea) WantCondiments() bool {
+    return false
+}
+
+func main() {
+    // 制作咖啡
+    fmt.Println("Making coffee:")
+    coffee := &Coffee{}
+    MakeBeverage(coffee)
+
+    // 制作茶
+    fmt.Println("\nMaking tea:")
+    tea := &Tea{}
+    MakeBeverage(tea)
+}
+
+```
+
+### 策略模式(Strategy) ✔
+
+- 它定义了一系列算法 并将每个算法封装起来 使它们可以互相替换
+- 策略模式的核心思想是将算法的使用与算法的实现分离 从而使得算法可以独立于客户端而变化
+- 通过策略模式 可以在运行时动态地选择算法 而不需要修改客户端代码
+
+#### 适用场景
+
+- 支付系统：如示例所示 支持多种支付方式
+- 排序算法：支持多种排序算法(如快速排序、归并排序、冒泡排序等)
+- 压缩算法：支持多种压缩算法(如ZIP、RAR、7z等)
+- 路由算法：支持多种路由算法(如最短路径、最快路径、最少收费路径等)
+
+#### 优点
+
+- 解耦：将算法的使用与算法的实现分离 使得算法可以独立于客户端而变化
+- 易于扩展：新增算法时 只需要添加新的策略类 而不需要修改现有代码
+- 动态选择算法：可以在运行时动态地选择算法 而不需要修改客户端代码
+
+#### 示例
+
+- 假设我们有一个支付系统 支持多种支付方式(如信用卡支付、支付宝支付、微信支付等) 我们可以使用策略模式来实现支付方式的选择
+
+```go
+package main
+
+import "fmt"
+
+// 定义策略接口
+type PaymentStrategy interface {
+    Pay(amount float64)
+}
+
+// 具体策略：信用卡支付
+type CreditCardPayment struct{}
+
+func (c *CreditCardPayment) Pay(amount float64) {
+    fmt.Printf("Paying %.2f using Credit Card\n", amount)
+}
+
+// 具体策略：支付宝支付
+type AlipayPayment struct{}
+
+func (a *AlipayPayment) Pay(amount float64) {
+    fmt.Printf("Paying %.2f using Alipay\n", amount)
+}
+
+// 具体策略：微信支付
+type WechatPayment struct{}
+
+func (w *WechatPayment) Pay(amount float64) {
+    fmt.Printf("Paying %.2f using Wechat Pay\n", amount)
+}
+
+// 上下文
+type PaymentContext struct {
+    strategy PaymentStrategy
+}
+
+func (p *PaymentContext) SetStrategy(strategy PaymentStrategy) {
+    p.strategy = strategy
+}
+
+func (p *PaymentContext) ExecutePayment(amount float64) {
+    p.strategy.Pay(amount)
+}
+
+func main() {
+    // 创建上下文
+    context := &PaymentContext{}
+
+    // 使用信用卡支付
+    context.SetStrategy(&CreditCardPayment{})
+    context.ExecutePayment(100.0) // 输出: Paying 100.00 using Credit Card
+
+    // 使用支付宝支付
+    context.SetStrategy(&AlipayPayment{})
+    context.ExecutePayment(200.0) // 输出: Paying 200.00 using Alipay
+
+    // 使用微信支付
+    context.SetStrategy(&WechatPayment{})
+    context.ExecutePayment(300.0) // 输出: Paying 300.00 using Wechat Pay
+}
+
+```
 
 ### 状态模式(State)
 
+- 它允许对象在其内部状态改变时改变其行为
+- 状态模式的核心思想是将对象的状态封装成独立的类 并将对象的行为委托给当前状态对象
+- 通过状态模式 可以将复杂的条件逻辑分散到多个状态类中 从而使得代码更加清晰和易于维护
+
+#### 优点
+
+- 清晰的状态转换逻辑：将状态转换逻辑分散到各个状态类中 避免了复杂的条件语句
+- 符合开闭原则：新增状态时 只需要添加新的状态类 而不需要修改现有代码
+- 易于扩展：可以轻松地添加新的状态和行为
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+// 定义状态接口
+type State interface {
+    PressSwitch(context *Context)
+}
+
+// 上下文
+type Context struct {
+    state State
+}
+
+func (c *Context) SetState(state State) {
+    c.state = state
+}
+
+func (c *Context) PressSwitch() {
+    c.state.PressSwitch(c)
+}
+
+// 具体状态：开
+type OnState struct{}
+
+func (o *OnState) PressSwitch(context *Context) {
+    fmt.Println("Turning the light off...")
+    context.SetState(&OffState{})
+}
+
+// 具体状态：关
+type OffState struct{}
+
+func (o *OffState) PressSwitch(context *Context) {
+    fmt.Println("Turning the light on...")
+    context.SetState(&OnState{})
+}
+
+func main() {
+    // 创建上下文并设置初始状态
+    context := &Context{state: &OffState{}}
+
+    // 按下开关
+    context.PressSwitch() // 输出: Turning the light on...
+    context.PressSwitch() // 输出: Turning the light off...
+    context.PressSwitch() // 输出: Turning the light on...
+}
+
+```
+
 ### 备忘录模式(Memento)
+
+- 它允许在不破坏封装性的前提下 捕获并外部化一个对象的内部状态 以便稍后可以将该对象恢复到之前的状态
+- 备忘录模式的核心思想是 将对象的状态保存到一个备忘录对象中 并在需要时从备忘录中恢复状态
+
+#### 优点
+
+- 这种方式非常适合需要支持撤销操作或状态管理的场景
+- 比如文本编辑器、游戏存档、事务回滚等
+- 在Go语言中 备忘录模式可以通过接口和结构体的组合来实现 代码简洁且易于扩展
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+// 定义备忘录接口
+type Memento interface {
+    GetState() string
+}
+
+// 具体备忘录
+type TextMemento struct {
+    state string
+}
+
+func (t *TextMemento) GetState() string {
+    return t.state
+}
+
+// 原发器
+type Originator struct {
+    state string
+}
+
+func (o *Originator) SetState(state string) {
+    o.state = state
+}
+
+func (o *Originator) GetState() string {
+    return o.state
+}
+
+func (o *Originator) CreateMemento() Memento {
+    return &TextMemento{state: o.state}
+}
+
+func (o *Originator) RestoreMemento(m Memento) {
+    o.state = m.GetState()
+}
+
+// 管理者
+type Caretaker struct {
+    mementos []Memento
+}
+
+func (c *Caretaker) AddMemento(m Memento) {
+    c.mementos = append(c.mementos, m)
+}
+
+func (c *Caretaker) GetMemento(index int) Memento {
+    if index < len(c.mementos) {
+        return c.mementos[index]
+    }
+    return nil
+}
+
+func main() {
+    // 创建原发器
+    editor := &Originator{}
+
+    // 创建管理者
+    caretaker := &Caretaker{}
+
+    // 编辑文本并保存状态
+    editor.SetState("State 1")
+    caretaker.AddMemento(editor.CreateMemento()) // 创建一个备忘录对象，保存当前状态。
+
+    editor.SetState("State 2")
+    caretaker.AddMemento(editor.CreateMemento())
+
+    editor.SetState("State 3")
+    caretaker.AddMemento(editor.CreateMemento())
+
+    fmt.Println(editor.GetState()) // 这个时候的状态已经是  State 3
+
+    // 恢复到之前的状态
+    editor.RestoreMemento(caretaker.GetMemento(1))
+    fmt.Println("Restored State:", editor.GetState()) // 输出: Restored State: State 2
+
+    editor.RestoreMemento(caretaker.GetMemento(0))
+    fmt.Println("Restored State:", editor.GetState()) // 输出: Restored State: State 1
+}
+
+```
 
 ### 解释器模式(Interpreter)
 
+- 它定义了一种语言的语法表示 并提供了一个解释器来解释这种语法
+- 解释器模式通常用于处理类似编程语言、查询语言、规则引擎等场景
+- 核心思想
+  - 定义语法规则：将语言的语法规则表示为一个抽象语法树(AST)
+  - 解释执行：通过解释器遍历抽象语法树 执行相应的操作
+
+#### 抽象语法树
+
+- 抽象语法树(Abstract Syntax Tree-AST)是编译器和解释器中的一个核心概念
+- 它是一种树形数据结构 用于表示源代码的语法结构
+- AST 之所以被称为`抽象语法树` 是因为它抽象掉了源代码中的一些具体细节 只保留了程序的逻辑结构
+- 为什么叫 抽象语法树
+  - 抽象(Abstract)
+    - AST 并不包含源代码中的所有细节 比如括号、分号、空格等 它只关注程序的逻辑结构
+    - 例如 表达式 2 * (3 + 4) 的`AST`会抽象掉括号 只保留运算符和操作数的层次关系
+  - 语法(Syntax)
+    - AST 表示的是源代码的语法结构 而不是语义(即程序的含义)
+    - 例如 AST 可以表示一个`if`语句的语法结构 但不会解释`if`语句的具体行为
+  - 树(Tree)
+    - AST是一种树形数据结构 每个节点表示一个语法结构(如表达式、语句、函数等)
+    - 树的层次结构反映了源代码的嵌套关系
+- 比如：
+
+```go
+if x > 0 {
+    print(Positive)
+} else {
+    print(Non-positive)
+}
+
+```
+
+- 对应的AST如下:
+  
+```bash
+IfStatement
+├── Condition: BinaryExpression
+│   ├── Left: Identifier (x)
+│   ├── Operator: >
+│   └── Right: Number (0)
+├── ThenBlock: BlockStatement
+│   └── Expression: CallExpression
+│       ├── Function: Identifier (print)
+│       └── Arguments: StringLiteral ("Positive")
+└── ElseBlock: BlockStatement
+    └── Expression: CallExpression
+        ├── Function: Identifier (print)
+        └── Arguments: StringLiteral ("Non-positive")
+
+```
+
+#### 适用场景
+
+- 数据库查询引擎：如 MySQL、PostgreSQL 等数据库的查询解析和执行
+- 规则引擎：如业务规则引擎 用于解析和执行规则
+- 模板引擎：如Go的`text/template`用于解析和执行模板
+- 数学表达式计算：如计算器应用程序 用于解析和计算数学表达式
+
+#### 示例
+
+- 以Go语言里面的模板字符串为例
+
+```go
+package main
+
+import (
+    "os"
+    "text/template"
+)
+
+func main() {
+    // 定义模板字符串
+    const tmpl = `Hello, {{.Name}}! You are {{.Age}} years old.`
+
+    // 解析模板
+    t, err := template.New("example").Parse(tmpl)
+    if err != nil {
+        panic(err)
+    }
+
+    // 定义数据
+    data := struct {
+        Name string
+        Age  int
+    }{
+        Name: "Alice", Age: 25,
+    }
+
+    // 执行模板并输出结果
+    err = t.Execute(os.Stdout, data)
+    if err != nil {
+        panic(err)
+    }
+}
+
+```
+
+- 这个是解释器模式的应用 我们需要了解内部的原理 然后自己手搓一个这样的模板字符串解析器出来
+
+```go
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+// 定义上下文 存储模板数据
+type Context struct {
+    Data map[string]interface{}
+}
+
+// 定义抽象表达式接口
+type Expression interface {
+    Interpret(ctx *Context) string
+}
+
+// 是文本表达式 表示普通文本
+type TextExpression struct {
+    text string
+}
+
+func (t *TextExpression) Interpret(ctx *Context) string {
+    return t.text
+}
+
+// 是变量表达式 表示变量替换
+type VariableExpression struct {
+    key string
+}
+
+func (v *VariableExpression) Interpret(ctx *Context) string {
+    value, ok := ctx.Data[v.key]
+    if !ok {
+        return ""
+    }
+    return fmt.Sprintf("%v", value)
+}
+
+// 是模板 包含多个表达式
+type Template struct {
+    expressions []Expression
+}
+
+func (t *Template) Interpret(ctx *Context) string {
+    var result strings.Builder
+    for _, expr := range t.expressions {
+        result.WriteString(expr.Interpret(ctx))
+    }
+    return result.String()
+}
+
+// 解析模板字符串并构建抽象语法树
+func ParseTemplate(tmpl string) *Template {
+    template := &Template{}
+    start := 0
+    for {
+        // 查找变量表达式的起始位置
+        startVar := strings.Index(tmpl[start:], "{{")
+        if startVar == -1 {
+            // 如果没有变量表达式，剩下的都是普通文本
+            template.expressions = append(template.expressions, &TextExpression{text: tmpl[start:]})
+            break
+        }
+        // 添加普通文本
+        template.expressions = append(template.expressions, &TextExpression{text: tmpl[start : start+startVar]})
+        // 查找变量表达式的结束位置
+        endVar := strings.Index(tmpl[start+startVar:], "}}")
+        if endVar == -1 {
+            // 如果没有结束符，直接退出
+            break
+        }
+        // 解析变量表达式
+        key := strings.TrimSpace(tmpl[start+startVar+2 : start+startVar+endVar])
+        template.expressions = append(template.expressions, &VariableExpression{key: key})
+        // 更新起始位置
+        start = start + startVar + endVar + 2
+    }
+    return template
+}
+
+func main() {
+    // 定义模板字符串
+    tmpl := "Hello, {{Name}}! You are {{Age}} years old."
+
+    // 解析模板并构建抽象语法树
+    template := ParseTemplate(tmpl)
+
+    // 定义上下文数据
+    ctx := &Context{
+        Data: map[string]interface{}{
+            "Name": "Alice",
+            "Age":  25,
+        },
+    }
+
+    // 解释执行模板并输出结果
+    result := template.Interpret(ctx)
+    fmt.Println(result) // 输出: Hello, Alice! You are 25 years old.
+}
+
+```
+
 ### 职责链模式(Chain of Responsibility)
 
+- 是一种行为设计模式 它允许多个对象有机会处理请求 从而避免请求的发送者与接收者之间的耦合
+- 责任链模式将这些对象连成一条链 并沿着这条链传递请求 直到有对象处理它为止
+
+#### 核心思想
+
+- 解耦请求发送者和接收者：请求的发送者不需要知道具体由哪个对象处理请求 只需要将请求发送到链上即可
+- 动态组合处理逻辑：可以动态地组合处理者 灵活地调整处理顺序或增加新的处理者
+- 每个处理者只关心自己的职责：每个处理者只处理自己能处理的请求 不能处理的请求会传递给下一个处理者
+
+#### 适用场景
+
+- 当一个请求需要经过多个对象处理 但具体由哪个对象处理不确定时
+- 当需要动态指定处理请求的对象时
+- 当希望避免请求发送者与接收者之间的紧密耦合时
+- 实际应用场景
+  - 中间件
+  - 审批流程
+
+#### 示例
+
+- 实现一下gin的中间件功能 中间件自己可以处理请求 可以拦截 可以放行
+
+```go
+package main
+
+import (
+    "fmt"
+    "net/http"
+)
+
+// 模拟Gin的上下文
+type Context struct {
+    Request  *http.Request
+    Writer   http.ResponseWriter
+    handlers []HandlerFunc // 责任链中的处理函数
+    index    int           // 当前执行的处理函数索引
+}
+
+// 定义处理函数类型
+type HandlerFunc func(c *Context)
+
+// 调用责任链中的下一个处理函数
+func (c *Context) Next() {
+    c.index++
+    if c.index < len(c.handlers) {
+        c.handlers[c.index](c)
+    }
+}
+
+// 终止责任链的执行
+func (c *Context) Abort() {
+    c.index = len(c.handlers) // 直接跳到末尾 不再执行后续处理函数
+}
+
+// 模拟Gin的引擎
+type Engine struct {
+    handlers []HandlerFunc // 全局中间件和责任链
+}
+
+// 添加中间件到责任链
+func (e *Engine) Use(middleware HandlerFunc) {
+    e.handlers = append(e.handlers, middleware)
+}
+
+// 实现http.Handler接口
+func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    c := &Context{
+        Request:  r,
+        Writer:   w,
+        handlers: e.handlers,
+        index:    -1,
+    }
+    c.Next() // 开始执行责任链
+}
+
+// 示例中间件 1：日志记录
+func LoggingMiddleware(c *Context) {
+    fmt.Printf("Request: %s %s\n", c.Request.Method, c.Request.URL.Path)
+    c.Next() // 传递给下一个中间件
+}
+
+// 示例中间件 2：认证检查
+func AuthMiddleware(c *Context) {
+    token := c.Request.Header.Get("Authorization")
+    if token != "valid-token" {
+        c.Writer.WriteHeader(http.StatusUnauthorized)
+        c.Writer.Write([]byte("Unauthorized"))
+        c.Abort() // 终止责任链
+        return
+    }
+    c.Next() // 传递给下一个中间件
+}
+
+// 示例中间件 3：请求处理
+func HelloHandler(c *Context) {
+    c.Writer.WriteHeader(http.StatusOK)
+    c.Writer.Write([]byte("Hello, World!"))
+}
+
+func main() {
+    // 创建引擎
+    engine := &Engine{}
+
+    // 添加中间件到责任链
+    engine.Use(LoggingMiddleware)
+    engine.Use(AuthMiddleware)
+    engine.Use(HelloHandler)
+
+    // 启动 HTTP 服务器
+    fmt.Println("Server is running on :9090")
+    fmt.Println(http.ListenAndServe(":9090", engine))
+}
+
+```
+
 ### 访问者模式(Visitor)
+
+- 它允许你将算法与对象结构分离
+- 访问者模式的核心思想是 将操作(算法)从对象结构中分离出来 使得可以在不修改对象结构的情况下定义新的操作
+- 通过访问者模式 可以将对象结构的元素与作用于这些元素的操作解耦 从而使得操作可以独立变化
+
+#### 优点
+
+- 解耦：将操作与对象结构分离 使得操作可以独立变化
+- 扩展性：新增操作时 只需要添加新的访问者 而不需要修改对象结构。
+- 符合开闭原则：对象结构对扩展开放 对修改关闭
+
+#### 示例
+
+- 假设我们有一个文档对象模型(DOM) 包含多种元素(如文本、图片、表格等) 我们需要对这些元素进行不同的操作(如导出为PDF、导出为HTML等)
+
+```go
+package main
+
+import "fmt"
+
+// 定义访问者接口
+type Visitor interface {
+    VisitText(text *Text)
+    VisitImage(image *Image)
+    VisitTable(table *Table)
+}
+
+// 定义元素接口
+type Element interface {
+    Accept(visitor Visitor)
+}
+
+// 具体元素：文本
+type Text struct {
+    content string
+}
+
+func (t *Text) Accept(visitor Visitor) {
+    visitor.VisitText(t)
+}
+
+// 具体元素：图片
+type Image struct {
+    src string
+}
+
+func (i *Image) Accept(visitor Visitor) {
+    visitor.VisitImage(i)
+}
+
+// 具体元素：表格
+type Table struct {
+    rows int
+    cols int
+}
+
+func (t *Table) Accept(visitor Visitor) {
+    visitor.VisitTable(t)
+}
+
+// 具体访问者：导出为 PDF
+type PDFExportVisitor struct{}
+
+func (p *PDFExportVisitor) VisitText(text *Text) {
+    fmt.Printf("Exporting text to PDF: %s\n", text.content)
+}
+
+func (p *PDFExportVisitor) VisitImage(image *Image) {
+    fmt.Printf("Exporting image to PDF: %s\n", image.src)
+}
+
+func (p *PDFExportVisitor) VisitTable(table *Table) {
+    fmt.Printf("Exporting table to PDF: %d rows, %d cols\n", table.rows, table.cols)
+}
+
+// 具体访问者：导出为 HTML
+type HTMLExportVisitor struct{}
+
+func (h *HTMLExportVisitor) VisitText(text *Text) {
+    fmt.Printf("Exporting text to HTML: %s\n", text.content)
+}
+
+func (h *HTMLExportVisitor) VisitImage(image *Image) {
+    fmt.Printf("Exporting image to HTML: %s\n", image.src)
+}
+
+func (h *HTMLExportVisitor) VisitTable(table *Table) {
+    fmt.Printf("Exporting table to HTML: %d rows, %d cols\n", table.rows, table.cols)
+}
+
+// 是对象结构
+type Document struct {
+    elements []Element
+}
+
+func (d *Document) AddElement(element Element) {
+    d.elements = append(d.elements, element)
+}
+
+func (d *Document) Accept(visitor Visitor) {
+    for _, element := range d.elements {
+        element.Accept(visitor)
+    }
+}
+
+func main() {
+    // 创建文档对象
+    document := &Document{}
+
+    // 添加元素
+    document.AddElement(&Text{content: "Hello, World!"})
+    document.AddElement(&Image{src: "image.png"})
+    document.AddElement(&Table{rows: 3, cols: 2})
+
+    // 创建访问者
+    pdfVisitor := &PDFExportVisitor{}
+    htmlVisitor := &HTMLExportVisitor{}
+
+    // 导出为 PDF
+    fmt.Println("Exporting to PDF:")
+    document.Accept(pdfVisitor)
+
+    // 导出为 HTML
+    fmt.Println("\nExporting to HTML:")
+    document.Accept(htmlVisitor)
+}
+
+```
 
 ## 其余常用模式
 
