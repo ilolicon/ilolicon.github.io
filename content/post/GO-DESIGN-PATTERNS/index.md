@@ -2823,6 +2823,14 @@ func main() {
 
 ```
 
+### Function Options
+
+[函数选项模式](https://ilolicon.github.io/p/go-functional-options/)
+
+### Circuit-Breaker
+
+[断路器模式](https://github.com/sony/gobreaker)
+
 ## 参考文档
 
 [singleton-pattern-in-go](http://marcio.io/2015/07/singleton-pattern-in-go/)
