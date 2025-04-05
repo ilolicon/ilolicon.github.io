@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MQTT on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/mqtt/</link><description>Recent content in MQTT on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Thu, 23 Feb 2023 22:25:50 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/mqtt/index.xml" rel="self" type="application/rss+xml"/><item><title>MQTT</title><link>https://ilolicon.github.io/p/mqtt/</link><pubDate>Thu, 23 Feb 2023 22:25:50 +0800</pubDate><guid>https://ilolicon.github.io/p/mqtt/</guid><description>&lt;p>&lt;a class="link" href="https://www.emqx.io/docs/en/v5.0/" target="_blank" rel="noopener"
+>EMQX Docs&lt;/a>&lt;/p>
+&lt;h2 id="安装">安装&lt;/h2>
+&lt;h3 id="docker安装">Docker安装&lt;/h3>
+&lt;p>&lt;a class="link" href="https://hub.docker.com/_/emqx" target="_blank" rel="noopener"
+>EMQX Docker官方镜像&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Docker安装EMQX非常简单 按照官方镜像文档说明创建容器即可&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>注意事项&lt;/p>
+&lt;ul>
+&lt;li>容器安装的数据持久化&lt;/li>
+&lt;li>需要持久化文件 参考官方镜像说明文档即可&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Docker Volume持久化参考(&lt;code>单机测试环境&lt;/code>)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建所需数据卷&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker volume create emqx_data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker volume create emqx_etc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker volume create emqx_log
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run -d --name&lt;span class="o">=&lt;/span>emqx --restart&lt;span class="o">=&lt;/span>always &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>&lt;span class="c1"># -v emqx_data:/opt/emqx/data \ # -v效果类似与下面的--mount&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--mount &lt;span class="nv">source&lt;/span>&lt;span class="o">=&lt;/span>emqx_data,target&lt;span class="o">=&lt;/span>/opt/emqx/data &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 挂载data目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--mount &lt;span class="nv">source&lt;/span>&lt;span class="o">=&lt;/span>emqx_etc,target&lt;span class="o">=&lt;/span>/opt/emqx/etc &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 挂载配置目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--mount &lt;span class="nv">source&lt;/span>&lt;span class="o">=&lt;/span>emqx_log,target&lt;span class="o">=&lt;/span>/opt/emqx/log &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 挂载日志目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-p 1883:1883 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-p 8083:8083 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-p 8084:8084 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-p 8883:8883 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-p 18083:18083 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>emqx/emqx:latest
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>
