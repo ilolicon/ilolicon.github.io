@@ -726,9 +726,293 @@ func main() {
 - 结构型模式的核心思想是通过组合`Composition`而不是继承`Inheritance`来实现代码的复用和扩展
 - 它们帮助开发者设计出灵活、可扩展的系统结构 同时降低类与类之间的耦合度
 
-### 外观模式(Facade) ✘
+### 外观模式(Facade) ✔
 
-### 适配器模式(Adapter) ✘
+- 根据迪米特法则 如果两个类不必彼此直接通信 那么这两个类就不应当发生直接的相互作用
+- Facade模式也叫外观模式 是由GoF提出的23种设计模式中的一种
+- Facade模式为一组具有类似功能的类群 比如类库/子系统等等 提供一个一致的简单的界面
+- 这个一致的简单的界面被称作facade
+
+#### 适用场景
+
+- 复杂系统需要简单入口使用
+- 客户端程序与多个子系统之间存在很大的依赖性
+- 在层次化结构中 可以使用外观模式定义系统中每一层的入口 层与层之间不直接产生联系 而通过外观类建立联系 降低层之间的耦合度
+
+#### 优点
+
+- 它对客户端屏蔽了子系统组件 减少了客户端所需处理的对象数目 并使得子系统使用起来更加容易
+- 通过引入外观模式 客户端代码将变得很简单 与之关联的对象也很少
+- 它实现了子系统与客户端之间的松耦合关系 这使得子系统的变化不会影响到调用它的客户端 只需要调整外观类即可
+- 一个子系统的修改对其他子系统没有任何影响
+
+#### 缺点
+
+- 不能很好地限制客户端直接使用子系统类 如果对客户端访问子系统类做太多的限制则减少了可变性和灵活性
+- 如果设计不当 增加新的子系统可能需要修改外观类的源代码 违背了开闭原则
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+type SubSystemA struct {}
+
+func (sa *SubSystemA) MethodA() {
+    fmt.Println("子系统方法A")
+}
+
+type SubSystemB struct {}
+
+func (sb *SubSystemB) MethodB() {
+    fmt.Println("子系统方法B")
+}
+
+type SubSystemC struct {}
+
+func (sc *SubSystemC) MethodC() {
+    fmt.Println("子系统方法C")
+}
+
+type SubSystemD struct {}
+
+func (sd *SubSystemD) MethodD() {
+    fmt.Println("子系统方法D")
+}
+
+// 外观模式 提供了一个外观类 简化成一个简单的接口供使用
+type Facade struct {
+    a *SubSystemA
+    b *SubSystemB
+    c *SubSystemC
+    d *SubSystemD
+}
+
+func (f *Facade) MethodOne() {
+    f.a.MethodA()
+    f.b.MethodB()
+}
+
+
+func (f *Facade) MethodTwo() {
+    f.c.MethodC()
+    f.d.MethodD()
+}
+
+func main() {
+    // 如果不用外观模式实现MethodA() 和 MethodB()
+    sa := new(SubSystemA)
+    sa.MethodA()
+    sb := new(SubSystemB)
+    sb.MethodB()
+
+    fmt.Println("-----------")
+    // 使用外观模式
+    f := Facade{
+        a: new(SubSystemA),
+        b: new(SubSystemB),
+        c: new(SubSystemC),
+        d: new(SubSystemD),
+    }
+
+    // 调用外观包裹方法
+    f.MethodOne()
+}
+
+```
+
+- 示例2
+
+```go
+package main
+
+import "fmt"
+
+// 电视机
+type TV struct {}
+
+func (t *TV) On() {
+    fmt.Println("打开 电视机")
+}
+
+func (t *TV) Off() {
+    fmt.Println("关闭 电视机")
+}
+
+
+// 音箱
+type VoiceBox struct {}
+
+func (v *VoiceBox) On() {
+    fmt.Println("打开 音箱")
+}
+
+func (v *VoiceBox) Off() {
+    fmt.Println("关闭 音箱")
+}
+
+// 灯光
+type Light struct {}
+
+func (l *Light) On() {
+    fmt.Println("打开 灯光")
+}
+
+func (l *Light) Off() {
+    fmt.Println("关闭 灯光")
+}
+
+
+// 游戏机
+type Xbox struct {}
+
+func (x *Xbox) On() {
+    fmt.Println("打开 游戏机")
+}
+
+func (x *Xbox) Off() {
+    fmt.Println("关闭 游戏机")
+}
+
+
+// 麦克风
+type MicroPhone struct {}
+
+func (m *MicroPhone) On() {
+    fmt.Println("打开 麦克风")
+}
+
+func (m *MicroPhone) Off() {
+    fmt.Println("关闭 麦克风")
+}
+
+// 投影仪
+type Projector struct {}
+
+func (p *Projector) On() {
+    fmt.Println("打开 投影仪")
+}
+
+func (p *Projector) Off() {
+    fmt.Println("关闭 投影仪")
+}
+
+
+// 家庭影院(外观)
+type HomePlayerFacade struct {
+    tv TV
+    vb VoiceBox
+    light Light
+    xbox Xbox
+    mp MicroPhone
+    pro Projector
+}
+
+
+// KTV模式
+func (hp *HomePlayerFacade) DoKTV() {
+    fmt.Println("家庭影院进入KTV模式")
+    hp.tv.On()
+    hp.pro.On()
+    hp.mp.On()
+    hp.light.Off()
+    hp.vb.On()
+}
+
+// 游戏模式
+func (hp *HomePlayerFacade) DoGame() {
+    fmt.Println("家庭影院进入Game模式")
+    hp.tv.On()
+    hp.light.On()
+    hp.xbox.On()
+}
+
+func main() {
+    homePlayer := new(HomePlayerFacade)
+
+    homePlayer.DoKTV()
+
+    fmt.Println("------------")
+
+    homePlayer.DoGame()
+}
+
+```
+
+### 适配器模式(Adapter) ✔
+
+- 将一个类的接口转换成客户希望的另外一个接口
+- 使得原本由于接口不兼容而不能一起工作的那些类可以一起工作
+
+#### 优点
+
+- 将目标类和适配者类解耦 通过引入一个适配器类来重用现有的适配者类 无须修改原有结构
+- 增加了类的透明性和复用性 将具体的业务实现过程封装在适配者类中 对于客户端类而言是透明的 而且提高了适配者的复用性 同一个适配者类可以在多个不同的系统中复用
+- 灵活性和扩展性都非常好 可以很方便地更换适配器 也可以在不修改原有代码的基础上增加新的适配器类 完全符合**开闭原则**
+
+#### 缺点
+
+- 适配器中置换适配者类的某些方法比较麻烦
+
+#### 示例
+
+```go
+package main
+
+import "fmt"
+
+// 适配的目标
+type V5 interface {
+    Use5V()
+}
+
+// 业务类 依赖V5接口
+type Phone struct {
+    v V5
+}
+
+func NewPhone(v V5) *Phone {
+    return &Phone{v}
+}
+
+func (p *Phone) Charge() {
+    fmt.Println("Phone进行充电...")
+    p.v.Use5V()
+}
+
+// 被适配的角色 适配者
+type V220 struct{}
+
+func (v *V220) Use220V() {
+    fmt.Println("使用220V的电压")
+}
+
+// 电源适配器
+type Adapter struct {
+    v220 *V220
+}
+
+func (a *Adapter) Use5V() {
+    fmt.Println("使用适配器进行充电")
+
+    // 调用适配者的方法
+    a.v220.Use220V()
+}
+
+func NewAdapter(v220 *V220) *Adapter {
+    return &Adapter{v220}
+}
+
+// ------- 业务逻辑层 -------
+func main() {
+    iphone := NewPhone(NewAdapter(new(V220)))
+
+    iphone.Charge()
+}
+
+```
 
 ### 代理模式(Proxy) ✔
 
@@ -802,7 +1086,196 @@ func main() {
 
 ### 组合模式(Composite) ✘
 
+- 它允许你将对象组合成树形结构来表示`部分-整体`的层次关系
+- 组合模式让客户端可以统一地处理单个对象和对象组合
+
+#### 适用场景
+
+- 文件系统：如目录和文件的管理 可以通过组合模式将文件夹视为组合节点 文件视为叶子节点
+- 组织结构：如公司内部的部门和员工关系 可以通过组合模式将部门视为组合节点 员工视为叶子节点
+
+#### 优点
+
+- 简化客户端代码：客户端可以一致地对待单个对象和对象组合 而不需要关心它们的具体类型
+- 增强灵活性：可以在不修改现有代码的情况下轻松添加新的组件或修改现有组件的结构
+- 提高可扩展性：支持递归组合 使得复杂的层次结构易于构建和维护
+
+#### 示例
+
+```go
+package main
+
+import (
+    "fmt"
+)
+
+// 组件接口：文件系统节点
+type FileSystemNode interface {
+    Display(indent string)
+}
+
+// 叶子节点：文件
+type File struct {
+    name string
+}
+
+func (f *File) Display(indent string) {
+    fmt.Println(indent + f.name)
+}
+
+// 组合节点：文件夹
+type Folder struct {
+    name     string
+    children []FileSystemNode
+}
+
+func (f *Folder) Display(indent string) {
+    fmt.Println(indent + f.name)
+    for _, child := range f.children {
+        child.Display(indent + "  ")
+    }
+}
+
+func (f *Folder) Add(child FileSystemNode) {
+    f.children = append(f.children, child)
+}
+
+// 客户端代码
+func main() {
+    // 创建文件
+    file1 := &File{name: "file1.txt"}
+    file2 := &File{name: "file2.txt"}
+    file3 := &File{name: "file3.txt"}
+
+    // 创建文件夹
+    folder1 := &Folder{name: "Folder1"}
+    folder2 := &Folder{name: "Folder2"}
+
+    // 将文件添加到文件夹
+    folder1.Add(file1)
+    folder1.Add(file2)
+    folder2.Add(file3)
+
+    // 将文件夹添加到另一个文件夹
+    rootFolder := &Folder{name: "Root"}
+    rootFolder.Add(folder1)
+    rootFolder.Add(folder2)
+
+    // 显示文件系统结构
+    rootFolder.Display("")
+}
+
+/*
+输出：
+Root
+  Folder1
+    file1.txt
+    file2.txt
+  Folder2
+    file3.txt
+*/
+
+```
+
 ### 享元模式(Flyweight) ✘
+
+- 它通过共享对象来减少内存使用和提高性能
+- 享元模式的核心思想是将对象的共享部分(内部状态)与不可共享部分(外部状态)分离 从而减少重复对象的创建
+- 享元模式的核心思想
+  - `共享对象` 享元模式通过共享相同的内在状态(内部状态)来减少内存使用
+  - `分离状态` 将对象的状态分为内部状态(可共享)和外部状态(不可共享)
+  - `工厂管理` 使用工厂模式来管理和复用享元对象
+
+#### 示例
+
+- 在数据库操作中 创建和销毁连接是非常耗时的操作
+- 为了提高性能 通常会使用连接池来管理数据库连接 连接池的核心思想是：
+  - 复用连接：从连接池中获取连接 使用完后将连接释放回连接池 而不是销毁
+  - 减少开销：避免频繁创建和销毁连接 从而提高性能
+
+```go
+package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+// 享元接口：数据库连接
+type Connection interface {
+    Execute(query string)
+}
+
+// 具体享元：数据库连接对象
+type ConcreteConnection struct {
+    id int
+}
+
+func (c *ConcreteConnection) Execute(query string) {
+    fmt.Printf("Connection %d executing query: %s\n", c.id, query)
+}
+
+// 享元工厂：连接池
+type ConnectionPool struct {
+    connections map[int]Connection
+    mutex       sync.Mutex
+    nextID      int
+}
+
+func NewConnectionPool() *ConnectionPool {
+    return &ConnectionPool{
+        connections: make(map[int]Connection),
+        nextID:      1,
+    }
+}
+
+// 获取连接对象
+func (p *ConnectionPool) GetConnection() Connection {
+    p.mutex.Lock()
+    defer p.mutex.Unlock()
+
+    if len(p.connections) > 0 {
+        for id, conn := range p.connections {
+            delete(p.connections, id)
+            return conn
+        }
+    }
+
+    // 创建新的连接对象
+    conn := &ConcreteConnection{id: p.nextID}
+    p.nextID++
+    return conn
+}
+
+// 将连接对象释放回连接池 以便其他客户端可以复用这个连接对象
+func (p *ConnectionPool) ReleaseConnection(conn Connection) {
+    p.mutex.Lock()
+    defer p.mutex.Unlock()
+
+    if c, ok := conn.(*ConcreteConnection); ok {
+        p.connections[c.id] = c
+    }
+}
+
+// 客户端代码
+func main() {
+    pool := NewConnectionPool()
+
+    conn1 := pool.GetConnection()
+    conn1.Execute("SELECT * FROM users")
+    pool.ReleaseConnection(conn1)
+
+    conn2 := pool.GetConnection()
+    conn2.Execute("SELECT * FROM orders")
+    pool.ReleaseConnection(conn2)
+}
+
+/*
+Connection 1 executing query: SELECT * FROM users
+Connection 1 executing query: SELECT * FROM orders
+*/
+
+```
 
 ### 装饰模式(Decorator) ✔
 
