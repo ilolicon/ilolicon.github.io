@@ -635,7 +635,7 @@ export KUBECONFIG="${KUBECONFIG}:config-demo:config-demo-2"
   - kubectl explain pod
   - kubectl explain pod.metadata
 
-### Pod概述
+### Pod
 
 [pods](https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/)
 
@@ -710,8 +710,9 @@ spec:
 
 #### Pod生命周期
 
-- 状态
+[pod-lifecycle](https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/)
 
+- 状态
   - Pending  # 调度尚未完成
   - Running  # 运行状态
   - Failed
@@ -720,14 +721,22 @@ spec:
   - ...
 
 - Pod生命周期中的重要行为
-
   - 初始化容器
+    - 按顺序同步执行
+    - 执行成功才会继续执行下一个
+    - 若某一个执行失败 会全部重新执行
+    - 初始化容器具有阻塞的特性 初始化容器不执行完成 则阻塞着主容器的启动
   - 容器探测(自定义命令/TCP套接字发请求/HTTP应用层请求)
+    - start probe: 启动探测
     - liveness probe: 探测容器是否存活
     - readiness probe: 探测容器是否准备就绪 能对外提供服务
   - 钩子
     - post start
+      - 启动后钩子 在初始化容器执行完成 开始初始化主容器时 就会启动
+      - 所以 并不保证在主容器启动命令执行完成后再执行
+      - 有可能启动命令耗时较久 但是post start钩子已经执行完成
     - pre stop
+      - 停止前钩子
 
   ![pod-lifecycle](icons/pod-lifecycle.png)
 
@@ -814,7 +823,7 @@ spec:
 
 - Operator
 
-### Service概述
+### Service
 
 #### Service代理
 
