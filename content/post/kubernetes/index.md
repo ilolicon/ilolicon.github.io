@@ -738,6 +738,17 @@ spec:
     - pre stop
       - 停止前钩子
 
+- preStop钩子延伸
+  - 在k8s中 理想的状态是pod优雅释放 但并不是每一个pod都会如此顺利
+    - pod卡死 处理不了优雅退出的命令或操作
+    - 优雅退出的逻辑有bug 陷入死循环
+    - 代码问题 导致执行的命令没有效果
+  - 对于以上问题 k8s的终止流程中还有一个 最多可以容忍的时间" 即`grace period`
+  - 在`pod.spec.termiationGracePeriodSeconds`字段定义 默认值为30s
+  - 当我们执行`kubelet delete`的时候 也可以加上`--grace-period`参数显示指定一个优雅退出时间来覆盖pod中的配置
+  - 如果我们配置的`grace period`超过时间之后 k8s就只能强制kill pod
+  - 值得注意的是 这与preStop hook和SIGTERM信号并行发生 k8s不会等待preStop hook的完成 如果你的应用程序完成关闭并在`terminationGracePeriod`完成之前退出 k8s会立即进入下一步
+
   ![pod-lifecycle](icons/pod-lifecycle.png)
 
 #### Pod容器探针类型
