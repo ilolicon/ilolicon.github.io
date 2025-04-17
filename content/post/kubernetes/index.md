@@ -694,7 +694,7 @@ spec:
 - 许多资源支持内嵌字段来使用标签选择器
   - matchLabels: 直接给定键值
   - matchExpressions: 基于给定的表达式来定义使用标签选择器
-    - {key: "KEY", operator: "OPERATOR",values:[VAL1,VAL2,VAL3,...]
+    - key: "KEY", operator: "OPERATOR", values: [VAL1,VAL2,VAL3,...]
     - 操作符
       - In、NotIn: values字段的值必须为非空列表
       - Exists、NotExists: values字段的值必须为空列表
@@ -751,7 +751,115 @@ spec:
 
   ![pod-lifecycle](icons/pod-lifecycle.png)
 
+#### 初始化容器
+
+[init-cotainers](https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/init-containers/)
+
+- init容器与普通容器非常像 除以下2点
+  - init容器总是运行到成功完成为止
+  - 每个init容器都必须在下一个init容器启动之前成功完成
+- 如果Pod的init容器失败 Kubernetes会不断的重启该Pod知道init容器成功为止
+- 然后 如果Pod对应的`restartPolicy`为Never 它不会重新启动
+- initC与应用容器具备不同的镜像 可以把一些危险的工具放置在initC中 进行使用
+- initC多个之间时线形启动的 所以可以做一些延迟性的操作
+- initC不支持`lifeycle` `探针` 其他与应用容器无异
+
+##### 实验
+
+- 下面的例子定义了一个具有2个Init容器的简单Pod
+  - 第一个等待myservice启动
+  - 第二个等待mydb启动
+  - 一旦这两个Init容器都启动完成 Pod将启动spec节中的应用容器
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: initc-1
+  labels:
+    app: initc
+spec:
+  containers:
+    - name: myapp-container
+      image: busybox
+      command:
+        - "sh"
+        - "-c"
+        - "echo The app is running && sleep 3600"
+
+  initContainers:
+    - name: init-myservice
+      image: busybox
+      command:
+        - "sh"
+        - "-c"
+        - "until nslookup myservice; do echo waiting for myservice; sleep 2; done;"
+    - name: init-mydb
+      image: wangyanglinux/tools:busybox
+      command:
+        - "sh"
+        - "-c"
+        - "until nslookup mydb; do echo waiting for mydb; sleep2; done;"
+
+```
+
+```bash
+# kubectl apply -f initc.yaml
+
+# 查看容器状态可以看到 目前卡在Init阶段 等待2个初始化容器的成功退出
+# kubectl get -f initc.yaml
+NAME      READY   STATUS     RESTARTS   AGE
+initc-1   0/1     Init:0/2   0          35m
+
+# 查看容器日志看到 应用容器在等待初始化 因为初始化容器阻塞了应用容器
+# kubectl logs -f initc-1
+Defaulted container "myapp-container" out of: myapp-container, init-myservice (init), init-mydb (init)
+Error from server (BadRequest): container "myapp-container" in pod "initc-1" is waiting to start: PodInitializing
+
+# 也可以单独查看初始化容器的日志
+# kubectl logs -f initc-1 -c init-myservice
+Server: 10.96.0.10
+Address: 10.96.0.10:53
+
+** server can not find myservice.default.svc.cluster.local: NXDOMAIN
+...
+
+waiting for myservice
+
+# 第二个初始化容器也被阻塞
+# kubectl logs -f initc-1 -c init-db
+Error from server (BadRequest): container "init-mydb" in pod "initc-1" is waiting to start: PodInitializing
+
+```
+
+- 增加对应service后 则init容器成功执行 应用容器正常初始化
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myservice
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydb
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9377
+```
+
 #### Pod容器探针类型
+
+[配置探针](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
 `kubectl explain pod.spec.containers.livenessProbe`
 
