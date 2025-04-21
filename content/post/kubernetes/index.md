@@ -862,7 +862,6 @@ spec:
 [配置探针](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
 `kubectl explain pod.spec.containers.livenessProbe`
-
 `kubectl explain pod.spec.containers.readinessProbe`
 
 - exec Action
@@ -871,8 +870,10 @@ spec:
 
 #### Pod控制器
 
-- ReplicaSet
+[控制器](https://kubernetes.io/zh-cn/docs/concepts/architecture/controller/)
+[工作负载管理](https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/)
 
+- ReplicaSet
   - Kubectl explain replicaset
   - 用户期望副本数 标签选择器 Pod资源模版
   - 不建议直接使用ReplicaSet
@@ -913,13 +914,13 @@ spec:
   - 无状态(只关注群体、不关注个体)、持续运行应用
   - 声明式管理(即可以创建 也可以更新 `kubectl apply -f deployment.yaml`)
   - `kubectl rollout history` 查看滚动历史
+  - `kubectl rollout --help` 查看rollout所有子命名帮助
+    - 注意：`kubectl rollout restart deployment/abc` # 重启Pod 实际是滚动更新 删掉重建新的Pod
 
 ![deployment-update](icons/deployment-update.png)
 
 - DaemonSet
-  
   - `kubectl explain deployment.spec.strategy.rollingUpdate` # 滚动更新策略
-  
   - 确保集群中的每一个节点(或部分满足条件的节点)精确运行一个Pod副本
   - 通常用于一些系统级的后台任务
   - 无状态、持续运行应用
@@ -1011,6 +1012,38 @@ spec:
 - 有时不需要或不想要负载均衡 以及单独的Service IP 遇到这种情况 可以通过指定Cluster IP(`spec.clusterIP`)的值为 `"None"`来创建 `Headless` Service
 - 你可以使用一个无头Service与其他服务发现机制进行接口 而不必与Kubernetes的实现捆绑在一起
 - 对于无头`Services`并不会分配Cluster IP kube-proxy不会处理它们 而且平台也不会为它们进行负载均衡和路由 DNS如何实现自动配置 依赖于Service是否定义了选择算符
+
+#### 流量策略
+
+[traffic-policies](https://kubernetes.io/zh-cn/docs/reference/networking/virtual-ips/#traffic-policies)
+
+- 你可以设置`.spec.internalTrafficPolicy`和`.spec.externalTrafficPolicy`字段来控制kubernetes如何将流量路由到健康("就绪")的后端
+- 内部流量策略
+  - 特性状态： Kubernetes v1.26 [stable]
+  - 你可以设置`.spec.internalTrafficPolicy`字段来控制来自内部源的流量如何被路由 有效值为`Cluster`和`Local`
+  - 将字段设置为`Cluster`会将内部流量路由到所有准备就绪的端点
+  - 将字段设置为`Local`仅会将流量路由到本地节点准备就绪的端点
+  - 如果流量策略为`Local`但没有本地节点端点 那么kube-proxy会**丢弃**该流量
+
+- 外部流量策略
+  - 你可以设置`.spec.externalTrafficPolicy`字段来控制从外部源路由的流量 有效值为`Cluster`和`Local`
+  - 将字段设置为`Cluster`会将外部流量路由到所有准备就绪的端点
+  - 将字段设置为`Local`仅会将流量路由到本地节点上准备就绪的端点
+  - 如果流量策略为`Local`并且没有本地节点端点 那么kube-proxy不会转发与相关Service相关的任何流量
+
+#### 会话亲和性
+
+[session-affinity](https://kubernetes.io/zh-cn/docs/reference/networking/virtual-ips/#session-affinity)
+
+- 在这些代理模型中 绑定到`Service IP:Port`的流量被代理到合适的后端 客户端不需要知道任何关于Kubernetes、Service或Pod的信息
+- 如果要确保来自特定客户端的连接每次都传递给同一个Pod 你可以通过设置Service的 `.spec.sessionAffinity`为`ClientIP`来设置基于客户端IP地址的会话亲和性
+- 默认为`None`
+
+##### 会话粘性超时
+
+- 你还可以通过设置Service的`.spec.sessionAffinityConfig.clientIP.timeoutSeconds`来设置最大会话粘性时间
+- 默认值为10800 即3小时
+- 说明：在Windows上不支持为Service设置最大会话粘性时间
 
 ### Ingress
 
