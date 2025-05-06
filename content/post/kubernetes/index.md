@@ -1056,7 +1056,7 @@ spec:
 
 [ingress-controllers](https://kubernetes.io/zh-cn/docs/concepts/services-networking/ingress-controllers/)
 
-### 存储卷
+### 存储
 
 [kubernetes-storage](https://kubernetes.io/zh-cn/docs/concepts/storage/)
 
@@ -1071,20 +1071,22 @@ spec:
 - 云存储
   - EBS、Azure Disk...
 
-#### PV/PVC
+---
 
-![pvc](icons/pvc.png)
+- 存储各类特性
+  - 元数据
+    - configMap: 用于保存配置数据(明文)
+    - secret: 用于保存敏感数据(编码)
+    - downwardAPI: 容器在运行时从KubernetesAPI服务器获取有关它们自身的信息
+  - 真实数据
+    - volume: 用于存储临时或者持久性数据
+    - persistentVolume: 申请制的持久化存储
 
-#### StorageClass
+#### configMap
 
-- 存储设备需支持RESTful风格的创建请求
-- 根据请求动态创建PV
-
-#### ConfigMap
-
-- ConfigMap是一种 API 对象 用来将非机密性的数据保存到键值对中
+- configMap是一种 API 对象 用来将非机密性的数据保存到键值对中
 - 使用时[Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)可以将其用作环境变量、命令行参数或者存储卷中的配置文件
-- ConfigMap将你的环境配置信息和[容器镜像](https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-image)解耦 便于应用配置的修改
+- configMap将你的环境配置信息和[容器镜像](https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-image)解耦 便于应用配置的修改
 
 ##### 容器化配置应用方式
 
@@ -1096,11 +1098,357 @@ spec:
   - 通过entrypoint脚本来预处理变量为配置文件中的配置信息
 - 存储卷
 
+##### 基于目录创建
+
+- 文件准备 都放到同一个目录下
+
+```bash
+# game.properties
+enemies=aliens
+lives=3
+enemies.cheat=true
+enemies.cheat.level=noGoodRotten
+secret.code.passphrase=UUDDLRLRBABAS
+secret.code.allowed=true
+secret.code.lives=30
+
+# ui.properties
+color.good=purple
+color.bad=yellow
+allow.textmode=true
+how.nice.to.look=fairlyNice
+
+# game-env-file.properties
+enemies=aliens
+lives=3
+allowed="true"
+
+# This comment and the empty line above it are ignored
+
+```
+
+- 从目录创建
+
+```bash
+# 从configMap目录创建
+$ kubectl create configmap game-config --from-file=configMap/
+
+# 查看内容
+$ kubectl describe  configmaps game-config
+$ kubectl get configmaps game-config -o yaml
+
+apiVersion: v1
+data:
+  game.properties: |
+    enemies=aliens
+    lives=3
+    enemies.cheat=true
+    enemies.cheat.level=noGoodRotten
+    secret.code.passphrase=UUDDLRLRBABAS
+    secret.code.allowed=true
+    secret.code.lives=30
+  ui.properties: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+    how.nice.to.look=fairlyNice
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-05-06T11:17:42Z"
+  name: game-config
+  namespace: default
+  resourceVersion: "15745032"
+  uid: 339da6be-8725-4c71-895d-33b6b29937c1
+
+```
+
+##### 基于文件创建
+
+```bash
+# 你可以使用 kubectl create configmap 基于单个文件或多个文件创建 ConfigMap
+$ kubectl create configmap game-config-2 --from-file=configMap/game.properties
+
+# 你可以多次使用 --from-file 参数 从多个数据源创建 ConfigMap
+$ kubectl create  configmap game-config-2 --from-file=configMap/game.properties --from-file=configMap/ui.properties
+
+# 使用 --from-env-file 选项基于 env 文件创建 ConfigMap
+# Env 文件包含环境变量列表 其中适用以下语法规则:
+#   Env 文件中的每一行必须为 VAR=VAL 格式
+#   以＃开头的行(即注释)将被忽略
+#   空行将被忽略
+#   引号不会被特殊处理(即它们将成为 ConfigMap 值的一部分)
+$ kubectl create configmap game-config-env-file --from-env-file=configMap/game-env-file.properties
+
+apiVersion: v1
+data:
+  allowed: '"true"'  # 引号不会被特殊处理
+  enemies: aliens
+  lives: "3"
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-05-06T11:31:12Z"
+  name: game-config-env-file
+  namespace: default
+  resourceVersion: "15746741"
+  uid: a01e6c70-2f32-4e3f-814b-72bbf45d79d2
+
+# 从 Kubernetes 1.23 版本开始 kubectl 支持多次指定 --from-env-file 参数来从多个数据源创建 ConfigMap
+$ kubectl create configmap config-multi-env-files --from-env-file=configMap/game-env-file.properties --from-env-file=configMap/ui-env-file.properties
+
+data:
+  allowed: '"true"'
+  color: purple
+  enemies: aliens
+  how: fairlyNice
+  lives: "3"
+  textmode: "true"
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-05-06T11:36:40Z"
+  name: config-multi-env-files
+  namespace: default
+  resourceVersion: "15747431"
+  uid: 194d9181-713a-4cc8-8218-ad4c5900f77b
+
+```
+
+##### 定义从文件创建时要使用的键
+
+```bash
+kubectl create configmap game-config-3 --from-file=<我的键名>=<文件路径>
+```
+
+##### 根据字面值创建
+
+```bash
+# 你可以将 kubectl create configmap 与 --from-literal 参数一起使用 通过命令行定义文字值
+# 你可以传入多个键值对 命令行中提供的每对键值在 ConfigMap 的 data 部分中均表示为单独的条目
+$ kubectl create configmap special-config --from-literal=special.how=very --from-literal=special.type=charm
+
+apiVersion: v1
+data:
+  special.how: very
+  special.type: charm
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-05-06T11:44:19Z"
+  name: special-config
+  namespace: default
+  resourceVersion: "15748397"
+  uid: 6952c791-32e6-4905-a45c-c6a1433779ff
+
+```
+
+##### 在Pod中使用ConfigMap定义的环境变量
+
+```bash
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  special.how: very
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config
+  namespace: default
+data:
+  log_level: INFO
+
+# pod-configmap-env-variable.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: ilolicon/demoapp:v1.0.0
+      command: [ "/bin/sh", "-c", "env" ]
+      env:
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: special.how
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: log_level
+  restartPolicy: Never
+
+```
+
+##### 将ConfigMap中的所有键值对配置为容器环境变量
+
+```bash
+# configmap.yaml
+# 包含多个键值对
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  SPECIAL_LEVEL: very
+  SPECIAL_TYPE: charm
+
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: ilolicon/demoapp:v1.0.0
+      command: [ "/bin/sh", "-c", "env" ]
+      envFrom:
+      - configMapRef:
+          name: special-config
+  restartPolicy: Never
+
+```
+
+##### 在Pod命令中使用ConfigMap定义的环境变量
+
+```bash
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: ilolicon/demoapp:v1.0.0
+      command: [ "/bin/echo", "$(SPECIAL_LEVEL_KEY) $(SPECIAL_TYPE_KEY)" ]
+      env:
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: SPECIAL_LEVEL
+        - name: SPECIAL_TYPE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: SPECIAL_TYPE
+  restartPolicy: Never
+
+```
+
+##### 将ConfigMap数据添加到一个卷中
+
+```bash
+#  pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: ilolicon/demoapp:v1.0.0
+      command: [ "/bin/sh", "-c", "ls /etc/config/ && sleep 3600" ]
+      volumeMounts:
+      # 如果该容器镜像的 /etc/config 目录中有一些文件 卷挂载将使该镜像中的这些文件无法访问
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        # 提供包含要添加到容器中的文件的 ConfigMap 的名称
+        name: special-config
+  restartPolicy: Never
+
+```
+
+##### 热更新
+
+- 当已挂载的 ConfigMap 被更新时 所投射的内容最终也会被更新 这适用于 Pod 启动后可选引用的 ConfigMap 重新出现的情况
+- 更新 ConfigMap 目前并不会触发相关Pod的滚动更新(对于不能自动热更新的应用程序来说 则需要重新部署获取最新配置) 可以通过修改Pod的annotations 的方式强制触发滚动更新
+  - `kubectl patch deployment <your's deployment> --patch '{"spec":{"template":{"metadata":{"annotations":{"version/config":"6666666"}}}}}'`
+- 更新 ConfigMap 后
+  - 使用该ConfigMap挂载的Env不会同步更新
+  - 使用该ConfigMap挂载的volume中的数据需要一段时间才能同步更新
+    - 从ConfigMap更新到新键映射到Pod的总延迟可能与 kubelet 同步周期(默认为1分钟) + kubelet 中 ConfigMap 缓存的 TTL (默认为1分钟)一样长 你可以通过更新 Pod 的一个注解来触发立即刷新
+  
+```bash
+# demoapp-configmap.yaml
+# configmap更新后 
+#   1. 如果demoapp不支持自动更新配置 则需要重新重新触发滚动更新 重新触发方式：更新pod注解实现
+#   2. 如果demoapp支持自动更新配置 则实时生效 无需重新发布应用
+apiVersion: v1
+data:
+  config.yaml: |
+    log_level: debug
+kind: ConfigMap
+metadata:
+  name: demoapp-config
+
+# demoapp-hot-update-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: demoapp-hot-update
+  name: demoapp-hot-update
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demoapp-hot-update
+  template:
+    metadata:
+      labels:
+        app: demoapp-hot-update
+    spec:
+      containers:
+      - image: ilolicon/demoapp:v1.0.0
+        imagePullPolicy: Always
+        name: demoapp
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/demoapp/
+      volumes:
+      - name: config-volume
+        configMap:
+          name: demoapp-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demoapp-hot-update
+spec:
+  selector:
+    app: demoapp-hot-update
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+```
+
 #### Secret
 
 - Secret是一种包含少量敏感信息例如密码、令牌或密钥的对象 这样的信息可能会被放在[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)规约中或者镜像中
 - 使用Secret意味着你不需要在应用程序代码中包含机密数据
 - Secret类似于[ConfigMap](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-pod-configmap/)但专门用于保存敏感数据
+
+#### PV/PVC
+
+![pvc](icons/pvc.png)
+
+#### StorageClass
+
+- 存储设备需支持RESTful风格的创建请求
+- 根据请求动态创建PV
 
 ## StatefulSet控制器
 
