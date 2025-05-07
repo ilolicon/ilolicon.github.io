@@ -1131,12 +1131,14 @@ allowed="true"
 
 ```bash
 # 从configMap目录创建
-$ kubectl create configmap game-config --from-file=configMap/
+kubectl create configmap game-config --from-file=configMap/
 
 # 查看内容
-$ kubectl describe  configmaps game-config
-$ kubectl get configmaps game-config -o yaml
+kubectl describe  configmaps game-config
+```
 
+```yaml
+# kubectl get configmaps game-config -o yaml
 apiVersion: v1
 data:
   game.properties: |
@@ -1166,19 +1168,22 @@ metadata:
 
 ```bash
 # 你可以使用 kubectl create configmap 基于单个文件或多个文件创建 ConfigMap
-$ kubectl create configmap game-config-2 --from-file=configMap/game.properties
+kubectl create configmap game-config-2 --from-file=configMap/game.properties
 
 # 你可以多次使用 --from-file 参数 从多个数据源创建 ConfigMap
-$ kubectl create  configmap game-config-2 --from-file=configMap/game.properties --from-file=configMap/ui.properties
+kubectl create  configmap game-config-2 --from-file=configMap/game.properties --from-file=configMap/ui.properties
 
+```
+
+```yaml
 # 使用 --from-env-file 选项基于 env 文件创建 ConfigMap
 # Env 文件包含环境变量列表 其中适用以下语法规则:
 #   Env 文件中的每一行必须为 VAR=VAL 格式
 #   以＃开头的行(即注释)将被忽略
 #   空行将被忽略
 #   引号不会被特殊处理(即它们将成为 ConfigMap 值的一部分)
-$ kubectl create configmap game-config-env-file --from-env-file=configMap/game-env-file.properties
 
+# kubectl create configmap game-config-env-file --from-env-file=configMap/game-env-file.properties
 apiVersion: v1
 data:
   allowed: '"true"'  # 引号不会被特殊处理
@@ -1191,10 +1196,11 @@ metadata:
   namespace: default
   resourceVersion: "15746741"
   uid: a01e6c70-2f32-4e3f-814b-72bbf45d79d2
+```
 
+```yaml
 # 从 Kubernetes 1.23 版本开始 kubectl 支持多次指定 --from-env-file 参数来从多个数据源创建 ConfigMap
-$ kubectl create configmap config-multi-env-files --from-env-file=configMap/game-env-file.properties --from-env-file=configMap/ui-env-file.properties
-
+# kubectl create configmap config-multi-env-files --from-env-file=configMap/game-env-file.properties --from-env-file=configMap/ui-env-file.properties
 data:
   allowed: '"true"'
   color: purple
@@ -1220,11 +1226,10 @@ kubectl create configmap game-config-3 --from-file=<我的键名>=<文件路径>
 
 ##### 根据字面值创建
 
-```bash
+```yaml
 # 你可以将 kubectl create configmap 与 --from-literal 参数一起使用 通过命令行定义文字值
 # 你可以传入多个键值对 命令行中提供的每对键值在 ConfigMap 的 data 部分中均表示为单独的条目
-$ kubectl create configmap special-config --from-literal=special.how=very --from-literal=special.type=charm
-
+# kubectl create configmap special-config --from-literal=special.how=very --from-literal=special.type=charm
 apiVersion: v1
 data:
   special.how: very
@@ -1241,7 +1246,7 @@ metadata:
 
 ##### 在Pod中使用ConfigMap定义的环境变量
 
-```bash
+```yaml
 # configmap.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -1286,7 +1291,7 @@ spec:
 
 ##### 将ConfigMap中的所有键值对配置为容器环境变量
 
-```bash
+```yaml
 # configmap.yaml
 # 包含多个键值对
 apiVersion: v1
@@ -1317,7 +1322,7 @@ spec:
 
 ##### 在Pod命令中使用ConfigMap定义的环境变量
 
-```bash
+```yaml
 # pod.yaml
 apiVersion: v1
 kind: Pod
@@ -1345,7 +1350,7 @@ spec:
 
 ##### 将ConfigMap数据添加到一个卷中
 
-```bash
+```yaml
 #  pod.yaml
 apiVersion: v1
 kind: Pod
@@ -1379,7 +1384,7 @@ spec:
   - 使用该ConfigMap挂载的volume中的数据需要一段时间才能同步更新
     - 从ConfigMap更新到新键映射到Pod的总延迟可能与 kubelet 同步周期(默认为1分钟) + kubelet 中 ConfigMap 缓存的 TTL (默认为1分钟)一样长 你可以通过更新 Pod 的一个注解来触发立即刷新
   
-```bash
+```yaml
 # demoapp-configmap.yaml
 # configmap更新后 
 #   1. 如果demoapp不支持自动更新配置 则需要重新重新触发滚动更新 重新触发方式：更新pod注解实现
@@ -1434,6 +1439,28 @@ spec:
     targetPort: 80
 
 ```
+
+##### 不可改变
+
+- 特性状态：`Kubernetes v1.21 [stable]`
+- Kubernetes特性`Immutable` Secret和ConfigMap提供了一种将各个Secret和ConfigMap设置为不可变更的选项
+- 对于大量使用ConfigMap的集群(至少有数万个各不相同的ConfigMap给Pod挂载)而言 禁止更改ConfigMap的数据有以下好处
+  - 保护应用 使之免受意外(不想要的)更新所带来的负面影响
+  - 通过大幅降低对kube-apiserver的压力提升集群性能 这是因为系统会关闭对已标记为不可变更的ConfigMap的监视操作
+- 你可以通过将`immutable`字段设置为`true`创建不可变更的ConfigMap
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  ...
+data:
+  ...
+immutable: true
+```
+
+- 一旦某ConfigMap被标记为不可变更 则**无法**逆转这一变化 也无法更改data或binaryData字段的内容
+- 你只能删除并重建ConfigMap 因为现有的Pod会维护一个已被删除的ConfigMap的挂载点 建议重新创建这些Pods
 
 #### Secret
 
