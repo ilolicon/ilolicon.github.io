@@ -12,6 +12,8 @@ tags:
 - Kubeadm
 ---
 
+<!-- markdownlint-disable MD024 -->
+
 [![kubernetes readme](https://img.shields.io/badge/Kubernetes-README-356DE3)](https://kubernetes.io/zh/docs/home/)
 
 [![kubernetes](icons/kubernetes.svg)](https://kubernetes.io/)
@@ -1464,9 +1466,234 @@ immutable: true
 
 #### Secret
 
-- Secret是一种包含少量敏感信息例如密码、令牌或密钥的对象 这样的信息可能会被放在[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)规约中或者镜像中
+- Secret是一种包含少量敏感信息例如密码、OAUTH令牌或SSH密钥的对象 这样的信息可能会被放在[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)规约中或者镜像中
 - 使用Secret意味着你不需要在应用程序代码中包含机密数据
 - Secret类似于[ConfigMap](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-pod-configmap/)但专门用于保存敏感数据
+
+##### 特性
+
+- Kubernetes通过仅仅将Secret分发到需要访问Secret的Pod所在机器节点来保障其安全性
+- Secret只会存储在几点的内存中 永不写入物理存储 这样从节点删除secret时就不需要擦除磁盘数据
+- 从Kunernetes1.7版本开始 etcd会以加密形式存储Secret 一定程度的保证了Secret的安全性
+
+##### 类型
+
+- 创建Secret时 你可以使用Secret资源的`type`字段或者与其等价的kubectl命令行参数(如果有的话)为其设置类型
+- Secret类型有助于对Secret数据进行编程处理
+- Kubernetes提供若干种内置的类型 用于一些常见的使用场景 针对这些类型 Kubernetes所执行的合法性检查操作以及对其所实施的限制各不相同
+
+|内置类型|用法|
+|--|--|
+|Opaque|用户定义的任意数据|
+|kubernetes.io/service-account-token|服务账号令牌|
+|kubernetes.io/dockercfg|~/.dockercfg 文件的序列化形式|
+|kubernetes.io/dockerconfigjson|~/.docker/config.json 文件的序列化形式|
+|kubernetes.io/basic-auth|用于基本身份认证的凭据|
+|kubernetes.io/ssh-auth|用于 SSH 身份认证的凭据|
+|kubernetes.io/tls|用于 TLS 客户端或者服务器端的数据|
+|bootstrap.kubernetes.io/token|启动引导令牌数据|
+
+##### Opaque
+
+- 当你未在Secret清单中显式指定类型时 默认的Secret类型是Opaque
+- 当你使用kubectl来创建一个Secret时 你必须使用generic子命令来标明要创建的是一个Opaque类型的Secret
+
+```bash
+kubectl create secret generic empty-secret
+kubectl get secret empty-secret
+
+# 输出
+# DATA列显示Secret中保存的数据条目个数 在这个例子中 0意味着你刚刚创建了一个空的Secret
+NAME           TYPE     DATA   AGE
+empty-secret   Opaque   0      22h
+```
+
+- Yaml资源清单创建
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  # 值经过base64编码
+  username: dXNlcm5hbWU=
+  password: cGFzc3dvcmQ=
+
+# kubectl get secret mysecret -o yaml
+apiVersion: v1
+data:
+  password: cGFzc3dvcmQ=
+  username: dXNlcm5hbWU=
+kind: Secret
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"password":"cGFzc3dvcmQ=","username":"dXNlcm5hbWU="},"kind":"Secret","metadata":{"annotations":{},"name":"mysecret","namespace":"default"}}
+  creationTimestamp: "2025-05-10T11:39:15Z"
+  name: mysecret
+  namespace: default
+  resourceVersion: "16477137"
+  uid: 6b70696f-dcd4-4b7d-a37e-8d1891b75077
+type: Opaque
+
+```
+
+##### Pod中使用Secret的数据定义环境变量
+
+- 如果容器已经使用了在环境变量中的Secret 除非容器重新启动 否则容器将无法感知到Secret的更新
+- 有第三方解决方案可以在Secret改变时触发容器重启
+
+```yaml
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envvars-multiple-secrets
+spec:
+  containers:
+  - name: envars-test-container
+    image: ilolicon/demoapp:v1.0.0
+    env:
+    - name: APP_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: username
+    - name: APP_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: password
+
+# kubectl exec -it pods/envvars-multiple-secrets -- printenv | grep ^APP_
+# 根据结果发现 secret使用时会自动解码
+APP_USERNAME=username
+APP_PASSWORD=password
+```
+
+##### Secret volume
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: secret-volume
+  name: secret-volume-pod
+spec:
+  volumes:
+  - name: volumes-secret
+    secret:
+      secretName: mysecret
+  containers:
+  - image: ilolicon/demoapp:v1.0.0
+    name: demoapp
+    volumeMounts:
+    - name: volumes-secret
+      mountPath: "/data"
+
+# kubectl exec -it pods/secret-volume-pod -- cat -n /data/{username,password}
+# /data 下面有2个文件 username和password
+1 username
+2 password
+
+# 挂载指定key及指定目录
+spec:
+  volumes:
+  - name: volumes-secret
+    secret:
+      secretName: mysecret
+      items:  # 未做软连接 无法热更新
+      - key: username
+        path: my-group/my-username
+
+# 进容器查看内容 cat /data/my-group/my-username
+username
+```
+
+##### 为Secret键设置POSIX权限
+
+```yaml
+spec:
+  volumes:
+  - name: volumes-secret
+    secret:
+      secretName: mysecret
+      defaultMode: 0644
+```
+
+- 说明
+  - 如果使用JSON定义Pod或Pod模板 请注意JSON规范不支持数字的八进制形式
+  - 因为JSON将0400视为十进制的值400 在JSON中 要改为使用十进制的defaultMode
+  - 如果你正在编写YAML 则可以用八进制编写defaultMode
+
+##### 热更新
+
+- ENV/挂载子路径 都不能自动更新
+  - 除非容器重启 第三方方案可以监视Secret改变时 自动触发容器重启
+- 当卷中包含来自Secret的数据 而对应的Secret被更新 Kubernetes会跟踪到这一操作并更新卷中的数据 更新的方式是保证最终一致性
+
+##### 不可改变
+
+- 特性状态：`Kubernetes v1.21 [stable]`
+- Kubernetes允许你将特定的Secret(和ConfigMap)标记为不可更改`Immutable` 禁止更改现有Secret的数据有下列好处
+  - 防止意外(或非预期的)更新导致应用程序中断
+  - (对于大量使用Secret的集群而言 至少数万个不同的Secret供Pod挂载) 通过将Secret标记为不可变 可以极大降低kube-apiserver的负载 提升集群性能 kubelet不需要监视那些被标记为不可更改的Secret
+
+```yaml
+# 你也可以更改现有的Secret 令其不可更改
+apiVersion: v1
+kind: Secret
+metadata:
+  ...
+data:
+  ...
+immutable: true
+```
+
+#### downwardAPI
+
+- `downwardAPI`卷用于为应用提供**downwardAPI数据** 在这类卷中 所公开的数据以纯文本格式的只读文件形式存在
+  - downwardAPI数据: 将Pod和容器字段值暴露给容器中运行的代码的机制
+- downwardAPI是kubernetes中的一个功能 它允许容器在运行时从kubernetesAPI服务器获取有关它们自身的信息
+- 这些信息可以作为容器内部的环境变量或文件注入到容器中 以便容器可以获取有关其运行环境的各种信息 如Pod名称/命名空间/标签等
+  - 提供容器元数据
+  - 动态配置
+  - 与Kubernetes环境集成
+- 也可以注入env 或使用volume挂载
+  - volume优势
+    - 会保持热更新特性
+    - 传递一个容器的资源到另一个容器中
+
+##### 扩展
+
+- downwardAPI提供了一种简单的方式 将pod和容器的元数据传递给它们内部运行的进程
+- 但这种方式其实仅仅可以暴露一个pod自身的元数据传递给在它们内部运行的进程
+- 这种方式仅仅可以暴露一个pod自身的元数据 而且只可以暴露部分元数据
+- 还有另一种方式 从API服务器获取
+
+![downwardAPI-ext](./icons/downwardAPI-ext.png)
+
+- Kubetneres API文档
+
+```bash
+# kubectl proxy --port=8080
+
+# 获取swagger-ui配置
+curl http://127.0.0.1:8080/openapi/v2 > k8s-swagger.json
+
+# 粘贴至swagger在线UI
+https://editor.swagger.io/
+
+# 或run本地swagger-ui服务器
+docker run --rm -d -p 80:8080 \
+  -e SWAGGER_JSON=/k8s-swagger.json \
+  -v $(pwd)/k8s-swagger.json \
+  swaggerapi/swagger-ui
+
+```
 
 #### PV/PVC
 
