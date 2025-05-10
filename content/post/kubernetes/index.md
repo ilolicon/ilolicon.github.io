@@ -1464,6 +1464,20 @@ immutable: true
 - 一旦某ConfigMap被标记为不可变更 则**无法**逆转这一变化 也无法更改data或binaryData字段的内容
 - 你只能删除并重建ConfigMap 因为现有的Pod会维护一个已被删除的ConfigMap的挂载点 建议重新创建这些Pods
 
+##### 限制
+
+- 在`Pod`规约中引用某个`ConfigMap`之前 必须先创建这个对象 或者在`Pod`规约中将`ConfigMap`标记为`optional` 如果所引用的`ConfigMap`不存在 并且没有将应用标记为`optional` 则`Pod`将无法启动 同样 引用`ConfigMap`中不存在的主键也会令`Pod`无法启动 除非你将`Configmap`标记为`optional`
+- 如果你使用`envFrom`来基于`ConfigMap`定义环境变量 那么无效的键将被忽略 `Pod`可以被启动 但无效名称将被记录在事件日志中`InvalidVariableNames` 日志消息列出了每个被跳过的键
+
+```bash
+# kubectl get events
+LASTSEEN FIRSTSEEN COUNT NAME          KIND  SUBOBJECT  TYPE      REASON                            SOURCE                MESSAGE
+0s       0s        1     dapi-test-pod Pod              Warning   InvalidEnvironmentVariableNames   {kubelet, 127.0.0.1}  Keys [1badkey, 2alsobad] from the EnvFrom configMap default/myconfig were skipped since they are considered invalid environment variable names.
+```
+
+- ConfigMap位于确定的名字空间中 每个`ConfigMap`只能被同一名字空间中的`Pod`引用
+- 你不能将`ConfigMap`用于静态`Pod` 因为`Kubernetes`不支持这种用法
+
 #### Secret
 
 - Secret是一种包含少量敏感信息例如密码、OAUTH令牌或SSH密钥的对象 这样的信息可能会被放在[Pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)规约中或者镜像中
@@ -1694,6 +1708,84 @@ docker run --rm -d -p 80:8080 \
   swaggerapi/swagger-ui
 
 ```
+
+#### Volume
+
+- [数据的持久化方案](https://kubernetes.io/zh-cn/docs/concepts/storage/volumes/)
+- 容器磁盘上的文件的生命周期是短暂的 这就使得在容器中运行重要应用时会出现一些问题
+  - 首先 当容器崩溃时 kubelet会重启它 但是容器中的文件将丢失 容器以干净的状态(镜像最初的状态)重新启动
+  - 其次 在Pod中同时运行多个容器时 这些容器之间通常需要共享文件
+- Kubernetes中的`Volume`抽象 就很好的解决了这些问题 部分最新版已启用 参考最新官方文档描述
+  - awsElasticBlockStore
+  - azureDisk
+  - cephfs
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - gitRepo
+  - glusterfs
+  - hostPath
+  - nfs
+  - persistentVolumeClaim
+  - secret
+  - ...
+
+##### emptyDir
+
+- 对于定义了emptyDir卷的Pod 在Pod被指派到某节点时此卷会被创建
+- 就像其名称所表示的那样emptyDir卷最初是空的
+- 尽管Pod中的容器挂载emptyDir卷的路径可能相同也可能不同 但这些容器都可以读写emptyDir卷中相同的文件
+- 当Pod因为某些原因被从节点上删除时 emptyDir卷中的数据也会被永久删除
+
+> **说明:**
+> 容器崩溃并不会导致Pod被从节点上移除 因此容器崩溃期间emptyDir卷中的数据是安全的
+
+- emptyDir的一些用途：
+  - 缓存空间 例如基于磁盘的归并排序
+  - 为耗时较长的计算任务提供检查点 以便任务能方便地从崩溃前状态恢复执行
+  - 在Web服务器容器服务数据时 保存内容管理器容器获取的文件
+
+##### hostPath
+
+- `hostPath`卷能将主机节点文件系统上的文件或目录挂载到你的Pod中 虽然这不是大多数Pod需要的 但是它为一些应用提供了强大的逃生舱
+- 用途
+  - 运行一个需要访问节点级系统组件的容器
+    - 运行需要你访问Docker内部的容器 使用`/var/lib/docker`的`hostPath`
+    - 在容器中运行cAdvisor 使用`/dev/cgroups`的`hostPath`
+    - 例如一个将系统日志传输到集中位置的容器 使用只读挂载`/var/log`来访问这些日志
+  - 让存储在主机系统上的配置文件可以被静态Pod以只读方式访问 与普通Pod不同 静态Pod无法访问ConfigMap
+    - 静态Pod(Static Pod): 是由特定节点上的kubelet守护进程直接管理的Pod(/etc/kubernetes/manifests)
+    - 它并不经过常规的 APIServer -> ControllerManager -> kubelet的控制链路
+
+> 警告：
+> 使用`hostPath`类型的卷存在许多安全风险 如果可以 你应该尽量避免使用`hostPath`卷 例如 你可以改为定义并使用 local PersistentVolume
+>
+> 如果你通过准入时的验证来限制对节点上特定目录的访问 这种限制只有在你额外要求所有`hostPath`卷的挂载都是只读的情况下才有效 如果你允许不受信任的`Pod`以读写方式挂载任意主机路径 则该`Pod`中的容器可能会破坏可读写主机挂载卷的安全性
+>
+> 无论`hostPath`卷是以只读还是读写方式挂载 使用时都需要小心 这是因为：
+>
+> - 访问主机文件系统可能会暴露特权系统凭证(例如kubelet的凭证)或特权API(例如容器运行时套接字) 这些可以被用于容器逃逸或攻击集群的其他部分
+> - 具有相同配置的Pod(例如基于PodTemplate创建的Pod)可能会由于节点上的文件不同而在不同节点上表现出不同的行为
+> - `hostPath`卷的用量不会被视为临时存储用量 你需要自己监控磁盘使用情况 因为过多的`hostPath`磁盘使用量会导致节点上的磁盘压力
+
+###### hostPath卷类型
+
+|取值|行为|
+|-|-|
+|""|空字符串(默认)用于向后兼容 这意味着在安装`hostPath`卷之前不会执行任何检查|
+|DirectoryOrCreate|如果在给定路径上什么都不存在 那么将根据需要创建空目录 权限设置为0755 具有与kubelet相同的组和属主信息|
+|Directory|在给定路径上必须存在的目录|
+|FileOrCreate|如果在给定路径上什么都不存在 那么将在那里根据需要创建空文件 权限设置为0644 具有与kubelet相同的组和所有权|
+|File|在给定路径上必须存在的文件|
+|Socket|在给定路径上必须存在的UNIX套接字|
+|CharDevice|**(仅Linux节点)** 在给定路径上必须存在的字符设备|
+|BlockDevice|**(仅Linux节点)** 在给定路径上必须存在的块设备|
+
+###### 注意
+
+- `FileOrCreate`模式不会创建文件的父目录 如果挂载文件的父目录不存在 Pod将启动失败 为了确保这种模式正常工作 你可以尝试分别挂载目录和文件
+- 当Kubernetes按照计划添加资源感知调度时 将无法考虑`hostPath`使用的资源
+- 底层主机上创建的某些文件或目录只能由`root`用户访问 此时 你需要在特权容器中以`root`身份运行进程 或者修改主机上的文件权限 以便能够从`hostPath`卷读取数据(或将数据写入到`hostPath`卷)
 
 #### PV/PVC
 
