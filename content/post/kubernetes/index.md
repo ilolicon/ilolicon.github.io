@@ -574,6 +574,36 @@ demoapp   NodePort   10.100.84.12   <none>       80:30622/TCP   2s
 ##### 部署Add-ons(可选步骤)
 
 - MetalLB
+
+```bash
+# 安装metalLB
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+
+# 配置地址池
+# IPAddressPool: 用来定义可分配的IP范围
+# L2Advertisement: 在Layer2模式下通过ARP广播来承诺这些IP
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.1.240-192.168.1.250
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-adv
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - default-pool
+
+# 接下来就可以创建LoadBalancer类型的Service使用
+
+```
+
 - Ingress Nginx
 - Metrics Server
 - Kuboard
