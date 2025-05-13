@@ -1791,6 +1791,76 @@ docker run --rm -d -p 80:8080 \
 
 ![pvc](icons/pvc.png)
 
+- 存储的管理是一个与计算实例的管理完全不同的问题 PersistentVolume子系统为用户和管理员提供了一组API 将存储如何制备的细节从其如何被使用中抽象出来
+- 为了实现这点 Kubernetes引入了两个心的API资源
+  - PersistentVolume
+  - PersistentVolumeClaim
+- **持久卷(PersistentVolume PV)**
+  - 是集群中的一块存储 可以由管理员事先制备 或者使用存储类(Storage Class)来动态制备
+  - 持久卷是集群级别的资源 就像节点也是集群资源一样
+  - PV持久卷和普通的Volume一样 也是使用卷插件来实现的 只是它们拥有独立于任何使用PV的Pod的生命周期
+  - 此API对象中记述了存储的实现细节 无论其背后是NFS、iSCSI还是特定于云平台的存储系统
+- **持久卷声明(PersistentVolumeClaim PVC)**
+  - 表达的是用户对存储的请求 概念上与Pod类似
+  - Pod会耗用节点资源 而PVC申领会耗用PV资源
+  - Pod可以请求特定数量的资源(CPU和内存) 同样PVC申领也可以请求特定的大小和访问模式
+    - 例如 可以挂载为ReadWriteOnce、ReadOnlyMany、ReadWriteMany或ReadWriteOncePod
+
+##### 关联条件
+
+- 容量: PV的值不小于PVC要求 可以大于 最好一致
+- 读写策略(访问模式)：完全匹配
+  - 单节点读写：ReadWriteOnce / RWO
+  - 多节点只读：ReadOnlyMany / ROX
+  - 多节点读写：ReadWriteMany / RWX
+  - ReadWriteOncePod / RWOP: v1.29[stable]
+    - 卷可以被单个Pod以读写方式挂载
+    - 如果你想确保整个集群中只有一个Pod可以读取或写入该PVC 使用该方式
+- 存储类：PV的类与PVC的类必须一致 不存在包容降级关系
+
+##### 回收策略(Reclaiming)
+
+- 当用户不再使用其存储卷时 他们可以从API中将PVC对象删除 从而允许该资源被回收再利用
+- PersistentVolume对象的回收策略告诉集群 当其被从申领中释放时如何处理该数据卷
+- 目前 数据卷可以被Retained(保留) Recycled(回收) Deleted(删除)
+
+---
+
+- **保留(Retain)**
+  - 回收策略`Retain`使得用户可以手动回收资源
+  - 当PersistentVolumeClaim对象被删除时 PersistentVolume卷仍然存在 对应的数据卷被视为"已释放(released)"
+  - 由于卷上仍然存在这前一申领人的数据 该卷还不能用于其他申领 管理员可以通过下面的步骤来手动回收该卷：
+    - 删除PersistentVolume对象 与之相关的、位于外部基础设施中的存储资产在PV删除之后仍然存在
+    - 根据情况 手动清除所关联的存储资产上的数据
+    - 手动删除所关联的存储资产
+  - 如果你希望重用该存储资产 可以基于存储资产的定义创建新的PersistentVolume卷对象
+
+- **删除(Delete)**
+  - 对于支持`Delete`回收策略的卷插件 删除动作会将PersistentVolume对象从Kubernetes中移除 同时也会从外部基础设施中移除所关联的存储资产
+  - 动态制备的卷会继承[其StorageClass中设置的回收策略](https://kubernetes.io/zh-cn/docs/concepts/storage/persistent-volumes/#reclaim-policy) 该策略默认为Delete
+  - 管理员需要根据用户的期望来配置StorageClass 否则PV卷被创建之后必须要被编辑或者修补 参阅[更改PV卷的回收策略](https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/change-pv-reclaim-policy/)
+
+- **回收(Recyle)**
+  - **警告**: 回收策略`Recycle`已被废弃 取而代之的建议方案是使用动态制备
+  - 如果底层的卷插件支持 回收策略`Recycle`会在卷上执行一些基本的擦除(`rm -rf /thevolume/*`)操作 之后允许该卷用于新PVC申领
+
+##### 卷阶段(状态)
+
+每个持久卷会处于以下阶段(Phase)之一：
+
+- **Available** 卷是一个空闲资源 尚未绑定到任何申领
+- **Bound** 该卷已经绑定到某申领
+- **Released** 所绑定的申领已被删除 但是关联存储资源尚未被集群回收
+- **Failed** 卷的自动回收操作失败
+
+你可以使用`kubectl describe persistentvolume <name>`查看已绑定到PV的PVC的名称
+
+##### PVC保护
+
+- PVC保护的目的是确保由Pod正在使用的PVC不会从系统中移除 因为如果被移除的话可能导致数据丢失
+- 注意：当Pod状态为`Pending`并且Pod已经分配给节点 或Pod为`Running`状态时 PVC处于活动状态
+- 当启用PVC保护功能时 如果用户删除了一个Pod正在使用的PVC 则该PVC不会被立即删除 PVC的删除将被推迟 直到PVC不再被任何的Pod使用
+
 #### StorageClass
 
 - 存储设备需支持RESTful风格的创建请求
