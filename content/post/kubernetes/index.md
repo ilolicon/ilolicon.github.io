@@ -1916,6 +1916,161 @@ docker run --rm -d -p 80:8080 \
   - partition \<inter\> # 控制更新的Pod
   - partition: N         # 大于等于编号N的Pod将被更新 默认值: 0
 
+## 调度器
+
+### 概念
+
+[kubernetes调度器](https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/kube-scheduler/)
+
+- kube-scheduler是kubernetes的调度器 主要任务是把定义的Pod分配到集群的节点上
+
+![kube-scheduler](./icons/kube-scheduler.png)
+
+- scheduler是作为单独的程序运行的 启动之后会一致监听API Server 获取`PodSpec.NodeName`为空的pod 对每个Pod都会创建一个binding 表明该pod应该放到哪个节点上
+- 需要考虑的问题
+  - 公平：如何保证每个节点都能被分配资源
+  - 资源高效利用：集群所有资源最大化被使用
+  - 效率：调度的性能要好 能够尽快地对大批量的pod完成调度工作
+  - 灵活：允许用户根据自己的需求控制调度的逻辑
+- 除来kuberneres自带的调度器 你也可以编写自己的调度器 通过`spec.schedulerName`参数指定调度器的名字 可以为pod选择某个调度器进行调度
+
+#### 自定义调度器示例
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demoapp
+  labels:
+    name: demoapp
+spec:
+  schedulerName: my-scheduler  # 指定自定义调度器
+  containers:
+  - name: pod-with-custom-scheduler
+    iamge: ilolicon/demoapp:v1.0.0
+
+```
+
+```bash
+# 在 kubernetes Master 节点开启 apiServer 的代理
+kubectl proxy --port=8001
+
+#!/bin/bash
+# my-scheduler.sh
+
+SERVER='localhost:8001'
+while true;
+do
+    for PODNAME in $(kubectl --server $SERVER get pods -o json | jq '.items[] | 
+select(.spec.schedulerName =="my-scheduler") | select(.spec.nodeName == null) | 
+.metadata.name' | tr -d '"')
+    do
+        NODES=($(kubectl --server $SERVER get nodes -o json | jq 
+'.items[].metadata.name' | tr -d '"'))
+        NUMNODES=${#NODES[@]}
+        CHOSEN=${NODES[$[ $RANDOM % $NUMNODES]]}
+        curl --header "Content-Type:application/json" --request POST --data
+'{"apiVersion":"v1","kind":"Binding","metadata": {"name":"'$PODNAME'"},"target": 
+{"apiVersion":"v1","kind": "Node", "name": "'$CHOSEN'"}}'
+http://$SERVER/api/v1/namespaces/default/pods/$PODNAME/binding/
+        echo "Assigned $PODNAME to $CHOSEN"
+    done
+    sleep 1
+done
+
+```
+
+#### 调度过程
+
+- 调度器分为几个部分
+  - 首先是过滤掉不满足条件的节点 这个过程称为**预选**(过滤)
+  - 然后通过对节点按照优先级排序 这个是**优选**(打分)
+  - 最后从中选择优先级最高的节点 如果中间任何一步骤有错误 就直接返回错误
+- 预选
+  - PodFitsResources: 节点上剩余的资源是否大于pod请求的资源
+  - PodFitsHost: 如果pod指定来NodeName 检查节点名称是否和NodeName匹配
+  - PodFitsHostPorts: 节点上已经使用的port是否和pod申请的port冲突
+  - PodSelectorMatches: 过滤掉和pod指定的label不匹配的节点
+  - NoDiskConflict: 已经mount的volume和pod指定的volume不冲突 除非它们都是只读
+- 优选
+  - 如果在`预选`过程中没有合适的节点 pod会一直在`pending`状态 不断重试调度 直到有节点满足条件
+  - 经过这个步骤 如果有多个节点满足条件 就继续`优先`过程 按照优先级大小对节点排序
+  - 优先级由一系列键值对组成 键是该优先级项的名称 值是它的权重 这先优先级选项包括
+    - LeastRequestedPriority: 通过计算CPU和Memory的使用率来决定权重 使用率越低权重越高 换句话说 这个优先级指标倾向于资源使用比例更低的节点
+    - BalancedResourceAllocation: 节点上CPU和Memory使用率越接近 权重越高 这个应该和上面的一起使用 不应该单独使用
+    - ImageLocalityPriority: 倾向于已经有要使用镜像的节点 镜像总大小值越大 权重越高
+
+### 亲和性
+
+#### 节点亲和性
+
+- 节点亲和性概念上类似于`nodeSelector` 它使你可以根据节点上的标签来约束Pod可以调度到哪些节点上 节点亲和性有两种
+  - `requiredDuringSchedulingIgnoredDuringExecution`：调度器只有在规则被满足的时候才能执行调度 此功能类似于`nodeSelector` 但其语法表达能力更强
+  - `preferredDuringSchedulingIgnoredDuringExecution`：调度器会尝试寻找满足对应规则的节点 如果找不到匹配的节点 调度器仍然会调度该Pod
+
+> 说明：在上述类型中 `IgnoredDuringExecution`意味着如果节点标签在Kubernetes调度Pod后发生了变更 Pod 仍将继续运行
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-node-affinity
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - antarctica-east1
+            - antarctica-west1
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
+  containers:
+  - name: with-node-affinity
+    image: registry.k8s.io/pause:2.0
+
+```
+
+- 上述示例含义：
+  - 节点**必须**包含一个键名为`topology.kubernetes.io/zone`的标签 并且该标签的取值**必须**为 `antarctica-east1` 或 `antarctica-west1`
+  - 节点**最好**具有一个键名为`another-node-label-key`且取值为`another-node-label-value`的标签
+- `operator`字段[操作符](https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/assign-pod-node/#operators)
+  - In
+  - NotIn
+  - Exists
+  - DoesNotExist
+  - Gt
+  - Lt
+- `NotIn`和`DoesNotExist`可用来实现节点反亲和性行为 你也可以使用节点污点将Pod从特定节点驱逐
+
+#### Pod间亲和性与反亲和性
+
+- Pod间亲和性与反亲和性使你可以基于已经在节点上运行的Pod的标签来约束Pod可以调度到的节点 而不是基于节点上的标签
+- Pod间亲和性与反亲和性的规则格式为"如果X上已经运行了一个或多个满足规则Y的Pod 则这个Pod应该(或者在反亲和性的情况下不应该)运行在X上"
+  - 这里的X可以是节点、机架、云提供商可用区或地理区域或类似的拓扑域
+  - Y则是Kubernetes尝试满足的规则
+- 你通过标签选择算符的形式来表达规则(Y) 并可根据需要指定选关联的名字空间列表 Pod在Kubernetes中是名字空间作用域的对象 因此Pod的标签也隐式地具有名字空间属性 针对Pod标签的所有标签选择算符都要指定名字空间 Kubernetes会在指定的名字空间内寻找标签
+- 你会通过`topologyKey`来表达拓扑域(X)的概念 其取值是系统用来标示域的节点标签键 相关示例可参见常用标签、注解和污点
+
+> 说明：
+> Pod间亲和性和反亲和性都需要相当的计算量 因此会在大规模集群中显著降低调度速度 我们不建议在包含数百个节点的集群中使用这类设置
+>
+> 说明：
+> Pod反亲和性需要节点上存在一致性的标签 换言之 集群中每个节点都必须拥有与`topologyKey`匹配的标签 如果某些或者所有节点上不存在所指定的`topologyKey`标签 调度行为可能与预期的不同
+
+### 容忍与污点
+
+### 固定节点调度
+
 ## 认证及ServiceAccount
 
 ### 认证授权
