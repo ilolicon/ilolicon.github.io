@@ -1922,6 +1922,10 @@ docker run --rm -d -p 80:8080 \
 
 [kubernetes调度器](https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/kube-scheduler/)
 
+[Pod QoS类](https://kubernetes.io/zh-cn/docs/concepts/workloads/pods/pod-qos/)
+
+[为Pod和容器管理资源](https://kubernetes.io/zh-cn/docs/concepts/configuration/manage-resources-containers/)
+
 - kube-scheduler是kubernetes的调度器 主要任务是把定义的Pod分配到集群的节点上
 
 ![kube-scheduler](./icons/kube-scheduler.png)
@@ -2067,9 +2071,187 @@ spec:
 > 说明：
 > Pod反亲和性需要节点上存在一致性的标签 换言之 集群中每个节点都必须拥有与`topologyKey`匹配的标签 如果某些或者所有节点上不存在所指定的`topologyKey`标签 调度行为可能与预期的不同
 
+#### 总结
+
+|调度策略|匹配标签|操作符|拓扑域支持|调度目标|
+|-|-|-|-|-|
+|nodeAffinity|主机|In/NotIn/Exists/DoesNotExist/Gt/Lt|否|指定主机|
+|podAffinity|POD|In/NotIn/Exists/DoesNotExist|是|POD与指定POD同一拓扑域|
+|podAnitAffinity|POD|In/NotIn/Exists/DoesNotExist|是|POD与指定POD不在同一拓扑域|
+
 ### 容忍与污点
 
+- [节点亲和性](https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)是Pod的一种属性 它使Pod被吸引到一类特定的节点(这可能出于一种偏好 也可能是硬性要求) **污点(Taint)**则相反——它使节点能够排斥一类特定的Pod
+- **容忍度Toleration** 是应用于Pod上的 容忍度允许调度器调度带有对应污点的Pod 容忍度允许调度但并不保证调度：作为其功能的一部分 调度器也会评估其他参数
+- 污点和容忍度(Toleration)相互配合 可以用来避免Pod被分配到不合适的节点上 每个节点上都可以应用一个或多个污点 这表示对于那些不能容忍这些污点的Pod 是不会被该节点接受的
+
+#### 组成
+
+`key=value:effect`
+
+- 每个污点有一个key和value作为污点的标签 其中value可以为空 effect描述污点的作用
+- 当前的taint effect支持如下三个选项
+  - NoSchedule: 表示k8s将**不会**将Pod调度到具有该污点的Node上
+  - PreferNoSchedule: 表示k8s将**尽量避免**将Pod调度到具有该污点的Node上
+  - NoExecute: 表示k8s将不会将Pod调度到具有该污点的Node上 同时会将Node上已经存在的Pod**驱逐**出去
+
+#### 设置和去除
+
+```bash
+# 给节点增加一个污点
+kubectl taint nodes node1 key1=value1:NoSchedule
+
+# 节点说明中 查找Taints字段
+kubectl describe pod pod-name
+
+# 移除上述污点
+kubectl taint nodes node1 key1=value1:NoSchedule-
+
+```
+
+#### 容忍
+
+- 设置里污点的Node 将根据taint的effect: `NoSchedule` `PreferNoSchedule` `NoExecute`和Pod之间产生互斥的关系 Pod将在一定程度上不会被调度到Node上
+- 但我们可以在Pod上设置容忍(Toleration) 意思是设置里容忍的Pod将可以容忍污点的存在 可以被调度到存在污点的Node上
+
+##### 容忍设置方式
+
+```yaml
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoSchedule"
+
+---
+
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoExecute"
+  tolerationSeconds: 3600
+
+# tolerationSeconds: 这表示如果这个Pod正在运行 同时一个匹配的污点被添加到其所在的节点
+# 那么Pod还将继续在节点上运行3600秒 然后被驱逐 
+# 如果在此之前上述污点被删除了 则Pod不会被驱逐
+
+```
+
+##### 容忍的特殊类型
+
+- `operator`的默认是`Equal`
+- 一个容忍度和一个污点相**匹配**是指它们有一样的键名和效果 并且
+  - 如果`operator`是`Exists` 此时容忍度不能指定`value` 或者
+  - 如果`operator`是`Equal` 则它们的值应该相等
+
+---
+
+- 特殊类型
+  - 当不指定value时 表示容忍所有的污点value
+
+  ```yaml
+  - key: "key2"
+    operator: "Exists"
+    effect: "NoSchedule"
+  ```
+
+  - 当不指定key值时 表示容忍所有的污点key
+
+  ```yaml
+  tolerations:
+  - operator: "Exists"
+  ```
+
+  - 当不指定effect值时 表示容忍所有的污点作用
+
+  ```yaml
+  tolerations:
+  - key: "key"
+    operator: "Exists"
+  ```
+
+  - 有多个master存在时 防止资源浪费 可以如下设置
+
+  ```bash
+  kubectl taint nodes Node-Name node-role.kubernetes.io/master=:PreferNoSchedule
+  ```
+
+##### 基于污点的驱逐
+
+- 当某种条件为真时 节点控制器会自动给节点添加一个污点 当前内置的污点包括：
+  - `node.kubernetes.io/not-ready`：节点未准备好 这相当于节点状况`Ready`的值为"`False`"
+  - `node.kubernetes.io/unreachable`：节点控制器访问不到节点 这相当于节点状况`Ready`的值为 "`Unknown`"
+  - `node.kubernetes.io/memory-pressure`：节点存在内存压力
+  - `node.kubernetes.io/disk-pressure`：节点存在磁盘压力
+  - `node.kubernetes.io/pid-pressure`：节点的`PID`压力
+  - `node.kubernetes.io/network-unavailable`：节点网络不可用
+  - `node.kubernetes.io/unschedulable`：节点不可调度
+  - `node.cloudprovider.kubernetes.io/uninitialized`：如果`kubelet`启动时指定了一个"外部"云平台驱动 它将给当前节点添加一个污点将其标志为不可用 在`cloud-controller-manager`的一个控制器初始化这个节点后 kubelet将删除这个污点
+- 在节点被排空时 节点控制器或者kubelet会添加带有`NoExecute`效果的相关污点 此效果被默认添加到`node.kubernetes.io/not-ready`和`node.kubernetes.io/unreachable`污点中 如果异常状态恢复正常 kubelet或节点控制器能够移除相关的污点
+- 在某些情况下 当节点不可达时 API服务器无法与节点上的`kubelet`进行通信 在与API服务器的通信被重新建立之前 删除Pod的决定无法传递到kubelet 同时 被调度进行删除的那些Pod可能会继续运行在分区后的节点上
+
 ### 固定节点调度
+
+#### 指定节点调度
+
+- `pod.spec.nodeName`将Pod直接调度到指定的Node节点上 会跳过Scheduler的调度策略 该匹配规则时强制匹配
+  - 如果`nodeName`字段不为空 调度器会忽略该Pod 而指定节点上的kubelet会尝试将Pod放到该节点上
+  - 使用`nodeName`规则的优先级会高于使用`nodeSelector`或亲和性与非亲和性的规则
+  - 局限性
+    - 如果所指代的节点不存在 则Pod无法运行 而且在某些情况下可能会被自动删除
+    - 如果所指代的节点无法提供用来运行Pod所需的资源 Pod会失败 而其失败原因中会给出是否因为内存或CPU不足而造成无法运行
+    - 在云环境中的节点名称并不总是可预测的 也不总是稳定的
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  nodeName: kube-01 # 该Pod只能运行在节点kube-01上
+
+```
+
+#### 指定节点标签调度
+
+[将Pod分配给节点](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/assign-pods-nodes/)
+
+[标签和选择运算符](https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/labels/)
+
+- `po.spec.nodeSelector`通过kubernetes的label-selector机制选择节点 由调度器策略匹配label 而后调度Pod到目标节点 该匹配规则属于**强制约束**
+
+```bash
+# 列出集群节点及标签
+kubectl get nodes --show-labels
+
+# 给节点添加标签
+kubectl label nodes <node-name> disktype=ssd
+
+# 查找对应标签node
+kubectl get nodes -l disktype=ssd
+
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:  # 该Pod会调度到具有下面标签的节点上
+    disktype: ssd
+
+```
 
 ## 认证及ServiceAccount
 
