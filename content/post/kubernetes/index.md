@@ -1044,6 +1044,7 @@ spec:
 - 有时不需要或不想要负载均衡 以及单独的Service IP 遇到这种情况 可以通过指定Cluster IP(`spec.clusterIP`)的值为 `"None"`来创建 `Headless` Service
 - 你可以使用一个无头Service与其他服务发现机制进行接口 而不必与Kubernetes的实现捆绑在一起
 - 对于无头`Services`并不会分配Cluster IP kube-proxy不会处理它们 而且平台也不会为它们进行负载均衡和路由 DNS如何实现自动配置 依赖于Service是否定义了选择算符
+- 无头Service允许客户端直接连接到它所偏好的任一Pod 无头Service不使用虚拟IP地址和代理配置路由和数据包转发 相反 无头Service通过内部DNS记录报告各个Pod的端点IP地址 这些DNS记录是由集群的DNS服务所提供 要定义无头 Service 你需要将`.spec.type`设置为ClusterIP(这也是type的默认值) 并进一步将`.spec.clusterIP`设置为 None
 
 #### 流量策略
 
@@ -1891,10 +1892,186 @@ docker run --rm -d -p 80:8080 \
 - 注意：当Pod状态为`Pending`并且Pod已经分配给节点 或Pod为`Running`状态时 PVC处于活动状态
 - 当启用PVC保护功能时 如果用户删除了一个Pod正在使用的PVC 则该PVC不会被立即删除 PVC的删除将被推迟 直到PVC不再被任何的Pod使用
 
+#### 示例
+
+[配置Pod以使用PersistentVolume作为存储](https://kubernetes.io/zh-cn/docs/tasks/configure-pod-container/configure-persistent-volume-storage/)
+
 #### StorageClass
 
 - 存储设备需支持RESTful风格的创建请求
 - 根据请求动态创建PV
+- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
+
+- 部署NFS服务器
+
+```bash
+apt-get upate
+apt install -y nfs-kernerl-server
+
+mkdir /nfs/data
+chown nobody -R /nfs
+/etc/exports
+  /nfs/data *(rw,sync,no_subtree_check)
+systemctl restart nfs-server
+showmount -e 192.168.56.75
+```
+
+- 部署nfs-client-provisioner
+
+```yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+  namespace: nfs-storageclass
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: eipwork/nfs-subdir-external-provisioner:v4.0.2
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: k8s-sigs.io/nfs-subdir-external-provisioner
+            - name: NFS_SERVER
+              value: 192.168.56.75
+            - name: NFS_PATH
+              value: /nfs/data
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            # server: <YOUR NFS SERVER HOSTNAME>
+            server: 192.168.56.75
+            # share nfs path
+            path: /nfs/data
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nfs-client-provisioner
+  namespace: nfs-storageclass
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-client-provisioner-runner
+rules:
+  - apiGroups: ['']
+    resources: ['nodes']
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['']
+    resources: ['persistentvolumes']
+    verbs: ['get', 'list', 'watch', 'create', 'delete']
+  - apiGroups: ['']
+    resources: ['persistentvolumeclaims']
+    verbs: ['get', 'list', 'watch', 'update']
+  - apiGroups: ['storage.k8s.io']
+    resources: ['storageclasses']
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['']
+    resources: ['events']
+    verbs: ['create', 'update', 'patch']
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: run-nfs-client-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: nfs-client-provisioner
+    # replace with namespace where provisioner is deployed
+    namespace: nfs-storageclass
+roleRef:
+  kind: ClusterRole
+  name: nfs-client-provisioner-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: leader-locking-nfs-client-provisioner
+  # replace with namespace where provisioner is deployed
+  namespace: nfs-storageclass
+rules:
+  - apiGroups: ['']
+    resources: ['endpoints']
+    verbs: ['get', 'list', 'watch', 'create', 'update', 'patch']
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: leader-locking-nfs-client-provisioner
+  # replace with namespace where provisioner is deployed
+  namespace: nfs-storageclass
+subjects:
+  - kind: ServiceAccount
+    name: nfs-client-provisioner
+    # replace with namespace where provisioner is deployed
+    namespace: nfs-storageclass
+roleRef:
+  kind: Role
+  name: leader-locking-nfs-client-provisioner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+  namespace: nfs-storageclass
+provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+parameters:
+  pathPattern: ${.PVC.namespace}/${.PVC.name}
+  onDelete: delete
+
+```
+
+- 测试
+
+```yaml
+# test-pod.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi
+  storageClassName: nfs-client
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: test-pod
+spec:
+  containers:
+    - name: test-pod
+      image: ilolicon/demoapp:v1.0.0
+      volumeMounts:
+        - name: nfs-pvc
+          mountPath: /opt/demoapp/nfsdata
+  restartPolicy: 'Never'
+  volumes:
+    - name: nfs-pvc
+      persistentVolumeClaim:
+        claimName: test-claim
+
+```
 
 ## StatefulSet控制器
 
@@ -1908,13 +2085,84 @@ docker run --rm -d -p 80:8080 \
   - 有序、平滑的终止和删除
   - 有序的滚动更新
 - 一般来说 一个典型的StatefulSet由三个组件组成
-  - handless service              # 无头服务 确保名称唯一
-  - StatefulSet                         # 控制器
+  - handless service    # 无头服务 确保名称唯一
+  - StatefulSet         # 控制器
   - volumeClaimTemplate # 存储卷申请模版(不能使用同一存储卷 pod模版创建的存储卷都是一样的 所以需要卷申请模版)
 
 - `kubelet explain sts.spec.updateStrategy.rollingUpdate`
   - partition \<inter\> # 控制更新的Pod
   - partition: N         # 大于等于编号N的Pod将被更新 默认值: 0
+
+- 示例
+
+```yaml
+# 创建PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfspv1
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  nfs:
+    path: /nfs/pv1
+    server: 192.168.56.75
+
+# statefulset
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  ports:
+  - port: 80
+    name: web
+  # 无头服务 访问: <podName>.<svcName>.default.svc.cluster.local 可访问到具体pod地址
+  clusterIP: None
+  selector:
+    app: myapp
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  serviceName: myapp # kubectl explain statefulsets.apps.spec.serviceName
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: ilolicon/demoapp:v1.0.0
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: config
+          mountPath: /opt/demoapp/
+  volumeClaimTemplates:
+  - metadata:
+      name: config
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "nfs"
+      resources:
+        requests:
+          storage: 1Gi
+
+```
 
 ## 调度器
 
