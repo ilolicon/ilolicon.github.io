@@ -2560,18 +2560,802 @@ spec:
 
 ![role-binding](icons/role-binding.png)
 
+## 配置管理
+
+## Kustomize
+
+[kustomize](https://kustomize.io/)
+
 ## Helm
 
-- 类似yum
+[helm](https://helm.sh/zh/docs/)
+
+## 集群监控
+
+- 书籍推荐 了解Google运维的秘密 [SRE: Google运维解密](https://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/)
+- 资源监控方案 Prometheus 无可挑剔的选择 需前置Prometheus相关知识
+- Kubernetes集群的监控方案主要有以下几种方案
+  - Heapster: 已废弃 使用metrics-server代替
+  - cAdvisor: [cAdvisor](https://github.com/google/cadvisor)是Google开源的容器资源监控和性能分析工具
+    - 它是专门为容器而生的 本身也支持Docker
+    - 在Kubernetes中 我们不需要单独去安装 cAdvisor作为kubectl内置的一部分程序 可以直接使用
+  - kube-state-metrics: [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)通过监听API Server生成有关资源对象的状态指标
+    - 比如: Deployment、Node、Pod 需要注意的是 kube-state-metrics只是简单提供一个metrics数据 并不会存储这些指标数据
+    - 我们可以使用Prometheus来抓取这些数据然后存储
+  - metrics-server: metrics-server也是一个集群范围内的资源数据聚合工具 是Headster的替代
+    - 同样的 metrics-server也只是显示数据 并不提供数据存储服务
+- kube-state-metrics 和 metrics-server的区别：
+  - kube-state-metrics主要关注的是业务相关的一些元数据 比如 Deployment、Pod、副本状态等
+  - metrics-server主要关注的是[资源度量API](https://github.com/kubernetes/design-proposals-archive/blob/main/instrumentation/resource-metrics-api.md)的实现 比如 CPU、内存、文件描述符、请求延时等指标
+
+### 手动安装Prometheus
+
+- 资源清单文件
+- `kubectl apply -f prometheus.yaml`
+- 因为是以NodePort暴露的服务 直接访问 `http://任意节点IP:<NodePort>` 就能看到熟悉的Prometheus UI
+
+```yaml
+# kubectl create ns kube-ops
+
+# 暂时只配置对proemtheus的监控
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: kube-ops
+data:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+---
+# PVC for prometheus 使用NFS演示
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus
+  namespace: kube-ops
+spec:
+  storageClassName: nfs-client
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+# 创建ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: kube-ops
+---
+# 创建CllusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  - nodes/proxy
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - nodes/metrics
+  verbs:
+  - get
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+# 创建ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: kube-ops
+---
+# 创建Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: kube-ops
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.46.0
+        command:
+        - /bin/prometheus
+        args:
+        - --config.file=/etc/prometheus/prometheus.yaml
+        - --storage.tsdb.path=/prometheus
+        - --storage.tsdb.retention.time=24h
+        - --web.enable-admin-api
+        - --web.enable-lifecycle
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+          name: http
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+          # 只挂载卷中的一个子目录或子路径到容器中 而不是挂载整个卷
+          # 1. 避免数据污染
+          # 2. 多容器共享同一个PVC
+          # 3. 数据隔离
+          subPath: prometheus
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 100m
+            memory: 512Mi
+      securityContext:
+        runAsUser: 0
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        persistentVolumeClaim:
+          claimName: prometheus
+---
+# 创建Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: kube-ops
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  type: NodePort
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 9090
+    nodePort: 30000
+
+```
+
+### 监控集群应用
+
+- 内置指标接口 直接配置静态配置service地址的内置指标接口
+- 未内置指标接口 直接配置对应exporter的service地址的指标接口
+
+### 监控集群节点
+
+- 监控节点已有非常多的成熟方案 比如：Nagios Zabbix 甚至自己收集数据也可以
+- Kubernetes中 我们通过[node_exporter](https://github.com/prometheus/node_exporter)来获取节点指标
+  - node_exporter用于采集服务器节点的各种运行指标 包括：conntrack cpu diskstats filesystem loadavg memeinfo netstat等
+  - 详细内容参考官方repo文档
+
+#### 部署node-exporter
+
+```yaml
+# 部署node-exporter的资源清单文件
+# 注意事项：由于我们要获取到的数据是主机的监控指标数据 而node-exporter是运行在容器中的 所有在Pod中需要配置一些Pod的安全策略
+#   hostPID: true 允许容器访问主机的PID命名空间
+#   hostIPC: true 允许容器访问主机的IPC命名空间
+#   hostNetwork: true 允许容器使用主机的网络命名空间
+# 另外 我们还将主机的/dev、/proc、/sys目录挂载到容器中 因为我们采集的很多节点数据都是通过这些目录下面的文件来获取的
+#   /proc/stat /proc/meminfo /proc/cpuinfo /proc/diskstats /proc/net/dev ...
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: kube-ops
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      hostPID: true
+      hostIPC: true
+      hostNetwork: true
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter:v1.9.1
+        ports:
+        - containerPort: 9100
+        resources:
+          requests:
+            cpu: 200m
+        securityContext:
+          privileged: true
+        args:
+        - --path.procfs
+        - /host/proc
+        - --path.sysfs
+        - /host/sys
+        - --collector.filesystem.ignored-mount-points
+        - "^/(sys|proc|dev|host|etc)($|/)"
+        volumeMounts:
+        - name: dev
+          mountPath: /host/dev
+        - name: proc
+          mountPath: /host/proc
+        - name: sys
+          mountPath: /host/sys
+        - name: rootfs
+          mountPath: /rootfs
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      volumes:
+      - name: dev
+        hostPath:
+          path: /dev
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: rootfs
+        hostPath:
+          path: /
+
+```
+
+#### 配置基于Kubernetes的自动发现
+
+[kubernetes_sd_config](https://prometheus.io/docs/prometheus/2.51/configuration/configuration/#kubernetes_sd_config)
+
+- 在Kubernetes中 Prometheus通过与Kubernetes API集成 目前主要支持5种服务发现模式
+  - node
+  - service
+  - pod
+  - endpoints / endpointslice
+  - ingress
+- 通过制定`kubernetes_sd_config`的模式为`node` Prometheus就会自动从Kubernetes中发现所有的node节点并作为当前job监控的目标实例 发现的节点`/metrics`接口时默认的kubelet的HTTP接口
+- Promethehs去发现Node模式的服务的时候 访问的默认端口是10250(kubelet服务端口) 而现在该端口下面已经没有/metrics指标数据
+- 因为上面配置指定了`hostNetwork: true` 所以每个节点都会监听9100端口 我们应该将这里的10250替换为9100
+- 如何实现：使用Prometheus提供的`relabel_configs`中的`replace`能力
+  - relabel可以在Prometheus采集数据之前 通过Target实例的metadata信息 动态重新写入Label的值
+  - 除此之外 还能根据Target实例的metadata信息 选择是否采集或忽略该Target实例/指标
+  - 添加一个action为`labelmap` 正则表达式`__metadata_kubernetes_node_label_(.+)`的配置 这里的意思是表达式中匹配的数据也添加到指标数据的Label标签中去
+  - 对于kubernetes_sd_config下面可用的标签如下：
+    - `__metadata_kubernetes_node_name`: 节点对象的名称
+    - `__metadata_kubernetes_node_label`: 节点对象中的每个标签
+    - `__metadata_kubernetes_node_annitation`: 来自节点对象的每个注解
+    - `__metadata_kubernetes_node_address`: 每个节点地址类型的第一个地址(如果存在)
+    - 更多类型参考Prometheus官方文档
+- 修改后的configmap如下
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: kube-ops
+data:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:9090']
+      
+    - job_name: 'kubernetes-nodes'
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.+):10250'
+        replacement: '${1}:9100'
+        target_label: __address__
+        action: replace
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+
+    # 1.11+版本后 metrics端口为10250 需要使用https协议获取指标
+    - job_name: 'kubernetes-kubelet'
+      kubernetes_sd_configs:
+      - role: node
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+```
+
+### 监控集群常用资源对象
+
+#### 容器监控
+
+- 说到容器监控我们自然会想到cAdisor 我们前面说过cAdvisor已经内置在了kubelet组件中 所以我们不需要单独安装
+- cAdvisor的数据路径为`/api/v1/nodes/<node>/proxy/metrics`
+- 同样 我们使用node的服务发现模式 因为每一个节点下面都有kubelet 自然都有cAdvisor采集到的数据指标
+
+```yaml
+# prometheus configmap配置参考
+- job_name: 'kubernetes-cadvisor'
+  kubernetes_sd_configs:
+  - role: node
+  scheme: https
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  relabel_configs:
+  - action: labelmap
+    regex: __meta_kubernetes_node_label_(.+)
+  - target_label: __address__
+    replacement: kubernetes.default.svc:443
+  - source_labels: [__meta_kubernetes_node_name]
+    regex: (.+)
+    target_label: __metrics_path__
+    replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+
+```
+
+#### apiserver监控
+
+- apiserver作为Kubernetes的最核心组件 对它的监控是非常必要的
+- 对于apiserver的监控我们可以直接通过kubernetes的Service来获取
+  - `kubectl get svc kubernetes -n default`
+  
+```yaml
+- job_name: 'kubernetes-apiservers'
+  kubernetes_sd_configs:
+  - role: endpoints
+  scheme: https  # https协议
+  tls_config:
+    ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  relabel_configs:
+  - source_labels:
+    - __meta_kubernetes_namespace
+    - __meta_kubernetes_service_name
+    - __meta_kubernetes_endpoint_port_name
+    action: keep  # 使用endpoints的自动发现 会发现所有的endpoitns端点 我们只需要匹配kubernetes-apiserver 其余全部DROP
+    regex: default;kubernetes;https
+```
+
+- [Kubernetes系统组件指标](https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/system-metrics/)
+- 应用上面配置 就完成了对Kubernetes APIServer的监控
+- 如果需要监控其他系统组件 比如：kube-controller-manager、kube-scheduler的话 需要注意
+  - apiserver的service在default的namespace下
+  - 而其余组件服务在kube-system这个namespace下 如果我们想要监控这些组件 需要手动创建单独的Service 其中
+    - kube-schedule的指标数据端口为10251
+    - kube-controller-manager对应的指标数据端口为10252
+
+#### Service监控
+
+- 上面的apiservice实际上是一种特殊的Service 我们可以配置一个任务来专门发现普通类型的Service
+
+```yaml
+- job_name: 'kubernetes-service-endpoints'
+  kubernetes_sd_configs:
+  - role: endpoints
+  relabel_configs:
+  - source_labels:
+    - __meta_kubernetes_service_annotation_prometheus_io_scrape
+    action: keep
+    regex: true
+  - source_labels:
+    - __meta_kubernetes_service_annotation_prometheus_io_scheme
+    action: replace
+    target_label: __scheme__
+    regex: (https?)
+  - source_labels:
+    - __meta_kubernetes_service_annotation_prometheus_io_path
+    action: replace
+    target_label: __metrics_path__
+    regex: (.+)
+  - source_labels:
+    - __address__
+    - __meta_kubernetes_service_annotation_prometheus_io_port
+    action: replace
+    target_label: __address__
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+  - action: labelmap
+    regex: __meta_kubernetes_service_label_(.+)
+  - source_labels:
+    - __meta_kubernetes_namespace
+    action: replace
+    target_label: kubernetes_namespace
+  - source_labels:
+    - __meta_kubernetes_service_name
+    action: replace
+    target_label: kubernetes_name
+```
+
+- 需要被监控的服务 如果本身实现了`/metrics`接口 则可以按照下面配置修改下Service配置即可进行自动发现
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: demoapp
+  namespace: default
+  annotations:  # 加上下面的annotations 则可以进行该服务的自动发现
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
+spec:
+  selector:
+    app: demoapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+```
+
+#### kube-state-metrics
+
+- 上面我们配置了自动发现Service(Pod也一样)的监控 但是这些监控数据都是应用内部的监控 需要应用本身内置`/metrics`接口 或者对应的`exporter`来暴露对应的指标数据
+- 但是 在Kubernetes集群上的Pod、DaemonSet、Deployment、Job、Crontab等各种资源对象的状态也需要监控 这也反应了使用这些资源部署的应用状态
+- 前面从集群拉取的指标(来自apiserver和kubelet中集成的cAdvisor) 并没有具体的各种资源对象的状态指标
+- 对于Prometheus来说 当然是需要引入新的exporter来暴露这些指标 Kubernetes提供了[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)则可以实现该监控需求
+
+- 安装kube-state-metrics
+
+```bash
+git clone git@github.com:kubernetes/kube-state-metrics.git
+kubectl apply -k examples/standard
+
+```
+
+- 修改service配置 自动监控指标
+- 监控指标的相关文档 参考[metics-documentation](https://github.com/kubernetes/kube-state-metrics?tab=readme-ov-file#metrics-documentation)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.15.0
+  name: kube-state-metrics
+  namespace: kube-system
+  # 修改service 加上该配置
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+spec:
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 8080
+    targetPort: http-metrics
+  - name: telemetry
+    port: 8081
+    targetPort: telemetry
+  selector:
+    app.kubernetes.io/name: kube-state-metrics
+```
+
+### Grafanad的安装使用
+
+- Prometheus官方Dashboard展示能力较弱 展示推荐接Grafana
+- 安装
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: kube-ops
+  labels:
+    app: grafana
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:12.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: grafana
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          value: admin
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: admin9527
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 30
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          subPath: grafana
+          name: storage
+      securityContext:
+        fsGroup: 472
+        runAsUser: 472
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: grafana
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana
+  namespace: kube-ops
+spec:
+  storageClassName: nfs-client
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: kube-ops
+  labels:
+    app: grafana
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    nodePort: 30001
+  selector:
+    app: grafana
+
+```
+
+- 如果由于卷权限问题 执行下面Job修改权限即可
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grafana-chown
+  namespace: kube-ops
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: grafana-chown
+        command: ["chown", "-R", "472:472", "/var/lib/grafana"]
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: storage
+          subPath: grafana
+          mountPath: /var/lib/grafana
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: grafana
+```
+
+- 后续就是进行Grafana的数据源及模版配置等工作
+
+### Alertmanger
+
+- 准备告警媒介 这里以dingding-webhoo为例
+
+```yaml
+git clone git@github.com:timonwong/prometheus-webhook-dingtalk.git
+cd contrib/k8s
+kubectl apply -k . # 执行前修改为自己的测试配置
+
+```
+
+- 准备alertmanager配置文件
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: kube-ops
+data:
+  config.yaml: |-
+    route:
+      receiver: 'default'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 30m
+      group_by:
+      - 'cluster'
+      - 'alertname'
+      routes:
+      - receiver: 'test'
+        group_wait: 30s
+        group_interval: 10m
+        repeat_interval: 30m
+        matchers:
+        - severity="P0"
+
+    receivers:
+    - name: 'default'
+      webhook_configs:
+      - url: 'http://alertmanager-webhook-dingtalk/dingtalk/webhook_mention_test/send'
+        send_resolved: false
+    - name: 'test'
+      webhook_configs:
+      - url: 'http://alertmanager-webhook-dingtalk/dingtalk/webhook_mention_test/send'
+        send_resolved: false
+
+    inhibit_rules:
+    - source_matchers:
+      - severity = 'P0'
+      target_matchers:
+      - severity =~ 'P1|P2|P3|P4|P5'
+      equal:
+      - 'alertname'
+      - 'instance'
+
+    - source_matchers:
+      - alertname = InstanceDown
+      target_matchers:
+      - job = node_exporter
+      equal:
+      - 'instance'
+
+```
+
+- 配置alertmanager容器并启动
+
+```yaml
+# 为了方便 我这里直接把alertmanager和prometheus部署在一起
+- name: alertmanager
+  image: prom/alertmanager:v0.28.1
+  imagePullPolicy: IfNotPresent
+  args:
+  - --config.file=/etc/alertmanager/config.yaml
+  ports:
+  - containerPort: 9093
+    protocol: TCP
+    name: http
+  volumeMounts:
+  - name: alertmanager-config
+    mountPath: /etc/alertmanager
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 100m
+      memory: 512Mi
+volumes:
+- name: alertmanager-config
+  configMap:
+    name: alertmanager-config
+
+```
+
+- 在prometheus中配置alertmanager地址
+
+```yaml
+# 更新promtehus配置的configmap
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - localhost:9093  # 同一个Pod 直接使用localhost
+```
+
+- 告警测试
+
+```yaml
+rule_files:
+  - /etc/prometheus/rules.yaml
+
+# configmap 新增一个配置项
+rules.yaml: |
+  groups:
+  - name: test-rules
+    rules:
+    - alert: NodeMemoryUsage
+      expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 > 20
+      for: 2m
+      labels:
+        severity: P0
+      annotations:
+        summary: "{{ $labels.instance }}: High Memory usage detected"
+        description: "{{$labels.instance}}: Memory usage is above 20% (current value is: {{ $value }}"
+
+```
+
+### Prometheus Operator
+
+- 经过上面手动编写Prometheus资源清单 我们完成了对Kubernetes相关资源的监控 但是还是有一些缺陷
+- 比如：Promtheus、Alertmanager等组件服务本身的高可用；当然我们可以自己实现这些需求 我们也知道Prometheus在代码上就原生支持Kubernetes 我们可以通过服务发现的形式来自动监控集群
+- 因此 我们可以使用另外一种更加高级的方式来部署Prometheus: [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator)
 
 ## Reference
 
 - ubuntu
 
 [apt install speciffic version](https://askubuntu.com/questions/428772/how-to-install-specific-version-of-some-package/428778#428778?newreg=d056242a7a0340598dd1d2d4fad63e81)
-
 [set-proxy-on-ubuntu-docker](https://www.serverlab.ca/tutorials/containers/docker/how-to-set-the-proxy-for-docker-on-ubuntu/)
-
 [apt-get-like-yum-whatprovides](https://askubuntu.com/questions/2493/apt-get-or-aptitude-equivalent-to-yum-whatprovides)
 
 - kubetnetes
