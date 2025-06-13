@@ -3082,7 +3082,7 @@ spec:
     app.kubernetes.io/name: kube-state-metrics
 ```
 
-### Grafanad的安装使用
+### Grafana的安装使用
 
 - Prometheus官方Dashboard展示能力较弱 展示推荐接Grafana
 - 安装
@@ -3349,6 +3349,396 @@ rules.yaml: |
 - 经过上面手动编写Prometheus资源清单 我们完成了对Kubernetes相关资源的监控 但是还是有一些缺陷
 - 比如：Promtheus、Alertmanager等组件服务本身的高可用；当然我们可以自己实现这些需求 我们也知道Prometheus在代码上就原生支持Kubernetes 我们可以通过服务发现的形式来自动监控集群
 - 因此 我们可以使用另外一种更加高级的方式来部署Prometheus: [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator)
+
+#### Operator模式
+
+Operator参考：[Operator模式](https://kubernetes.io/zh-cn/docs/concepts/extend-kubernetes/operator/)
+
+#### 介绍
+
+![prometheus-operator架构](./icons/prometheus-operator.png)
+
+- 上图是`Prometheus-Operator`官方提供的架构图 其中`Operator`是最核心的部分
+- 作为一个控制器 它回去创建`Prometheus`、`ServiceMonitor`、`Alertmanager`以及`PrometheusRule`4个CRD资源对象 然后会一直监控并维持这4个资源对象的状态
+  - `prometheus`资源对象就是作为`Prometheus Server`存在
+  - `ServiceMonitor`就是`exporter`的各种抽象 `Prometheus`就是通过`ServiceMonitor`提供的`metrics`数据接口去pull数据
+  - `alertmanager`资源对应`Alertmanager`的抽象
+  - `PrometheusRule`是用来被`Prometheus`实例使用的报警规则文件
+- 这样 我们要在集群中监控什么数据 就变成了直接去操作Kubernetes集群资源的对象
+- 上图中的Service和ServiceMonitor都是Kubernetes的资源 一个ServiceMonitror可以通过labelSelector的方式去匹配一类Service
+- Prometheus也可以通过labelSelector的发方式去匹配多个ServiceMonitor
+
+#### 通过prometheus-operator安装
+
+```bash
+git clone git@github.com:prometheus-operator/prometheus-operator.git
+kubectl create namespace monitoring
+
+# 在指定namespace安装
+$ NAMESPACE=monitoring kustomize edit set namespace $NAMESPACE && kubectl create -k .
+customresourcedefinition.apiextensions.k8s.io/alertmanagerconfigs.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/alertmanagers.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/podmonitors.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/probes.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/prometheusagents.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/prometheuses.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/prometheusrules.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/scrapeconfigs.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/servicemonitors.monitoring.coreos.com created
+customresourcedefinition.apiextensions.k8s.io/thanosrulers.monitoring.coreos.com created
+serviceaccount/prometheus-operator created
+clusterrole.rbac.authorization.k8s.io/prometheus-operator created
+clusterrolebinding.rbac.authorization.k8s.io/prometheus-operator created
+service/prometheus-operator created
+deployment.apps/prometheus-operator created
+
+```
+
+- PrometheusOperator通过Deployment的形式进行部署
+- 为了能够让PrometheusOperator能够监听和管理Kubernetes资源 同时也创建了单独的ServiceAccount以及相关授权
+
+##### 使用Operator管理Prometheus
+
+###### 部署Prometheus实例
+
+- 当集群中已经安装ProemtheusOperator之后 对于部署PromtheusServer实例变成了声明一个Prometheus资源
+- 如下所示 我们在monitoring名称空间下创建了一个Prometheus实例
+- 访问: `kubectl port-forward statefulsets.apps/prometheus-inst 9090:9090`
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  resources:
+    requests:
+      memory: 400Mi
+```
+
+###### 部署ServiceMonitor实例
+
+- 让部署的Prometheus能够采集部署在Kubernetes下应用的监控数据
+  - 在原生的Prometheus配置方式中 我们在Prometheus配置文件中定义单独的Job 同时使用`kubernetes_sd`定义服务的自动发现
+  - 在PrometheusOperator中 则可以直接声明一个`ServiceMonitor`对象
+  
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: demoapp
+  namespace: monitoring
+  labels:
+    env: testing
+spec:
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLables:
+      app: demoapp
+  endpoints:
+  - port: web  
+    # 如果target启用了监控BasicAuth认证 定义ServiceMonitor对象时 需要在endpoints配置中定义basicAuth
+    basicAuth:
+      password:
+        name: basic-auth
+        key: password
+      username:
+        name: basic-auth
+        key: user
+
+# 其中 basicAuth 中关联名为 basic-auth为Secret对象 需要用户手动将认证信息保存到Secret中
+APIVersion: v1
+kind: Secret
+metadata:
+  name: basic-auth
+data:
+  # base64编码后的值
+  password: alsdhabdn==
+  user: Jadquhwe==
+type: Opaque
+
+```
+
+###### 关联Prometheus与ServiceMonitor
+
+- Promtheus与ServiceMonitor之间的关联关系使用`servicMonitorSelector`定义 在Prometheus中通过标签选择当前需要监控的ServiceMonitor对象
+- 为了能够让Prometheus关联到ServiceMonitor 需要在Promehteus定义中使用serviceMonitorSelector 我们可以通过标签选择当前Prometheus需要监控的ServiceMonitor对象
+
+```yaml
+# 更新promteheus crd资源清单
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  serviceMonitorSelector:
+    matchLabels:
+      env: testing
+  resources:
+    requests:
+      memory: 400Mi
+
+```
+
+- 更新上面配置配置后 web界面可以看到Job配置 但是Prometheus的Target中并没有包含任何的监控对象 此时Promtheus Pod有报错日志
+
+```bash
+time=2025-06-09T16:29:10.559Z level=ERROR source=reflector.go:166 msg="Unhandled Error" component=k8s_client_runtime logger=UnhandledError err="pkg/mod/k8s.io/client-go@v0.32.3/tools/cache/reflector.go:251: Failed to watch *v1.Service: failed to list *v1.Service: services is forbidden: User \"system:serviceaccount:monitoring:default\" cannot list resource \"services\" in API group \"\" in the namespace \"default\""
+```
+
+- 这是因为我们默认创建的实例使用的是monitoring命名空间下的default账号 该账号并没有权限能够获取default命名空间下的任何资源信息
+- 修复该问题 我们需要在monitoring的命名空间常见一个新的ServiceAccount账号 并且为该账号赋予相应的集群访问权限
+
+```bash
+$ kubectl get pods prometheus-inst-0 -o yaml
+
+# 默认使用的serviceAccount
+serviceAccount: default
+serviceAccountName: default
+
+```
+
+```yaml
+# 创建新的具有相关权限的ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: monitoring
+
+# 应用上面资源清单之后 修改prometheus实例的资源清单 使用新的ServiceAccount
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  serviceAccountName: prometheus  # 更新serviceAccount
+  serviceMonitorSelector:
+    matchLabels:
+      env: testing
+  resources:
+    requests:
+      memory: 400Mi
+```
+
+##### 使用Operator管理监控配置
+
+###### 使用PrometheusRule定义告警规则
+
+- 对于Prometheus而言 在原生的管理方式上 我们需要手动创建Prometheus的告警文件 并且通过在Prometheus配置中声明式加载
+- 而在PrometheusOperator的模式中 告警规则通过定义声明式配置创建一个`PrometheusRule`资源
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: demoapp
+    role: alert-rules
+  name: prometheus-demoapp-rules
+spec:
+  groups:
+  - name: ./demoapp.rules
+    rules:
+    - alert: DemoappAlert
+      expr: demoapp_http_requests_total{handler="/metrics"} > 1
+
+```
+
+- 创建`PrometheusRule`资源后 通过在Promtheus中使用`ruleSelector`通过标签选择需要关联的PrometheusRule即可
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      env: testing
+  ruleSelector:
+    matchLabels:
+      role: alert-rules
+      prometheus: demoapp
+  resources:
+    requests:
+      memory: 400Mi
+
+```
+
+###### 使用Operator管理Alertmanger实例
+
+- 到目前为止 我们已经通过PrometheusOperator的自定义资源类型管理了Prometheus实例 监控配置以及告警规则等资源
+- 通过PrometheusOperator将原本手动管理的工作 全部变成了声明式的管理模式 极大简化了Kubernetes下Prometheus运维管理的复杂度
+- 我们继续使用Operator定义和管理Alertmanager相关的内容
+- 创建Alertmanger资源清单
+  - 通过replicas可以控制Alertmanager的实例数
+  - 当replicas大于1时 PrometheusOperator会自动通过**集群**的方式创建Alertmaager
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  replicas: 3
+
+```
+
+- 修改Prometheus资源定义 配置`alerting`指定使用的Alertmanager资源即可
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst
+  namespace: monitoring
+spec:
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchLabels:
+      env: testing
+  ruleSelector:
+    matchLabels:
+      role: alert-rules
+      prometheus: demoapp
+  alerting:
+    alertmanagers:
+    - name: alertmanager-example
+      namespace: monitoring
+      port: web
+  resources:
+    requests:
+      memory: 400Mi
+
+```
+
+- 等待Prometheus重新加载后 我们可以看到PrometheusOperator在配置文件中添加了如下配置 通过服务发现规则 将Prometheus与Alertmanager自动关联
+
+```yaml
+alerting:
+  alert_relabel_configs:
+  - separator: ;
+    regex: prometheus_replica
+    replacement: $1
+    action: labeldrop
+  alertmanagers:
+  - follow_redirects: true
+    enable_http2: true
+    scheme: http
+    path_prefix: /
+    timeout: 10s
+    api_version: v2
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_service_name]
+      separator: ;
+      regex: alertmanager-example
+      replacement: $1
+      action: keep
+    - source_labels: [__meta_kubernetes_endpoint_port_name]
+      separator: ;
+      regex: web
+      replacement: $1
+      action: keep
+    kubernetes_sd_configs:
+    - role: endpoints
+      kubeconfig_file: ""
+      follow_redirects: true
+      enable_http2: true
+      namespaces:
+        own_namespace: false
+        names:
+        - monitoring
+
+```
+
+##### 在PrometheusOperator中使用自定义配置
+
+- 在PrometheusOperator中 我们通过声明式创建Prometheus、ServiceMonitor等自定义的资源类型来自动化部署和管理Promtehues的相关组件及配置
+- 而在一些特殊的情况下 可能还是希望能够手动管理Prometheus配置文件 而非通过PrometheusOperator自动完成
+- 为什么? 实际上PrometheusOperator对于Job的配置只适用于在Kubernetes中部署和管理的应用程序 如果你希望使用Prometheus监控一些其他的资源 例如 AWS或其他平台中的基础设施或应用 这些并不在PrometheusOperator的能力范围之内
+- 为了能够在通过PrometheusOperator创建的Prometheus实例中使用自定义配置文件 我们只能创建一个不包含任何与配置文件内容相关的Prometheus实例
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: inst-cc
+  namespace: monitoring
+spec:
+  serviceAccountName: prometheus
+  resources:
+    requests:
+      memory: 400Mi
+
+```
+
+- 如果查看新建的Prometheus的Pod实例的YAML定义 我们可以看到Pod中会包含一个volume配置
+
+```yaml
+  volumes:
+  - name: config
+    secret:
+      defaultMode: 420
+      secretName: prometheus-inst-cc
+
+```
+
+- Prometheus的配置文件实例上是保存在名为`prometheus-<name-of-prometheus-object>`的Secret中
+- 当用户创建的Prometheus中关联ServiceMonitor这类会影响配置文件内容的定义时 PromtheusOperator会自动管理
+- 而如果Prometheus定义中不包含任何与配置有关的定义 那么Secret的管理权限就落到用户自己手中
+
+```yaml
+# 使用该配置更新secret观察新建Prometheus实例的配置变化
+# kubectl edit secret prometheus-inst-cc
+global:
+  scrape_interval: 10s
+  scrape_timeout: 10s
+  evaluation_interval: 10s
+
+```
+
+#### 通过kube-prometheus安装
 
 ## Reference
 
