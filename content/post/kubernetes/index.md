@@ -2562,11 +2562,11 @@ spec:
 
 ## 配置管理
 
-## Kustomize
+### Kustomize
 
 [kustomize](https://kustomize.io/)
 
-## Helm
+### Helm
 
 [helm](https://helm.sh/zh/docs/)
 
@@ -3356,7 +3356,7 @@ Operator参考：[Operator模式](https://kubernetes.io/zh-cn/docs/concepts/exte
 
 #### 介绍
 
-![prometheus-operator架构](./icons/prometheus-operator.png)
+![prometheus-operator-arch](./icons/prometheus-operator.png)
 
 - 上图是`Prometheus-Operator`官方提供的架构图 其中`Operator`是最核心的部分
 - 作为一个控制器 它回去创建`Prometheus`、`ServiceMonitor`、`Alertmanager`以及`PrometheusRule`4个CRD资源对象 然后会一直监控并维持这4个资源对象的状态
@@ -3739,6 +3739,61 @@ global:
 ```
 
 #### 通过kube-prometheus安装
+
+[Install using Kube-Prometheus](https://prometheus-operator.dev/docs/getting-started/installation/)
+
+##### 安装
+
+```bash
+git clone git@github.com:prometheus-operator/kube-prometheus.git
+kubectl create -f manifests/setup -f manifest  # 不止包含我们上面手动创建的相关资源
+
+# 查看部署的Pod
+# kubectl get pods -n monitoring
+NAME                                   READY   STATUS    RESTARTS   AGE
+alertmanager-main-0                    2/2     Running   0          2d23h
+alertmanager-main-1                    2/2     Running   0          2d23h
+alertmanager-main-2                    2/2     Running   0          2d23h
+blackbox-exporter-75c7985cb8-dq9vp     3/3     Running   0          2d23h
+grafana-664dd67585-wxrsp               1/1     Running   0          2d23h
+kube-state-metrics-75df9b9544-j9l7t    3/3     Running   0          2d23h
+node-exporter-9cflz                    2/2     Running   0          2d23h
+node-exporter-d9zkn                    2/2     Running   0          2d23h
+node-exporter-fh7sx                    2/2     Running   0          2d23h
+node-exporter-zxswn                    2/2     Running   0          2d23h
+prometheus-adapter-84c549f6b4-mwj8h    1/1     Running   0          2d23h
+prometheus-adapter-84c549f6b4-tg2sv    1/1     Running   0          2d23h
+prometheus-k8s-0                       2/2     Running   0          2d23h
+prometheus-k8s-1                       2/2     Running   0          2d23h
+prometheus-operator-6f9479b5f5-8r6sn   2/2     Running   0          2d23h
+
+```
+
+- 仔细观察我们发现`kube-scheduler` `kube-controller-manager`两个服务定义了ServiceMonior 但是没有管理到对应的监控目标
+- 阅读ServiceMonitor的定义 我们发现原因是我们系统中根本就没有对应的SeService 我们手动创建即可
+
+```yaml
+# serviceMonitor定义
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-controller-manager
+    app.kubernetes.io/part-of: kube-prometheus
+  name: kube-controller-manager
+  namespace: monitoring
+spec:
+  endpoints:
+  - ...
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-controller-manager
+
+```
 
 ## Reference
 
