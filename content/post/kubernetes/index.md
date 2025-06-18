@@ -3770,10 +3770,13 @@ prometheus-operator-6f9479b5f5-8r6sn   2/2     Running   0          2d23h
 ```
 
 - 仔细观察我们发现`kube-scheduler` `kube-controller-manager`两个服务定义了ServiceMonior 但是没有管理到对应的监控目标
-- 阅读ServiceMonitor的定义 我们发现原因是我们系统中根本就没有对应的SeService 我们手动创建即可
+- 阅读ServiceMonitor的定义 我们发现原因是我们系统中根本就没有对应的Service 我们手动创建即可
+- 服务端口参考: [ports-and-protocols](https://kubernetes.io/zh-cn/docs/reference/networking/ports-and-protocols/)
 
 ```yaml
 # serviceMonitor定义
+
+# kube-controller-manager
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -3793,6 +3796,259 @@ spec:
     matchLabels:
       app.kubernetes.io/name: kube-controller-manager
 
+# kube-scheduler
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-scheduler
+    app.kubernetes.io/part-of: kube-prometheus
+  name: kube-scheduler
+  namespace: monitoring
+spec:
+  endpoints:
+  - ...
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-scheduler
+
+```
+
+- 根据serviceMonitor定义 创建具有对应标签的Service资源
+
+```yaml
+# 除了创建Service 还需要修改服务的默认监听地址 默认绑定127.0.0.1
+# 修改: --address=127.0.0.1 -> --address=0.0.0.0
+
+# kube-controller-manager
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-system
+  name: kube-controller-manager
+  labels:
+    app.kubernetes.io/name: kube-controller-manager
+spec:
+  selector:
+    component: kube-controller-manager
+  ports:
+  - name: https-metrics
+    port: 10257
+    targetPort: 10257
+    protocol: TCP
+
+# kube-scheduler
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-system
+  name: kube-scheduler
+  labels:
+    app.kubernetes.io/name: kube-scheduler
+spec:
+  selector:
+    component: kube-scheduler
+  ports:
+  - name: https-metrics
+    port: 10259
+    targetPort: 10259
+    protocol: TCP
+
+```
+
+##### PrometheusOperator高级配置
+
+- 经常上面操作之后 自带组件的相关监控都全部配置完成 但是 如果我们集群中有很多的Service/Pod 我们就需要一个个创建对应的ServiceMonitor对象么
+- 为了解决这个问题 PrometheusOperator为我们提供了一个额外的抓取配置来解决这个问题 我们可以通过添加额外的配置来进行服务发现进行自动监控
+- 和之前自定义的方式呢一样 我们想要在PrometheusOperator中去自动发现具有`prometheus.io/scrape=true`这个annotations的Service 之前我们定义的Prometheus配置如下
+
+```yaml
+- job_name: 'kubernetes-service-endpoints'
+  kubernetes_sd_configs:
+  - role: endpoints
+  relabel_configs:
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+    action: keep
+    regex: true
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+    action: replace
+    target_label: __scheme__
+    regex: (https?)
+  - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+    action: replace
+    target_label: __metrics_path__
+    regex: (.+)
+  - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+    action: replace
+    target_label: __address__
+    regex: ([^:]+)(?::\d+)?;(\d+)
+    replacement: $1:$2
+  - action: labelmap
+    regex: __meta_kubernetes_service_label_(.+)
+  - source_labels: [__meta_kubernetes_namespace]
+    action: replace
+    target_label: namespace
+  - source_labels: [__meta_kubernetes_service_name]
+    action: replace
+    target_label: service
+  # 已由ServiceMonitor监控
+  - source_labels: [__meta_kubernetes_service_name]
+    action: drop
+    regex: kube-dns
+  
+```
+
+- 要想自动发现集群中的Service 就需要我们在Service的annotation区域添加`prometheus.io/scrape=true`的声明
+- 将上面的文件保存为prometheus-additional.yaml 然后通过这个文件创建一个对应的Secret对象
+
+```bash
+$ kubectl create secret generic additional-configs --from-file=manifests/prometheus-additional.yaml
+secret/additional-configs created
+```
+
+- 创建完成后 会将上面配置信息进行base64编码后作为prometheus-additional.yaml这个key对应的值存在
+
+```bash
+$ kubectl get secrets additional-configs -o yaml
+data:
+  prometheus-additional.yaml: LSBqb2JfbmFtZTogJ2t1YmVybmV0ZXMtc2VydmljZS1lbmRwb2ludHMnCiAga3ViZXJuZXRlc19zZF9jb25maWdzOgogIC0gcm9sZTogZW5kcG9pbnRzCiAgcmVsYWJlbF9jb25maWdzOgogIC0gc291cmNlX2xhYmVsczogW19fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3NjcmFwZV0KICAgIGFjdGlvbjoga2VlcAogICAgcmVnZXg6IHRydWUKICAtIHNvdXJjZV9sYWJlbHM6IFtfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY2hlbWVdCiAgICBhY3Rpb246IHJlcGxhY2UKICAgIHRhcmdldF9sYWJlbDogX19zY2hlbWVfXwogICAgcmVnZXg6IChodHRwcz8pCiAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcGF0aF0KICAgIGFjdGlvbjogcmVwbGFjZQogICAgdGFyZ2V0X2xhYmVsOiBfX21ldHJpY3NfcGF0aF9fCiAgICByZWdleDogKC4rKQogIC0gc291cmNlX2xhYmVsczogW19fYWRkcmVzc19fLCBfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wb3J0XQogICAgYWN0aW9uOiByZXBsYWNlCiAgICB0YXJnZXRfbGFiZWw6IF9fYWRkcmVzc19fCiAgICByZWdleDogKFteOl0rKSg/OjpcZCspPzsoXGQrKQogICAgcmVwbGFjZW1lbnQ6ICQxOiQyCiAgLSBhY3Rpb246IGxhYmVsbWFwCiAgICByZWdleDogX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispCiAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfbmFtZXNwYWNlXQogICAgYWN0aW9uOiByZXBsYWNlCiAgICB0YXJnZXRfbGFiZWw6IGt1YmVybmV0ZXNfbmFtZXNwYWNlCiAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9uYW1lXQogICAgYWN0aW9uOiByZXBsYWNlCiAgICB0YXJnZXRfbGFiZWw6IGt1YmVybmV0ZXNfbmFtZQo=
+kind: Secret
+metadata:
+  creationTimestamp: "2025-06-18T07:50:33Z"
+  name: additional-configs
+  namespace: monitoring
+  resourceVersion: "26440898"
+  uid: 97ae179c-6516-4050-9b0a-c95596cf387e
+type: Opaque
+```
+
+- 然后我们只需要在声明prometheus的资源对象文件中添加这个额外的配置即可
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.54.1
+  name: k8s
+  namespace: monitoring
+spec:
+  alerting:
+    alertmanagers:
+    - apiVersion: v2
+      name: alertmanager-main
+      namespace: monitoring
+      port: web
+  enableFeatures: []
+  externalLabels: {}
+  image: quay.io/prometheus/prometheus:v2.54.1
+  nodeSelector:
+    kubernetes.io/os: linux
+  podMetadata:
+    labels:
+      app.kubernetes.io/component: prometheus
+      app.kubernetes.io/instance: k8s
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/part-of: kube-prometheus
+      app.kubernetes.io/version: 2.54.1
+  podMonitorNamespaceSelector: {}
+  podMonitorSelector: {}
+  probeNamespaceSelector: {}
+  probeSelector: {}
+  replicas: 2
+  resources:
+    requests:
+      memory: 400Mi
+  ruleNamespaceSelector: {}
+  ruleSelector: {}
+  scrapeConfigNamespaceSelector: {}
+  scrapeConfigSelector: {}
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccountName: prometheus-k8s
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector: {}
+  version: 2.54.1
+  additionalScrapeConfigs:
+    name: additional-configs
+    key: prometheus-additional.yaml
+
+```
+
+- 在Prometheus UI的配置页面 已经看到有对应的配置信息 但是targets页面下却没有对应的监控任务 查看Prometheus的Pod日志
+
+```bash
+ts=2025-06-18T08:03:27.801Z caller=klog.go:116 level=error component=k8s_client_runtime func=ErrorDepth msg="pkg/mod/k8s.io/client-go@v0.29.3/tools/cache/reflector.go:229: Failed to watch *v1.Service: failed to list *v1.Service: services is forbidden: User \"system:serviceaccount:monitoring:prometheus-k8s\" cannot list resource \"services\" in API group \"\" at the cluster scope"
+...
+```
+
+- 可以看到有很多错误日志出现 都是 `xxx is forbidden` 这说明是RBAC权限的问题 通过Prometheus资源对象的陪着你可以值得 Promtheus绑定了一个名为`prometheus-k8s`的ServiceAccount对象 而这个对象绑定的是一个名为promtheus-k8s的ClusterRole
+- 查看ClusterRole的内容 我们可以看到明显没有对Service或者Pod的list权限 我们添加上对象的权限即可
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: "2025-06-13T12:48:39Z"
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.54.1
+  name: prometheus-k8s
+  resourceVersion: "25082977"
+  uid: 4cc3523b-1a2d-4682-bd6e-f23a11e661e7
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes/metrics
+  verbs:
+  - get
+- nonResourceURLs:
+  - /metrics
+  - /metrics/slis
+  verbs:
+  - get
+```
+
+- 更新`prometheus-k8s` ClusterRole权限
+
+```bash
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  - nodes/proxy
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - nodes/metrics
+  verbs:
+  - get
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
 ```
 
 ## Reference
