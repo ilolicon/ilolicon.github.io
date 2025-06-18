@@ -149,6 +149,91 @@ flowchart TD
 - 上面的方法在一定程度上可以解决DNS超时问题 但更好的方式时使用本地DNS缓存
 - 容器的DNS请求都发往本地的DNS缓存服务 也就不需要走DNAT 当然也不会发生`conntrack`冲突 而且还可以有效提升CoreDNS的性能瓶颈
 
+### NodeLocal DNSCache
+
+[在Kubernetes集群中使用NodeLocalDNSCache](https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/)
+
+![NodeLocal DNSCache](./icons/NodeLocal-DNSCache.png)
+
+- `NodeLocal DNSCache`通过在集群节点上运行一个DaemonSet来提高集群DNS性能和可靠性 处于`ClusterFirst`的DNS模式下的Pod可以连接到kube-dns的serviceIP进行DNS查询 通过kube-proxy组件添加的iptables规则将其转换为CoreDNS端点 通过在每个集群节点上运行DNS缓存 NodeLocal DNSCache可以缩短DNS查找的延迟时间、使 DNS查找时间更加一致 以及减少发送到kube-dns的DNS查询次数
+- 在集群中运行`NodeLocal DNSCache`有如下几个好处
+  - 如果本地没有CoreDNS实例 则具有最高DNS QPS的Pod可能必须到另一个节点进行解析 使用`NodeLocal DNSCache`后 拥有本地缓存将有助于改善延迟
+  - 跳过iptables DNAT和连接跟踪将有助于减少conntrack竞争并避免UDP DNS条目填满conntrack表(上面提到的5s超时问题就是这个原因造成的)
+  - 从本地缓存代理到kube-dns服务的连接可以升级到TCP TCP conntrack条目将在连接关闭时被删除 而UDP条目必须超时(默认`nfconntrackudp_timeout`是30秒)
+  - 将DNS查询从UDP升级到TCP将减少归因于丢弃的UDP数据包和DNS超时的尾部等待时间 通常长达30秒(3次重试+ 10秒超时)
+
+#### 安装
+
+```bash
+wget https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml
+
+kubedns=`kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}`
+domain=<cluster-domain>
+localdns=<node-local-address>
+
+kubectl apply -f nodelocaldns.yaml
+
+```
+
+- 该资源清单文件中包含几个变量值得注意 其中
+  - `__PILLAR__DNS__SERVER__` 表示kube-dns这个Service的ClusterIP 可以通过命令`kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}` 获取(我们这里就是 `10.96.0.10`)
+  - `__PILLAR__LOCAL__DNS__` 表示DNSCache本地的IP 默认为`169.254.20.10`
+  - `__PILLAR__DNS__DOMAIN__` 表示集群域 默认就是`cluster.local`
+
+- 如果kube-proxy运行在`IPTABLES`模式
+
+```bash
+# node-local-dns Pod会设置 __PILLAR__CLUSTER__DNS__ 和 __PILLAR__UPSTREAM__SERVERS__
+# 在此模式下 node-local-dns Pod会同时侦听kube-dns服务的IP地址和<node-local-address>的地址 以便Pod可以使用其中任何一个IP地址来查询DNS记录
+sed -i "s/__PILLAR__LOCAL__DNS__/$localdns/g; s/__PILLAR__DNS__DOMAIN__/$domain/g; s/__PILLAR__DNS__SERVER__/$kubedns/g" nodelocaldns.yaml
+
+```
+
+- 如果kube-proxy运行在`IPVS`模式
+
+```bash
+# 在此模式下 node-local-dns Pod只会侦听<node-local-address>的地址
+# node-local-dns接口不能绑定kube-dns的集群IP地址 因为IPVS负载均衡使用的接口已经占用了该地址
+# node-local-dns Pod会设置 __PILLAR__UPSTREAM__SERVERS__
+sed -i "s/__PILLAR__LOCAL__DNS__/$localdns/g; s/__PILLAR__DNS__DOMAIN__/$domain/g; s/,__PILLAR__DNS__SERVER__//g; s/__PILLAR__CLUSTER__DNS__/$kubedns/g" nodelocaldns.yaml
+
+```
+
+- 查询Pod是否启动成功
+
+```bash
+$ kubectl get pods -n kube-system -l k8s-app=node-local-dns    ✔  minho-test/monitoring ⎈  21:55:32  ▓▒░
+NAME                   READY   STATUS    RESTARTS   AGE
+node-local-dns-5rzd9   1/1     Running   0          12m
+node-local-dns-7fnlk   1/1     Running   0          12m
+node-local-dns-glc9j   1/1     Running   0          6m45s
+node-local-dns-m6cnr   1/1     Running   0          34s
+
+```
+
+- 需要注意 这里使用DaemoonSet部署node-local-dns 使用了`hostNetwork=true` 会占用宿主机的8080端口 所以需要保证该端口未被占用
+- 如果kube-proxy使用的ipvs模式 还需要修改kubelet的`--cluster-dns`参数 将其指向`169.254.20.10` DaemonSet会在每个节点创建一个网卡来绑这个IP Pod向本节点这个IP发DNS请求 缓存没有命中的时候才会再代理到上游集群DNS进行查询
+- iptables模式下Pod还是向原来的集群DNS请求 节点上有这个IP监听 会被本机拦截 再请求集群上游DNS 所以不需要更改`--cluster-dns`参数
+
+```bash
+sed -i 's/10.96.0.10/169.254.20.10/g' /var/lib/kubelet/config.yaml
+systemctl daemon-reload && systemctl restart kubelet
+
+```
+
+- 部署新Pod验证/etc/resolv.conf
+
+```bash
+root@testdns:~# cat /etc/resolv.conf
+nameserver 169.254.20.10
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:5
+
+```
+
+- 缺点
+  - 由于LocalDNS使用的是DaemonSet模式部署 所以如果需要更新镜像则可能会中断服务(不过可以使用一些第三方的增强组件来实现原地升级解决这个问题 比如 [openkruise](https://openkruise.io/))
+
 ### 性能测试
 
 ```go
@@ -314,87 +399,10 @@ error count：0
 request time：min(1ms) max(5064ms) avg(28ms) timeout(424n)
 ```
 
-### NodeLocal DNSCache
+### 参考链接
 
-[在Kubernetes集群中使用NodeLocalDNSCache](https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/)
+[DNS优化](https://www.qikqiak.com/k8strain2/network/localdns/)
 
-![NodeLocal DNSCache](./icons/NodeLocal-DNSCache.png)
+[DNS解析异常问题排查](https://www.qikqiak.com/k8strain2/network/localdns/)
 
-- `NodeLocal DNSCache`通过在集群节点上运行一个DaemonSet来提高集群DNS性能和可靠性 处于`ClusterFirst`的DNS模式下的Pod可以连接到kube-dns的serviceIP进行DNS查询 通过kube-proxy组件添加的iptables规则将其转换为CoreDNS端点 通过在每个集群节点上运行DNS缓存 NodeLocal DNSCache可以缩短DNS查找的延迟时间、使 DNS查找时间更加一致 以及减少发送到kube-dns的DNS查询次数
-- 在集群中运行`NodeLocal DNSCache`有如下几个好处
-  - 如果本地没有CoreDNS实例 则具有最高DNS QPS的Pod可能必须到另一个节点进行解析 使用`NodeLocal DNSCache`后 拥有本地缓存将有助于改善延迟
-  - 跳过iptables DNAT和连接跟踪将有助于减少conntrack竞争并避免UDP DNS条目填满conntrack表(上面提到的5s超时问题就是这个原因造成的)
-  - 从本地缓存代理到kube-dns服务的连接可以升级到TCP TCP conntrack条目将在连接关闭时被删除 而UDP条目必须超时(默认`nfconntrackudp_timeout`是30秒)
-  - 将DNS查询从UDP升级到TCP将减少归因于丢弃的UDP数据包和DNS超时的尾部等待时间 通常长达30秒(3次重试+ 10秒超时)
-
-#### 安装
-
-```bash
-wget https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml
-
-kubedns=`kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}`
-domain=<cluster-domain>
-localdns=<node-local-address>
-
-kubectl apply -f nodelocaldns.yaml
-
-```
-
-- 该资源清单文件中包含几个变量值得注意 其中
-  - `__PILLAR__DNS__SERVER__` 表示kube-dns这个Service的ClusterIP 可以通过命令`kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}` 获取(我们这里就是 `10.96.0.10`)
-  - `__PILLAR__LOCAL__DNS__` 表示DNSCache本地的IP 默认为`169.254.20.10`
-  - `__PILLAR__DNS__DOMAIN__` 表示集群域 默认就是`cluster.local`
-
-- 如果kube-proxy运行在`IPTABLES`模式
-
-```bash
-# node-local-dns Pod会设置 __PILLAR__CLUSTER__DNS__ 和 __PILLAR__UPSTREAM__SERVERS__
-# 在此模式下 node-local-dns Pod会同时侦听kube-dns服务的IP地址和<node-local-address>的地址 以便Pod可以使用其中任何一个IP地址来查询DNS记录
-sed -i "s/__PILLAR__LOCAL__DNS__/$localdns/g; s/__PILLAR__DNS__DOMAIN__/$domain/g; s/__PILLAR__DNS__SERVER__/$kubedns/g" nodelocaldns.yaml
-
-```
-
-- 如果kube-proxy运行在`IPVS`模式
-
-```bash
-# 在此模式下 node-local-dns Pod只会侦听<node-local-address>的地址
-# node-local-dns接口不能绑定kube-dns的集群IP地址 因为IPVS负载均衡使用的接口已经占用了该地址
-# node-local-dns Pod会设置 __PILLAR__UPSTREAM__SERVERS__
-sed -i "s/__PILLAR__LOCAL__DNS__/$localdns/g; s/__PILLAR__DNS__DOMAIN__/$domain/g; s/,__PILLAR__DNS__SERVER__//g; s/__PILLAR__CLUSTER__DNS__/$kubedns/g" nodelocaldns.yaml
-
-```
-
-- 查询Pod是否启动成功
-
-```bash
-$ kubectl get pods -n kube-system -l k8s-app=node-local-dns    ✔  minho-test/monitoring ⎈  21:55:32  ▓▒░
-NAME                   READY   STATUS    RESTARTS   AGE
-node-local-dns-5rzd9   1/1     Running   0          12m
-node-local-dns-7fnlk   1/1     Running   0          12m
-node-local-dns-glc9j   1/1     Running   0          6m45s
-node-local-dns-m6cnr   1/1     Running   0          34s
-
-```
-
-- 需要注意 这里使用DaemoonSet部署node-local-dns 使用了`hostNetwork=true` 会占用宿主机的8080端口 所以需要保证该端口未被占用
-- 如果kube-proxy使用的ipvs模式 还需要修改kubelet的`--cluster-dns`参数 将其指向`169.254.20.10` DaemonSet会在每个节点创建一个网卡来绑这个IP Pod向本节点这个IP发DNS请求 缓存没有命中的时候才会再代理到上游集群DNS进行查询
-- iptables模式下Pod还是向原来的集群DNS请求 节点上有这个IP监听 会被本机拦截 再请求集群上游DNS 所以不需要更改`--cluster-dns`参数
-
-```bash
-sed -i 's/10.96.0.10/169.254.20.10/g' /var/lib/kubelet/config.yaml
-systemctl daemon-reload && systemctl restart kubelet
-
-```
-
-- 部署新Pod验证/etc/resolv.conf
-
-```bash
-root@testdns:~# cat /etc/resolv.conf
-nameserver 169.254.20.10
-search default.svc.cluster.local svc.cluster.local cluster.local
-options ndots:5
-
-```
-
-- 缺点
-  - 由于LocalDNS使用的是DaemonSet模式部署 所以如果需要更新镜像则可能会中断服务(不过可以使用一些第三方的增强组件来实现原地升级解决这个问题 比如 [openkruise](https://openkruise.io/))
+[在Kubernetes集群中使用NodeLocal DNSCache](https://www.qikqiak.com/k8strain2/network/localdns/)
