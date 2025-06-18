@@ -399,6 +399,13 @@ error count：0
 request time：min(1ms) max(5064ms) avg(28ms) timeout(424n)
 ```
 
+#### 建议
+
+[Service与Pod的DNS](https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/)
+
+- 性能测试发现 集群内解析 推荐写服务的FQDN完全限定域名格式 可以减少无效解析次数 提高性能
+- 比如: `httpbin.default.svc.cluster.local.`  # 最后的. 一定要加上
+
 ### 参考链接
 
 [DNS优化](https://www.qikqiak.com/k8strain2/network/localdns/)
