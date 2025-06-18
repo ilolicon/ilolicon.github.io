@@ -153,7 +153,7 @@ flowchart TD
 
 [在Kubernetes集群中使用NodeLocalDNSCache](https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/)
 
-![NodeLocal DNSCache](icons/NodeLocal-DNSCache.png)
+![NodeLocal DNSCache](icons/nodelocaldns.svg)
 
 - `NodeLocal DNSCache`通过在集群节点上运行一个DaemonSet来提高集群DNS性能和可靠性 处于`ClusterFirst`的DNS模式下的Pod可以连接到kube-dns的serviceIP进行DNS查询 通过kube-proxy组件添加的iptables规则将其转换为CoreDNS端点 通过在每个集群节点上运行DNS缓存 NodeLocal DNSCache可以缩短DNS查找的延迟时间、使 DNS查找时间更加一致 以及减少发送到kube-dns的DNS查询次数
 - 在集群中运行`NodeLocal DNSCache`有如下几个好处
