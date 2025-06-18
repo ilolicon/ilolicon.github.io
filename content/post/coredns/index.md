@@ -382,7 +382,7 @@ request time：min(1ms) max(193ms) avg(32ms) timeout(0n)
 #### NodeLocal DNSCache 性能测试
 
 ```bash
-# 使用NodeLocal DNSCache之后 我本地环境性能压测并不理想 目前查看是机器CPU负载较高 怀疑可能有影响 后续再验证
+# 使用NodeLocal DNSCache之后 我本地环境性能压测并不理想 目前查看是机器CPU负载较高 怀疑可能有影响 后续有条件再进行验证
 root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c 200 -d 30 -l 5000
 ./testdns -host httpbin.default.svc.cluster.local. -c 200 -d 30 -l 5000
 request count：202710
