@@ -3356,7 +3356,7 @@ Operator参考：[Operator模式](https://kubernetes.io/zh-cn/docs/concepts/exte
 
 #### 介绍
 
-![prometheus-operator-arch](./icons/prometheus-operator.png)
+![prometheus-operator-arch](icons/prometheus-operator.png)
 
 - 上图是`Prometheus-Operator`官方提供的架构图 其中`Operator`是最核心的部分
 - 作为一个控制器 它回去创建`Prometheus`、`ServiceMonitor`、`Alertmanager`以及`PrometheusRule`4个CRD资源对象 然后会一直监控并维持这4个资源对象的状态
