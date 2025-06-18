@@ -4051,6 +4051,78 @@ rules:
   - get
 ```
 
+##### 数据持久化
+
+- 目前的Promtheus 如裹我们重启Pod 则会丢失之前采集的数据 这是因为promeehteus这个CRD创建的Prometheus并没有做数据的持久化
+- 直接查看生成的Prometheus Pod的挂载详情 我们发现Prometheus的数据目录/promtheus实际上是通过`emptyDir`进行挂载的
+- 我们知道`emptyDir`挂载的数据的声明周期和Pod生命周期是一致的 如果Pod挂掉 数据也跟着丢失
+- 线上的监控数据我们肯定需要做持久化 prometheus CRD资源也为我们提供了数据持久化的配置方法 由于我们的Prometheus最终是通过Statefulset控制器进行部署的 所以我们这里需要通过`storageclass`来做数据持久化
+
+```yaml
+$ kubectl get pod prometheus-k8s-0 -o yaml
+......
+    volumeMounts:
+    - mountPath: /prometheus
+      name: prometheus-k8s-db
+......
+  volumes:
+  - emptyDir: {}
+    name: prometheus-k8s-db
+```
+
+- 这里使用我本地的nfs stroageclass 在prometheus CRD资源对象中添加如下配置
+
+```yaml
+storage:
+  volumeClaimTemplate:
+    spec:
+      storageClassName: nfs-client
+      resources:
+        requests:
+          storage: 10Gi
+```
+
+- 更新服务之后 我们查看对应的pv/pvc/promtehus 可以看到已经进行了持久化
+
+```bash
+# POD
+volumes:
+- name: prometheus-k8s-db
+  persistentVolumeClaim:
+    claimName: prometheus-k8s-db-prometheus-k8s-1
+
+volumeMounts:
+- mountPath: /prometheus
+  name: prometheus-k8s-db
+  subPath: prometheus-db
+
+# pv / pvc
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                           STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pvc-c2cd37f7-9299-4c47-97a7-b841e4c28e9b   10Gi       RWO            Delete           Bound    monitoring/prometheus-k8s-db-prometheus-k8s-1   nfs-client     <unset>                          10m
+pvc-c6177fc6-74d5-4e1f-9213-86f90757b3d2   10Gi       RWO            Delete           Bound    monitoring/prometheus-k8s-db-prometheus-k8s-0   nfs-client     <unset>                          10m
+
+$ kubectl get pvc
+NAME                                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+prometheus-k8s-db-prometheus-k8s-0   Bound    pvc-c6177fc6-74d5-4e1f-9213-86f90757b3d2   10Gi       RWO            nfs-client     <unset>                 10m
+prometheus-k8s-db-prometheus-k8s-1   Bound    pvc-c2cd37f7-9299-4c47-97a7-b841e4c28e9b   10Gi       RWO            nfs-client     <unset>                 10m
+
+```
+
+##### 副本与分片
+
+- kube-prometheus 默认安装是高可用的2副本 如果需要修改为分片 需要修改prometheus crd定义
+- [high-availability](https://prometheus-operator.dev/docs/platform/high-availability/)
+
+```yaml
+# 启动的Pod数量为 replicas * shards
+replicas: 1
+shards: 2
+resources:
+  requests:
+    memory: 400Mi
+```
+
 ## Reference
 
 - ubuntu
