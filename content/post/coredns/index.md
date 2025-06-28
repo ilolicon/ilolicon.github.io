@@ -411,6 +411,6 @@ request time：min(1ms) max(5064ms) avg(28ms) timeout(424n)
 
 [DNS优化](https://www.qikqiak.com/k8strain2/network/localdns/)
 
-[DNS解析异常问题排查](https://www.qikqiak.com/k8strain2/network/localdns/)
+[DNS解析异常问题排查](https://help.aliyun.com/zh/ack/ack-managed-and-ack-dedicated/user-guide/dns-troubleshooting-1)
 
-[在Kubernetes集群中使用NodeLocal DNSCache](https://www.qikqiak.com/k8strain2/network/localdns/)
+[在Kubernetes集群中使用NodeLocal DNSCache](https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/)
