@@ -2570,6 +2570,14 @@ spec:
 
 [helm](https://helm.sh/zh/docs/)
 
+### 模版debug
+
+```go
+{{- $commonValues := mustDeepCopy .Values.common -}}
+{{ fail (printf "commonValues:%v\n" (toYaml .Values | nindent 2 )) }}  // 格式化打印对应值 方便debug
+
+```
+
 ## 集群监控
 
 - 书籍推荐 了解Google运维的秘密 [SRE: Google运维解密](https://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/)
