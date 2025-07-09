@@ -407,6 +407,17 @@ request time：min(1ms) max(5064ms) avg(28ms) timeout(424n)
 - 性能测试发现 集群内解析 推荐写服务的FQDN完全限定域名格式 可以减少无效解析次数 提高性能
 - 比如: `httpbin.default.svc.cluster.local.`  # 最后的. 一定要加上
 
+### 补充: DNSPolicy
+
+[pod-s-dns-policy](https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy)
+
+|DNSPolicy字段值|使用的DNS服务器|
+|-|-|
+|Default|只适用于不需要访问集群内部服务的场景 Pod创建时会从运行节点/etc/resolv.conf文件继承DNS服务器列表|
+|ClusterFirst|此为DNSPolicy默认值 Pod会将CoreDNS提供的kube-dns服务IP作为DNS服务器 开启HostNetwork的Pod 如果选择ClusterFirst模式 效果等同于Default|
+|ClusterFirstWithHostNet|开启HostNetwork的Pod 如果选择ClusterFirstWithHostNet模式 效果等同于ClusterFirst|
+|None|配合DNSConfig字段 可用于自定义DNS服务器和参数 在NodeLocalDNSCache开启注入时 DNSConfig会将DNS服务器指向本地缓存IP及CoreDNS提供的kube-dns服务IP(阿里云ACK)|
+
 ### 参考链接
 
 [DNS优化](https://www.qikqiak.com/k8strain2/network/localdns/)
