@@ -1,0 +1,448 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="DNS and Service Discovery"><title>CoreDNS</title><link rel=canonical href=https://ilolicon.github.io/p/coredns/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="CoreDNS"><meta property="og:description" content="DNS and Service Discovery"><meta property="og:url" content="https://ilolicon.github.io/p/coredns/"><meta property="og:site_name" content="ilolicon's Blog"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="CoreDNS"><meta property="article:tag" content="Cloud Native"><meta property="article:tag" content="Kubernetes"><meta property="article:tag" content="DNS"><meta property="article:tag" content="Service"><meta property="article:published_time" content="2025-06-16T22:30:14+08:00"><meta property="article:modified_time" content="2025-06-16T22:30:14+08:00"><meta name=twitter:title content="CoreDNS"><meta name=twitter:description content="DNS and Service Discovery"><link rel="shortcut icon" href=/img/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu96a5ab8e0364e843af4687201b687892_162934_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ilolicon's Blog</a></h1><h2 class=site-description>Keep Calm and Carry On.</h2></div></header><ol class=social-menu><li><a href=https://github.com/ilolicon target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#dns优化>DNS优化</a><ol><li><a href=#超时原因>超时原因</a></li><li><a href=#内核中的dnat>内核中的DNAT</a></li><li><a href=#问题>问题</a></li><li><a href=#解决方法>解决方法</a><ol><li><a href=#内核优化>内核优化</a></li><li><a href=#修改resolvconf文件>修改resolv.conf文件</a></li></ol></li><li><a href=#nodelocal-dnscache>NodeLocal DNSCache</a><ol><li><a href=#安装>安装</a></li></ol></li><li><a href=#性能测试>性能测试</a><ol><li><a href=#未优化>未优化</a></li><li><a href=#single-request-reopen>single-request-reopen</a></li><li><a href=#nodelocal-dnscache-性能测试>NodeLocal DNSCache 性能测试</a></li><li><a href=#建议>建议</a></li></ol></li><li><a href=#补充-dnspolicy>补充: DNSPolicy</a></li><li><a href=#参考链接>参考链接</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/cloudnative/ style=background-color:#2a9d8f;color:#fff>CloudNative</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/coredns/>CoreDNS</a></h2><h3 class=article-subtitle>DNS and Service Discovery</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Jun 16, 2025</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 6 分钟</time></div></footer></div></header><section class=article-content><h2 id=dns优化>DNS优化</h2><ul><li>Kubernetes集群中 我们可以使用CoreDNS来进行集群的域名解析 但是如果在集群规模较大并发较高的情况下 我们仍然需要对DNS进行优化</li><li>典型问题：CoreDNS会出现超时5s的情况</li></ul><h3 id=超时原因>超时原因</h3><ul><li>在iptables模式下(默认情况) 每个服务的kube-proxy在主机网络名称空间的NAT表中创建iptables规则</li><li>比如在集群中具有两个DNS服务器实例的kube-dns服务 相关规则大致如下</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>(</span>1<span class=o>)</span> -A PREROUTING -m comment --comment <span class=s2>&#34;kubernetes service portals&#34;</span> -j KUBE-SERVICES
+</span></span><span class=line><span class=cl>&lt;...&gt;
+</span></span><span class=line><span class=cl><span class=o>(</span>2<span class=o>)</span> -A KUBE-SERVICES -d 10.96.0.10/32 -p udp -m comment --comment <span class=s2>&#34;kube-system/kube-dns:dns cluster IP&#34;</span> -m udp --dport <span class=m>53</span> -j KUBE-SVC-TCOU7JCQXEZGVUNU
+</span></span><span class=line><span class=cl>&lt;...&gt;
+</span></span><span class=line><span class=cl><span class=o>(</span>3<span class=o>)</span> -A KUBE-SVC-TCOU7JCQXEZGVUNU -m comment --comment <span class=s2>&#34;kube-system/kube-dns:dns&#34;</span> -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-LLLB6FGXBLX6PZF7
+</span></span><span class=line><span class=cl><span class=o>(</span>4<span class=o>)</span> -A KUBE-SVC-TCOU7JCQXEZGVUNU -m comment --comment <span class=s2>&#34;kube-system/kube-dns:dns&#34;</span> -j KUBE-SEP-LRVEW52VMYCOUSMZ
+</span></span><span class=line><span class=cl>&lt;...&gt;
+</span></span><span class=line><span class=cl><span class=o>(</span>5<span class=o>)</span> -A KUBE-SEP-LLLB6FGXBLX6PZF7 -p udp -m comment --comment <span class=s2>&#34;kube-system/kube-dns:dns&#34;</span> -m udp -j DNAT --to-destination 10.32.0.6:53
+</span></span><span class=line><span class=cl>&lt;...&gt;
+</span></span><span class=line><span class=cl><span class=o>(</span>6<span class=o>)</span> -A KUBE-SEP-LRVEW52VMYCOUSMZ -p udp -m comment --comment <span class=s2>&#34;kube-system/kube-dns:dns&#34;</span> -m udp -j DNAT --to-destination 10.32.0.7:53
+</span></span></code></pre></td></tr></table></div></div><ul><li>我们知道每个Pod的<code>/etc/resolv.conf</code>文件中都有填充的<code>nameserver 10.96.0.10</code></li><li>所以 来自Pod的DNS查找请求将发送到<code>10.96.0.10</code> 这是kube-dns服务的ClusterIP地址</li><li>由于<code>(1)</code>请求进入<code>KUBE-SERVICE</code>链 然后匹配规则<code>(2)</code> 最后根据规则<code>(3)</code>的random随机模式 跳转到<code>(5)</code>或<code>(6)</code>条目 将请求UDP数据包的目的IP地址修改为DNS服务器的实际IP地址 这是通过DNAT完成的</li><li>其中<code>10.32.0.6</code>和<code>10.32.0.7</code>是我们集群中CoreDNS的两个Pod副本的IP地址</li></ul><h3 id=内核中的dnat>内核中的DNAT</h3><ul><li><code>DNAT</code>的主要职责是同时更改传出数据包的目的地 响应数据包的源 并确保对所有后续数据包进行相同的修改 后者严重依赖于连接跟踪机制 也称为<code>conntrack</code> 它被实现为内核模块</li><li><code>conntrack</code>会跟踪系统中正在进行的网络连接</li><li><code>conntrack</code>中的每个连接都由两个元组表示<ul><li>一个元组用于原始请求(IP_CT_DIR_ORIGINAL)</li><li>一个元组用于答复(IP_CT_DIR_REPLY)</li></ul></li><li>对于UDP 每个元组都由源IP地址 源端口以及目标IP地址和目标端口组成 答复元组包含存储在src字段中的目标真实地址</li><li>例如：如果IP地址<code>10.40.0.17</code>的Pod向kube-dns的ClusterIP发送一个请求 该请求被转换为<code>10.32.0.6</code> 则将创建以下元组:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>原始：src<span class=o>=</span>10.40.0.17 <span class=nv>dst</span><span class=o>=</span>10.96.0.10 <span class=nv>sport</span><span class=o>=</span><span class=m>53378</span> <span class=nv>dport</span><span class=o>=</span><span class=m>53</span>
+</span></span><span class=line><span class=cl>回复：src<span class=o>=</span>10.32.0.6 <span class=nv>dst</span><span class=o>=</span>10.40.0.17 <span class=nv>sport</span><span class=o>=</span><span class=m>53</span> <span class=nv>dport</span><span class=o>=</span><span class=m>53378</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>通过这些条目内核可以相应地修改任何相关数据包的目的地址和源地址 而无需再次遍历DNAT规则 此外 它将知道如何修改回复以及应将回复发送给谁</li><li>创建<code>conntrack</code>条目后 将首先对其进行确认 然后如果没有已确认的<code>conntrack</code>条目具有相同的原始元组或回复元组 则内核将尝试确认该条目</li><li><code>conntrack</code>创建和DNAT的简化流程如下所示:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>flowchart TD
+</span></span><span class=line><span class=cl>    A[&#34;为给定包创建 conntrack(如果不存在)&#34;] 
+</span></span><span class=line><span class=cl>    --&gt; B[&#34;ipt_do_table:找到匹配的 DNAT 规则&#34;]
+</span></span><span class=line><span class=cl>    B --&gt; C[&#34;get_unique_tuple:1. 根据 DNAT 更新回复元组 src 2. 确保未被已确认连接使用&#34;]
+</span></span><span class=line><span class=cl>    C --&gt; D[&#34;nf_nat_packet:根据应答元组打乱数据包目的端口/地址&#34;]
+</span></span><span class=line><span class=cl>    D --&gt; E{&#34;_nf_conntrack_confirm:是否存在相同原始/应答元组的已确认连接？&#34;}
+</span></span><span class=line><span class=cl>    E --&gt;|否| F[&#34;确认连接&#34;]
+</span></span><span class=line><span class=cl>    E --&gt;|是| G[&#34;递增 insert_failed 计数器并删除数据包&#34;]
+</span></span></code></pre></td></tr></table></div></div><h3 id=问题>问题</h3><ul><li>DNS客户端(<code>glibc</code> 或 <code>musl libc</code>)会<strong>并发</strong>请求 A 和 AAAA 记录 跟DNS Server通信自然会先connect(建立fd) 后面请求报文使用这个fd来发送</li><li>由于 UDP 是无状态协议 connect时并不会创建conntrack表项 而并发请求的 A 和 AAAA 记录默认使用同一个fd发包 这时它们<strong>源Port相同</strong></li><li>当并发发包时 两个包都还没有被插入conntrack表项 所以netfilter会为它们分别创建conntrack表项 而集群内请求CoreDNS都是访问的CLUSTER-IP 报文最终会被 DNAT成一个具体的Pod IP 当两个包被DNAT成同一个IP 最终它们的五元组<strong>相同</strong> 在最终插入的时候后面那个包就会被丢掉</li><li>如果DNS的Pod副本只有一个实例的情况就很容易发生 现象就是DNS请求超时 客户端默认策略是等待5s自动重试 如果重试成功 我们看到的现象就是DNS请求有5s的延时<ul><li>只有多个线程或进程 并发从同一个socket发送相同五元组的UDP报文时 才有一定概率发生</li><li>glibc、musl(alpine linux的libc库)都使用<code>parallel query</code> 就是并发发出多个查询请求 因此很容易碰到这样的冲突 造成查询请求被丢弃</li><li>由于ipvs也使用了conntrack 使用kube-proxy的ipvs模式 并不能避免这个问题</li></ul></li></ul><h3 id=解决方法>解决方法</h3><h4 id=内核优化>内核优化</h4><ul><li>要彻底解决这个问题最好当然是内核上去FIX掉这个BUG 除了这种方法之外我们还可以使用其他方法来进行规避 我们可以避免相同五元组DNS请求的并发</li></ul><h4 id=修改resolvconf文件>修改resolv.conf文件</h4><ul><li><p>在<code>resolv.conf</code>中就有两个相关的参数可以进行配置</p><ul><li><code>single-request-reopen</code>：发送A类型请求和AAAA类型请求使用不同的源端口 这样两个请求在conntrack表中不占用同一个表项 从而避免冲突</li><li><code>single-request</code>：避免并发 改为串行发送A类型和AAAA类型请求 没有了并发从而也避免了冲突</li></ul></li><li><p>要给容器的<code>resolv.conf</code>加上options参数 有几个办法</p><ul><li>在容器的<code>ENTRYPOINT</code>或者<code>CMD</code>指令中 执行 <code>/bin/echo 'options single-request-reopen' >> /etc/resolv.conf</code></li><li>在Pod的postStart hook中添加</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>lifecycle</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>postStart</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>exec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>command</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>/bin/sh</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- -<span class=l>c</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;/bin/echo &#39;options single-request-reopen&#39; &gt;&gt; /etc/resolv.conf&#34;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>使用<code>template.spec.dnsConfig</code>配置</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>dnsConfig</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>options</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>single-request-reopen</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>使用ConfigMap覆盖Pod里面的<code>/etc/resolv.conf</code></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># configmap</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>data</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>resolv.conf</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    nameserver 10.96.0.10
+</span></span></span><span class=line><span class=cl><span class=sd>    search default.svc.cluster.local svc.cluster.local cluster.local
+</span></span></span><span class=line><span class=cl><span class=sd>    options ndots:5 single-request-reopen timeout:1</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>ConfigMap</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>resolvconf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Pod Spec</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>volumeMounts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>resolv-conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>mountPath</span><span class=p>:</span><span class=w> </span><span class=l>/etc/resolv.conf   </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>subPath</span><span class=p>:</span><span class=w> </span><span class=l>resolv.conf </span><span class=w> </span><span class=c># 在某个目录下面挂载一个文件(保证不覆盖当前目录)需要使用subPath -&gt; 不支持热更新</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nn>...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>volumes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>resolv-conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>configMap</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>resolvconf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>items</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>resolv.conf</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>resolv.conf</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div></li><li><p>上面的方法在一定程度上可以解决DNS超时问题 但更好的方式时使用本地DNS缓存</p></li><li><p>容器的DNS请求都发往本地的DNS缓存服务 也就不需要走DNAT 当然也不会发生<code>conntrack</code>冲突 而且还可以有效提升CoreDNS的性能瓶颈</p></li></ul><h3 id=nodelocal-dnscache>NodeLocal DNSCache</h3><p><a class=link href=https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/ target=_blank rel=noopener>在Kubernetes集群中使用NodeLocalDNSCache</a></p><p><img src=/p/coredns/icons/nodelocaldns.svg loading=lazy alt="NodeLocal DNSCache"></p><ul><li><code>NodeLocal DNSCache</code>通过在集群节点上运行一个DaemonSet来提高集群DNS性能和可靠性 处于<code>ClusterFirst</code>的DNS模式下的Pod可以连接到kube-dns的serviceIP进行DNS查询 通过kube-proxy组件添加的iptables规则将其转换为CoreDNS端点 通过在每个集群节点上运行DNS缓存 NodeLocal DNSCache可以缩短DNS查找的延迟时间、使 DNS查找时间更加一致 以及减少发送到kube-dns的DNS查询次数</li><li>在集群中运行<code>NodeLocal DNSCache</code>有如下几个好处<ul><li>如果本地没有CoreDNS实例 则具有最高DNS QPS的Pod可能必须到另一个节点进行解析 使用<code>NodeLocal DNSCache</code>后 拥有本地缓存将有助于改善延迟</li><li>跳过iptables DNAT和连接跟踪将有助于减少conntrack竞争并避免UDP DNS条目填满conntrack表(上面提到的5s超时问题就是这个原因造成的)</li><li>从本地缓存代理到kube-dns服务的连接可以升级到TCP TCP conntrack条目将在连接关闭时被删除 而UDP条目必须超时(默认<code>nfconntrackudp_timeout</code>是30秒)</li><li>将DNS查询从UDP升级到TCP将减少归因于丢弃的UDP数据包和DNS超时的尾部等待时间 通常长达30秒(3次重试+ 10秒超时)</li></ul></li></ul><h4 id=安装>安装</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>kubedns</span><span class=o>=</span><span class=sb>`</span>kubectl get svc kube-dns -n kube-system -o <span class=nv>jsonpath</span><span class=o>={</span>.spec.clusterIP<span class=o>}</span><span class=sb>`</span>
+</span></span><span class=line><span class=cl><span class=nv>domain</span><span class=o>=</span>&lt;cluster-domain&gt;
+</span></span><span class=line><span class=cl><span class=nv>localdns</span><span class=o>=</span>&lt;node-local-address&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f nodelocaldns.yaml
+</span></span></code></pre></td></tr></table></div></div><ul><li><p>该资源清单文件中包含几个变量值得注意 其中</p><ul><li><code>__PILLAR__DNS__SERVER__</code> 表示kube-dns这个Service的ClusterIP 可以通过命令<code>kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}</code> 获取(我们这里就是 <code>10.96.0.10</code>)</li><li><code>__PILLAR__LOCAL__DNS__</code> 表示DNSCache本地的IP 默认为<code>169.254.20.10</code></li><li><code>__PILLAR__DNS__DOMAIN__</code> 表示集群域 默认就是<code>cluster.local</code></li></ul></li><li><p>如果kube-proxy运行在<code>IPTABLES</code>模式</p></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># node-local-dns Pod会设置 __PILLAR__CLUSTER__DNS__ 和 __PILLAR__UPSTREAM__SERVERS__</span>
+</span></span><span class=line><span class=cl><span class=c1># 在此模式下 node-local-dns Pod会同时侦听kube-dns服务的IP地址和&lt;node-local-address&gt;的地址 以便Pod可以使用其中任何一个IP地址来查询DNS记录</span>
+</span></span><span class=line><span class=cl>sed -i <span class=s2>&#34;s/__PILLAR__LOCAL__DNS__/</span><span class=nv>$localdns</span><span class=s2>/g; s/__PILLAR__DNS__DOMAIN__/</span><span class=nv>$domain</span><span class=s2>/g; s/__PILLAR__DNS__SERVER__/</span><span class=nv>$kubedns</span><span class=s2>/g&#34;</span> nodelocaldns.yaml
+</span></span></code></pre></td></tr></table></div></div><ul><li>如果kube-proxy运行在<code>IPVS</code>模式</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 在此模式下 node-local-dns Pod只会侦听&lt;node-local-address&gt;的地址</span>
+</span></span><span class=line><span class=cl><span class=c1># node-local-dns接口不能绑定kube-dns的集群IP地址 因为IPVS负载均衡使用的接口已经占用了该地址</span>
+</span></span><span class=line><span class=cl><span class=c1># node-local-dns Pod会设置 __PILLAR__UPSTREAM__SERVERS__</span>
+</span></span><span class=line><span class=cl>sed -i <span class=s2>&#34;s/__PILLAR__LOCAL__DNS__/</span><span class=nv>$localdns</span><span class=s2>/g; s/__PILLAR__DNS__DOMAIN__/</span><span class=nv>$domain</span><span class=s2>/g; s/,__PILLAR__DNS__SERVER__//g; s/__PILLAR__CLUSTER__DNS__/</span><span class=nv>$kubedns</span><span class=s2>/g&#34;</span> nodelocaldns.yaml
+</span></span></code></pre></td></tr></table></div></div><ul><li>查询Pod是否启动成功</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ kubectl get pods -n kube-system -l k8s-app<span class=o>=</span>node-local-dns    ✔  minho-test/monitoring ⎈  21:55:32  ▓▒░
+</span></span><span class=line><span class=cl>NAME                   READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>node-local-dns-5rzd9   1/1     Running   <span class=m>0</span>          12m
+</span></span><span class=line><span class=cl>node-local-dns-7fnlk   1/1     Running   <span class=m>0</span>          12m
+</span></span><span class=line><span class=cl>node-local-dns-glc9j   1/1     Running   <span class=m>0</span>          6m45s
+</span></span><span class=line><span class=cl>node-local-dns-m6cnr   1/1     Running   <span class=m>0</span>          34s
+</span></span></code></pre></td></tr></table></div></div><ul><li>需要注意 这里使用DaemoonSet部署node-local-dns 使用了<code>hostNetwork=true</code> 会占用宿主机的8080端口 所以需要保证该端口未被占用</li><li>如果kube-proxy使用的ipvs模式 还需要修改kubelet的<code>--cluster-dns</code>参数 将其指向<code>169.254.20.10</code> DaemonSet会在每个节点创建一个网卡来绑这个IP Pod向本节点这个IP发DNS请求 缓存没有命中的时候才会再代理到上游集群DNS进行查询</li><li>iptables模式下Pod还是向原来的集群DNS请求 节点上有这个IP监听 会被本机拦截 再请求集群上游DNS 所以不需要更改<code>--cluster-dns</code>参数</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sed -i <span class=s1>&#39;s/10.96.0.10/169.254.20.10/g&#39;</span> /var/lib/kubelet/config.yaml
+</span></span><span class=line><span class=cl>systemctl daemon-reload <span class=o>&amp;&amp;</span> systemctl restart kubelet
+</span></span></code></pre></td></tr></table></div></div><ul><li>部署新Pod验证/etc/resolv.conf</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>root@testdns:~# cat /etc/resolv.conf
+</span></span><span class=line><span class=cl>nameserver 169.254.20.10
+</span></span><span class=line><span class=cl>search default.svc.cluster.local svc.cluster.local cluster.local
+</span></span><span class=line><span class=cl>options ndots:5
+</span></span></code></pre></td></tr></table></div></div><ul><li>缺点<ul><li>由于LocalDNS使用的是DaemonSet模式部署 所以如果需要更新镜像则可能会中断服务(不过可以使用一些第三方的增强组件来实现原地升级解决这个问题 比如 <a class=link href=https://openkruise.io/ target=_blank rel=noopener>openkruise</a>)</li></ul></li></ul><h3 id=性能测试>性能测试</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// main.go
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kn>package</span> <span class=nx>main</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;context&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;flag&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;fmt&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;net&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;sync/atomic&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s>&#34;time&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>host</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>connections</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>duration</span> <span class=kt>int64</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>limit</span> <span class=kt>int64</span>
+</span></span><span class=line><span class=cl><span class=kd>var</span> <span class=nx>timeoutCount</span> <span class=kt>int64</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>flag</span><span class=p>.</span><span class=nf>StringVar</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>host</span><span class=p>,</span> <span class=s>&#34;host&#34;</span><span class=p>,</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=s>&#34;Resolve host&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>flag</span><span class=p>.</span><span class=nf>IntVar</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>connections</span><span class=p>,</span> <span class=s>&#34;c&#34;</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=s>&#34;Connections&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>flag</span><span class=p>.</span><span class=nf>Int64Var</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>duration</span><span class=p>,</span> <span class=s>&#34;d&#34;</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s>&#34;Duration(s)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>flag</span><span class=p>.</span><span class=nf>Int64Var</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>limit</span><span class=p>,</span> <span class=s>&#34;l&#34;</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s>&#34;Limit(ms)&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>flag</span><span class=p>.</span><span class=nf>Parse</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>count</span> <span class=kt>int64</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>errCount</span> <span class=kt>int64</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=nx>pool</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=kd>interface</span><span class=p>{},</span> <span class=nx>connections</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>exit</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>(</span><span class=kd>chan</span> <span class=kt>bool</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=nx>min</span> <span class=kt>int64</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=nx>max</span> <span class=kt>int64</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=nx>sum</span> <span class=kt>int64</span> <span class=p>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>time</span><span class=p>.</span><span class=nf>Sleep</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span> <span class=o>*</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Duration</span><span class=p>(</span><span class=nx>duration</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=nx>exit</span> <span class=o>&lt;-</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>}()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>endD</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>select</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>case</span> <span class=nx>pool</span> <span class=o>&lt;-</span> <span class=kc>nil</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>go</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>defer</span> <span class=kd>func</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=o>&lt;-</span><span class=nx>pool</span>
+</span></span><span class=line><span class=cl>                <span class=p>}()</span>
+</span></span><span class=line><span class=cl>                <span class=nx>resolver</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>net</span><span class=p>.</span><span class=nx>Resolver</span><span class=p>{}</span>
+</span></span><span class=line><span class=cl>                <span class=nx>now</span> <span class=o>:=</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Now</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>                <span class=nx>_</span><span class=p>,</span> <span class=nx>err</span> <span class=o>:=</span> <span class=nx>resolver</span><span class=p>.</span><span class=nf>LookupIPAddr</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span> <span class=nx>host</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=nx>use</span> <span class=o>:=</span> <span class=nx>time</span><span class=p>.</span><span class=nf>Since</span><span class=p>(</span><span class=nx>now</span><span class=p>).</span><span class=nf>Nanoseconds</span><span class=p>()</span> <span class=o>/</span> <span class=nb>int64</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nx>min</span> <span class=o>==</span> <span class=mi>0</span> <span class=o>||</span> <span class=nx>use</span> <span class=p>&lt;</span> <span class=nx>min</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>min</span> <span class=p>=</span> <span class=nx>use</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nx>use</span> <span class=p>&gt;</span> <span class=nx>max</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>max</span> <span class=p>=</span> <span class=nx>use</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=nx>sum</span> <span class=o>+=</span> <span class=nx>use</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nx>limit</span> <span class=p>&gt;</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=nx>use</span> <span class=o>&gt;=</span> <span class=nx>limit</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>timeoutCount</span><span class=o>++</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=nx>atomic</span><span class=p>.</span><span class=nf>AddInt64</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>count</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=nx>err</span> <span class=o>!=</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>.</span><span class=nf>Error</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>                    <span class=nx>atomic</span><span class=p>.</span><span class=nf>AddInt64</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>errCount</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>}()</span>
+</span></span><span class=line><span class=cl>        <span class=k>case</span> <span class=o>&lt;-</span><span class=nx>exit</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span> <span class=nx>endD</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;request count：%d\nerror count：%d\n&#34;</span><span class=p>,</span> <span class=nx>count</span><span class=p>,</span> <span class=nx>errCount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;request time：min(%dms) max(%dms) avg(%dms) timeout(%dn)\n&#34;</span><span class=p>,</span> <span class=nx>min</span><span class=p>,</span> <span class=nx>max</span><span class=p>,</span> <span class=nx>sum</span><span class=o>/</span><span class=nx>count</span><span class=p>,</span> <span class=nx>timeoutCount</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>配置好golang环境 然后直接构建上面的测试应用进行测试</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>go build -o testdns .
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl cp testdns testdns:/root -n default
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl <span class=nb>exec</span> -it testdns -n default -- bash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /root
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 200个并发 持续30s 这需要在集群内部署一个httpbin服务作为请求的目的地址</span>
+</span></span><span class=line><span class=cl>./testdns -host httpbin.default -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=未优化>未优化</h4><ul><li>我们可以看到平均延迟在30ms 性能不是太理想 有部分超时记录</li><li>可以使用上面的resolv配置项来解决 也可以使用<code>NodeLocal DNSCache</code>来提升DNS的性能和可靠性</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>root@testdsn:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：186586
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>5054ms<span class=o>)</span> avg<span class=o>(</span>30ms<span class=o>)</span> timeout<span class=o>(</span>245n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：187714
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>3ms<span class=o>)</span> max<span class=o>(</span>5085ms<span class=o>)</span> avg<span class=o>(</span>31ms<span class=o>)</span> timeout<span class=o>(</span>304n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>lookup httpbin.default.svc.cluster.local. on 10.96.0.10:53: no such host
+</span></span><span class=line><span class=cl>lookup httpbin.default.svc.cluster.local. on 10.96.0.10:53: <span class=nb>read</span> udp 10.244.211.25:46083-&gt;10.96.0.10:53: i/o timeout
+</span></span><span class=line><span class=cl>lookup httpbin.default.svc.cluster.local. on 10.96.0.10:53: <span class=nb>read</span> udp 10.244.211.25:34202-&gt;10.96.0.10:53: i/o timeout
+</span></span><span class=line><span class=cl>lookup httpbin.default.svc.cluster.local. on 10.96.0.10:53: <span class=nb>read</span> udp 10.244.211.25:49917-&gt;10.96.0.10:53: i/o timeout
+</span></span><span class=line><span class=cl>lookup httpbin.default.svc.cluster.local. on 10.96.0.10:53: <span class=nb>read</span> udp 10.244.211.25:50036-&gt;10.96.0.10:53: i/o timeout
+</span></span><span class=line><span class=cl>request count：184496
+</span></span><span class=line><span class=cl>error count：5
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>10023ms<span class=o>)</span> avg<span class=o>(</span>30ms<span class=o>)</span> timeout<span class=o>(</span>244n<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=single-request-reopen>single-request-reopen</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：177600
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>167ms<span class=o>)</span> avg<span class=o>(</span>32ms<span class=o>)</span> timeout<span class=o>(</span>0n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：179295
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>168ms<span class=o>)</span> avg<span class=o>(</span>32ms<span class=o>)</span> timeout<span class=o>(</span>0n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：180339
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>193ms<span class=o>)</span> avg<span class=o>(</span>32ms<span class=o>)</span> timeout<span class=o>(</span>0n<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=nodelocal-dnscache-性能测试>NodeLocal DNSCache 性能测试</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 使用NodeLocal DNSCache之后 我本地环境性能压测并不理想 目前查看是机器CPU负载较高 怀疑可能有影响 后续有条件再进行验证</span>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：202710
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>5058ms<span class=o>)</span> avg<span class=o>(</span>28ms<span class=o>)</span> timeout<span class=o>(</span>394n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：207178
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>5058ms<span class=o>)</span> avg<span class=o>(</span>27ms<span class=o>)</span> timeout<span class=o>(</span>364n<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>root@testdns:~# ./testdns -host httpbin.default.svc.cluster.local. -c <span class=m>200</span> -d <span class=m>30</span> -l <span class=m>5000</span>
+</span></span><span class=line><span class=cl>request count：203354
+</span></span><span class=line><span class=cl>error count：0
+</span></span><span class=line><span class=cl>request time：min<span class=o>(</span>1ms<span class=o>)</span> max<span class=o>(</span>5064ms<span class=o>)</span> avg<span class=o>(</span>28ms<span class=o>)</span> timeout<span class=o>(</span>424n<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=建议>建议</h4><p><a class=link href=https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/ target=_blank rel=noopener>Service与Pod的DNS</a></p><ul><li>性能测试发现 集群内解析 推荐写服务的FQDN完全限定域名格式 可以减少无效解析次数 提高性能</li><li>比如: <code>httpbin.default.svc.cluster.local.</code> # 最后的. 一定要加上</li></ul><h3 id=补充-dnspolicy>补充: DNSPolicy</h3><p><a class=link href=https://kubernetes.io/zh-cn/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy target=_blank rel=noopener>pod-s-dns-policy</a></p><div class=table-wrapper><table><thead><tr><th>DNSPolicy字段值</th><th>使用的DNS服务器</th></tr></thead><tbody><tr><td>Default</td><td>只适用于不需要访问集群内部服务的场景 Pod创建时会从运行节点/etc/resolv.conf文件继承DNS服务器列表</td></tr><tr><td>ClusterFirst</td><td>此为DNSPolicy默认值 Pod会将CoreDNS提供的kube-dns服务IP作为DNS服务器 开启HostNetwork的Pod 如果选择ClusterFirst模式 效果等同于Default</td></tr><tr><td>ClusterFirstWithHostNet</td><td>开启HostNetwork的Pod 如果选择ClusterFirstWithHostNet模式 效果等同于ClusterFirst</td></tr><tr><td>None</td><td>配合DNSConfig字段 可用于自定义DNS服务器和参数 在NodeLocalDNSCache开启注入时 DNSConfig会将DNS服务器指向本地缓存IP及CoreDNS提供的kube-dns服务IP(阿里云ACK)</td></tr></tbody></table></div><h3 id=参考链接>参考链接</h3><p><a class=link href=https://www.qikqiak.com/k8strain2/network/localdns/ target=_blank rel=noopener>DNS优化</a></p><p><a class=link href=https://help.aliyun.com/zh/ack/ack-managed-and-ack-dedicated/user-guide/dns-troubleshooting-1 target=_blank rel=noopener>DNS解析异常问题排查</a></p><p><a class=link href=https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/nodelocaldns/ target=_blank rel=noopener>在Kubernetes集群中使用NodeLocal DNSCache</a></p></section><footer class=article-footer><section class=article-tags><a href=/tags/coredns/>CoreDNS</a>
+<a href=/tags/cloud-native/>Cloud Native</a>
+<a href=/tags/kubernetes/>Kubernetes</a>
+<a href=/tags/dns/>DNS</a>
+<a href=/tags/service/>Service</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/kubernetes/><div class=article-details><h2 class=article-title>Kubernetes</h2></div></a></article><article><a href=/p/tekton/><div class=article-details><h2 class=article-title>Tekton</h2></div></a></article><article><a href=/p/prometheus/><div class=article-details><h2 class=article-title>Prometheus</h2></div></a></article><article><a href=/p/docker/><div class=article-details><h2 class=article-title>Docker</h2></div></a></article></div></div></aside><script src=https://utteranc.es/client.js repo=ilolicon/ilolicon.github.io issue-term=pathname crossorigin=anonymous async></script><style>.utterances{max-width:unset}</style><script>let utterancesLoaded=!1;function setUtterancesTheme(e){let t=document.querySelector(".utterances iframe");t&&t.contentWindow.postMessage({type:"set-theme",theme:`github-${e}`},"https://utteranc.es")}addEventListener("message",e=>{if(e.origin!=="https://utteranc.es")return;utterancesLoaded=!0,setUtterancesTheme(document.documentElement.dataset.scheme)}),window.addEventListener("onColorSchemeChange",e=>{if(!utterancesLoaded)return;setUtterancesTheme(e.detail)})</script><footer class=site-footer><section class=copyright>&copy;
+2017 -
+2025 ilolicon's Blog</section><section class=powerby>Vicissitude🐳<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.21.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
