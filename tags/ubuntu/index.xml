@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ubuntu on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/ubuntu/</link><description>Recent content in ubuntu on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Mon, 11 Mar 2024 19:53:00 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/ubuntu/index.xml" rel="self" type="application/rss+xml"/><item><title>Build installation package on linux</title><link>https://ilolicon.github.io/p/build-installation-package-on-linux/</link><pubDate>Mon, 11 Mar 2024 19:53:00 +0800</pubDate><guid>https://ilolicon.github.io/p/build-installation-package-on-linux/</guid><description>&lt;h2 id="rpm">rpm&lt;/h2>
+&lt;h3 id="rpm包构建">rpm包构建&lt;/h3>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/yipianchuyun/p/15442896.html" target="_blank" rel="noopener"
+>RPM打包原理、示例、详解及备查&lt;/a>&lt;/p>
+&lt;h3 id="rpm配置文件处理">rpm配置文件处理&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># .spec文件参考配置 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Name: pkg name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Version: %&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Release: %&lt;span class="o">(&lt;/span>date +%%y%%m%%d%%0k&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Summary: pkg summary
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">License: xxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">URL: xxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Source0: %&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%description
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pkg description.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%prep
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%setup -q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%install
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_bindir&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_unitdir&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">install -m &lt;span class="m">0755&lt;/span> %&lt;span class="o">{&lt;/span>_builddir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/.build/%&lt;span class="o">{&lt;/span>_os&lt;span class="o">}&lt;/span>-amd64/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span> %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_bindir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">install -m &lt;span class="m">0644&lt;/span> %&lt;span class="o">{&lt;/span>_builddir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/dist/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>.env %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/default/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">install -m &lt;span class="m">0644&lt;/span> %&lt;span class="o">{&lt;/span>_builddir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/config.yml %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>/config.yml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">install -m &lt;span class="m">0644&lt;/span> %&lt;span class="o">{&lt;/span>_builddir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/dist/web-config.yml %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>/web-config.yml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">install -m &lt;span class="m">0644&lt;/span> %&lt;span class="o">{&lt;/span>_builddir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>-%&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/dist/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>.service %&lt;span class="o">{&lt;/span>buildroot&lt;span class="o">}&lt;/span>%&lt;span class="o">{&lt;/span>_unitdir&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 以下为配置文件处理参考 重点:$config(noreplace)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%defattr&lt;span class="o">(&lt;/span>-,root,root,-&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%&lt;span class="o">{&lt;/span>_bindir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%config&lt;span class="o">(&lt;/span>noreplace&lt;span class="o">)&lt;/span> %&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%config&lt;span class="o">(&lt;/span>noreplace&lt;span class="o">)&lt;/span> %&lt;span class="o">{&lt;/span>_sysconfdir&lt;span class="o">}&lt;/span>/default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%&lt;span class="o">{&lt;/span>_unitdir&lt;span class="o">}&lt;/span>/%&lt;span class="o">{&lt;/span>name&lt;span class="o">}&lt;/span>.service
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%post
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl daemon-reload
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">%changelog
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">* Wed May &lt;span class="m">24&lt;/span> &lt;span class="m">2023&lt;/span> xxx &amp;lt;xxx@xx.com&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">- initial
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="rpm包私有仓库构建">rpm包私有仓库构建&lt;/h3>
+&lt;ul>
+&lt;li>所有构建好的.rpm包 全部放到准备好的目录&lt;code>$BASE_DIR&lt;/code>&lt;/li>
+&lt;li>进入目录&lt;code>cd $BASE_DIR&lt;/code> 执行命令&lt;code>createrepo .&lt;/code>即可(或不进目录 跟绝对路径)&lt;/li>
+&lt;li>搭建http/ftp等服务进行访问 配置.repo文件即可进行安装&lt;/li>
+&lt;/ul>
+&lt;h3 id="问题处理">问题处理&lt;/h3>
+&lt;ul>
+&lt;li>Q: &lt;code>GO&lt;/code>源码包构建遇到&lt;code>RPM build warnings: Missing build-id in /bin/xxx&lt;/code>问题&lt;/li>
+&lt;li>A: 参考该文档解决 &lt;a class="link" href="https://tonybai.com/2017/06/27/an-intro-about-go-portability/" target="_blank" rel="noopener"
+>也谈GO的可移植性&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="deb">deb&lt;/h2>
+&lt;h3 id="deb包构建">deb包构建&lt;/h3>
+&lt;p>&lt;a class="link" href="https://hedzr.com/packaging/deb/creating-deb-file-from-scratch/#debiancontrol" target="_blank" rel="noopener"
+>从零开始制作deb文件&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.debian.org/doc/manuals/maint-guide/" target="_blank" rel="noopener"
+>Debian新维护者手册&lt;/a>&lt;/p>
+&lt;h3 id="deb配置文件处理">deb配置文件处理&lt;/h3>
+&lt;p>&lt;a class="link" href="https://askubuntu.com/questions/473354/how-to-mark-some-file-in-debian-package-as-config" target="_blank" rel="noopener"
+>How to mark some file in debian package as config?&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.debian.org/doc/debian-policy/ap-pkg-conffiles.html" target="_blank" rel="noopener"
+>Debian Policy Manual&lt;/a>&lt;/p>
+&lt;p>针对上面链接说的第三种情况: 本地安装 和 包维护者 都修改过配置文件的情况
+升级会提示用户相关问题 需要用户自行解决差异
+如果安装的时候 不想进入交互模式(比如批量安装的时候) 则可以使用dpkg的以下参数解决:&lt;/p>
+&lt;ul>
+&lt;li>&amp;ndash;force-confold: 保留当前配置文件 将新配置文件安装为&lt;code>.dpkg-dist&lt;/code>扩展名 需要手动合并&lt;/li>
+&lt;li>&amp;ndash;force-confnew: 覆盖当前配置文件，但将旧配置文件备份为&lt;code>.dpkg-old&lt;/code>扩展名&lt;/li>
+&lt;li>&amp;ndash;force-confdef: 当用户未指定具体选项时 采取默认行为&lt;code>保留、覆盖或交互&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">sudo dpkg -i --force-confnew package_name.deb &lt;span class="c1"># dpkg&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install --force-confnew package_name &lt;span class="c1"># apt&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="deb私有仓库制作">deb私有仓库制作&lt;/h3>
+&lt;p>借助reprepro设置仓库&lt;/p>
+&lt;p>&lt;a class="link" href="https://wiki.debian.org/DebianRepository/Format" target="_blank" rel="noopener"
+>DebianRepoFormat&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://wiki.debian.org/DebianRepository/SetupWithReprepro" target="_blank" rel="noopener"
+>SetupWithReprepro&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://scotbofh.wordpress.com/2011/04/26/creating-your-own-signed-apt-repository-and-debian-packages/" target="_blank" rel="noopener"
+>creating-your-own-signed-apt-repository-and-debian-packages&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>安装软件包&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">sudo apt install -y gnupg reprepro
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>创建GPG密钥&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 两个命令都可以 查看man手册获取区别&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg --gen-key
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg --full-gen-key &lt;span class="c1"># 执行之后 按照提示操作即可&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg -k, list-keys &lt;span class="c1"># 查看所有keys&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>配置包的存储库&lt;code>BASE_DIR&lt;/code> 这里以nginx为例&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-nginx" data-lang="nginx">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 增加配置 私有仓库自行根据需求添加认证
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">server&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">listen&lt;/span> &lt;span class="mi">80&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">access_log&lt;/span> &lt;span class="s">/var/log/nginx/repo-error.log&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">error_log&lt;/span> &lt;span class="s">/var/log/nginx/repo-error.log&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">location&lt;/span> &lt;span class="s">/&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">root&lt;/span> &lt;span class="s">/srv/repos/apt&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1"># $BASE_DIR
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kn">autoindex&lt;/span> &lt;span class="no">on&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">location&lt;/span> &lt;span class="p">~&lt;/span> &lt;span class="sr">/(.*)/conf&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">deny&lt;/span> &lt;span class="s">all&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">location&lt;/span> &lt;span class="p">~&lt;/span> &lt;span class="sr">/(.*)/db&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">deny&lt;/span> &lt;span class="s">all&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># nginx -t
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># systemctl reload nginx
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>配置reprepro &lt;a class="link" href="https://wiki.debian.org/DebianRepository/SetupWithReprepro" target="_blank" rel="noopener"
+>具体参考&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># create a reprepro configuration directory&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p /srv/repos/apt/debian/conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># create the conf/distributions&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Origin: Your project name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Label: Your project name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Codename: &amp;lt;osrelease&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Architectures: &lt;span class="nb">source&lt;/span> i386 amd64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Components: main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Description: Apt repository &lt;span class="k">for&lt;/span> project x
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">SignWith: &amp;lt;key-id&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># &amp;lt;key-id&amp;gt;获取&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ gpg --list-secret-key --with-subkey-fingerprint
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pub rsa4096 2010-09-23 &lt;span class="o">[&lt;/span>SC&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> E123D55E623D56323D65E123655E623D563D5831
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">uid &lt;span class="o">[&lt;/span>ultimate&lt;span class="o">]&lt;/span> Joe User &lt;span class="o">(&lt;/span>Some organization&lt;span class="o">)&lt;/span> &amp;lt;joe.user@example.com&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sub rsa4096 2010-09-23 &lt;span class="o">[&lt;/span>E&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> F24957412415744F1495F149571F2495F2495714
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Here &amp;lt;keyid&amp;gt; (fingerprint) for the OpenPGP key is F24957412415744F1495F149571F2495F2495714 (that&amp;#39;s technically the subkey, which is recommended to be used for this sort of signing purpose).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># add an options file to make daily life with reprepro command-line a little easier. This file is in /srv/repos/apt/debian/conf/options:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">verbose
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">basedir /srv/repos/apt/debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ask-passphrase
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 执行命令创建仓库树&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">reprepro &lt;span class="nb">export&lt;/span> &lt;span class="c1"># 完整命令 reprepro --ask-passphrase -Vb /srv/repos/apt/debian export&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 把.deb包加入仓库&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 完整命令也需要加上 --ask-passphrase -Vb /srv/repos/apt/debian &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 更多命令行用户参阅man手册: man reprepro&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">reprepro includedeb codename .deb-filename
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 把.deb移除仓库&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">reprepro remove codename package-names
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 导出OpenPGP key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg --armor --output whatever.gpg.key --export-options export-minimal --export &amp;lt;key-id&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Copy this to a webserver so that users can download it and add it to their OpenPGP keychains similarly to this (as root):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 注意: 该方法已弃用 参考下面`client端相关配置`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wget -O - http://www.example.com/repos/apt/conf/&amp;lt;whatever&amp;gt;.gpg.key &lt;span class="p">|&lt;/span> apt-key add -
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="client端相关配置">client端相关配置&lt;/h3>
+&lt;p>http(s) deb仓库搭建完成之后 即可以进行相关包下载&lt;/p>
+&lt;ul>
+&lt;li>添加key&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># wget或curl获取key内容 再通过apt-key add -命令导入会有warning提示&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下面命令废弃 不推荐&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wget -O - http://www.example.com/repos/apt/conf/&amp;lt;whatever&amp;gt;.gpg.key &lt;span class="p">|&lt;/span> apt-key add -
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>参考下面回答添加key和source.list&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://stackoverflow.com/questions/68992799/warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead" target="_blank" rel="noopener"
+>warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">sudo mkdir -m &lt;span class="m">0755&lt;/span> -p /etc/apt/keyrings/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -fsSL https://example.com/EXAMPLE.gpg &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo gpg --dearmor -o /etc/apt/keyrings/EXAMPLE.gpg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;deb [signed-by=/etc/apt/keyrings/EXAMPLE.gpg] https://example.com/apt stable main&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo tee /etc/apt/sources.list.d/EXAMPLE.list &amp;gt; /dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Optional (you can find the email address / ID using `apt-key list`)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo apt-key del support@example.com
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Optional (not necessary on most systems)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo chmod &lt;span class="m">644&lt;/span> /etc/apt/keyrings/EXAMPLE.gpg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo chmod &lt;span class="m">644&lt;/span> /etc/apt/sources.list.d/EXAMPLE.list
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>如果http服务器添加过认证 需要使用apt-auth管理 否则有warning 参考下面内容&lt;/li>
+&lt;li>&lt;a class="link" href="https://stackoverflow.com/questions/18941517/how-to-access-local-apt-repository-that-requires-http-authentication" target="_blank" rel="noopener"
+>how-to-access-local-apt-repository-that-requires-http-authentication&lt;/a>&lt;/li>
+&lt;li>&lt;code>man apt_auth.conf&lt;/code>查看具体信息&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">EXAMPLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Supplying login information &lt;span class="k">for&lt;/span> a user named apt with the password debian &lt;span class="k">for&lt;/span> the sources.list&lt;span class="o">(&lt;/span>5&lt;span class="o">)&lt;/span> entry
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> deb https://example.org/debian bookworm main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> could be &lt;span class="k">done&lt;/span> in the entry directly:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> deb https://apt:debian@example.org/debian bookworm main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Alternatively an entry like the following in the auth.conf file could be used:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> login apt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Or alternatively within a single line:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> If you need to be more specific all of these lines will also apply to the example entry:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org/deb login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org/debian login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org/debian/ login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> On the other hand neither of the following lines apply:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org:443 login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org/deb/ login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.org/ubuntu login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.orga login apt password debian
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> machine example.net login apt password debian
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="deb镜像同步">deb镜像同步&lt;/h3>
+&lt;p>&lt;a class="link" href="https://bbs.lingmo.org/blog/61-jing-xiang-tong-bu-shuo-ming" target="_blank" rel="noopener"
+>镜像同步说明&lt;/a>&lt;/p></description></item></channel></rss>
