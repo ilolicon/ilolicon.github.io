@@ -16,32 +16,6 @@ tags:
 
 -----
 
-### 目录
-
-1. [**什么是 Go 泛型？**](https://www.google.com/search?q=%231-%E4%BB%80%E4%B9%88%E6%98%AF-go-%E6%B3%9B%E5%9E%8B)
-      * [为什么需要泛型？](https://www.google.com/search?q=%23%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%B3%9B%E5%9E%8B)
-2. [**泛型语法核心**](https://www.google.com/search?q=%232-%E6%B3%9B%E5%9E%8B%E8%AF%AD%E6%B3%95%E6%A0%B8%E5%BF%83)
-      * [类型参数 (Type Parameters)](https://www.google.com/search?q=%23%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0-type-parameters)
-      * [类型约束 (Type Constraints)](https://www.google.com/search?q=%23%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F-type-constraints)
-      * [泛型函数](https://www.google.com/search?q=%23%E6%B3%9B%E5%9E%8B%E5%87%BD%E6%95%B0)
-      * [泛型类型](https://www.google.com/search?q=%23%E6%B3%9B%E5%9E%8B%E7%B1%BB%E5%9E%8B)
-3. [**类型约束进阶**](https://www.google.com/search?q=%233-%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F%E8%BF%9B%E9%98%B6)
-      * [预声明的约束：`any` 和 `comparable`](https://www.google.com/search?q=%23%E9%A2%84%E5%A3%B0%E6%98%8E%E7%9A%84%E7%BA%A6%E6%9D%9Fany-%E5%92%8C-comparable)
-      * [接口作为约束](https://www.google.com/search?q=%23%E6%8E%A5%E5%8F%A3%E4%BD%9C%E4%B8%BA%E7%BA%A6%E6%9D%9F)
-      * [自定义约束](https://www.google.com/search?q=%23%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BA%A6%E6%9D%9F)
-    [**最佳实践**](https://www.google.com/search?q=%234-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5)
-      * [何时应该使用泛型？](https://www.google.com/search?q=%23%E4%BD%95%E6%97%B6%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B)
-      * [何时不应该使用泛型？](https://www.google.com/search?q=%23%E4%BD%95%E6%97%B6%E4%B8%8D%E5%BA%94%E8%AF%A5%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B)
-      * [约束应尽可能严格](https://www.google.com/search?q=%23%E7%BA%A6%E6%9D%9F%E5%BA%94%E5%B0%BD%E5%8F%AF%E8%83%BD%E4%B8%A5%E6%A0%BC)
-      * [优先使用 `any` 而非 `interface{}`](https://www.google.com/search?q=%23%E4%BC%98%E5%85%88%E4%BD%BF%E7%94%A8-any-%E8%80%8C%E9%9D%9E-interface)
-      * [让编译器推断类型参数](https://www.google.com/search?q=%23%E8%AE%A9%E7%BC%96%E8%AF%91%E5%99%A8%E6%8E%A8%E6%96%AD%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0)
-4. [**常见误区与限制**](https://www.google.com/search?q=%235-%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA%E4%B8%8E%E9%99%90%E5%88%B6)
-      * [类型参数不能作为方法的接收者](https://www.google.com/search?q=%23%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E4%B8%8D%E8%83%BD%E4%BD%9C%E4%B8%BA%E6%96%B9%E6%B3%95%E7%9A%84%E6%8E%A5%E6%94%B6%E8%80%85)
-      * [谨慎处理泛型类型的零值](https://www.google.com/search?q=%23%E8%B0%A8%E6%85%8E%E5%A4%84%E7%90%86%E6%B3%9B%E5%9E%8B%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%9B%B6%E5%80%BC)
-5. [**官方资源链接**](https://www.google.com/search?q=%236-%E5%AE%98%E6%96%B9%E8%B5%84%E6%BA%90%E9%93%BE%E6%8E%A5)
-
------
-
 ## 1. 什么是 Go 泛型？
 
 Go 泛型（Generics）是 Go 1.18 版本引入的一个重要特性，它允许我们编写能够处理多种数据类型的函数和数据结构，而无需为每种类型都编写重复的代码。通过泛型，我们可以定义带有**类型参数**（Type Parameters）的函数或类型，这些类型参数在编译时会被具体的类型替换。
@@ -52,7 +26,7 @@ Go 泛型（Generics）是 Go 1.18 版本引入的一个重要特性，它允许
 * **类型安全**：在编译期进行类型检查，避免了使用 `interface{}` 时可能出现的运行时类型断言失败。
 * **性能**：避免了因使用 `interface{}` 和反射而带来的性能开销。
 
-> **官方链接**: [An Introduction to Generics - go.dev](https://www.google.com/search?q=https://go.dev/blog/generics)
+> **官方链接**: [An Introduction to Generics - go.dev](https://go.dev/blog/generics)
 
 ### 为什么需要泛型？
 
@@ -201,7 +175,7 @@ func Find[T comparable](slice []T, value T) int {
 }
 ```
 
-> **官方链接**: [The Go Programming Language Specification - Type constraints](https://www.google.com/search?q=https://go.dev/ref/spec%23Type_constraints)
+> **官方链接**: [The Go Programming Language Specification - Type constraints](https://go.dev/ref/spec%23Type_constraints)
 
 ### 接口作为约束
 
@@ -259,7 +233,7 @@ func Scale[T Numeric](s []T, factor T) []T {
 2. **操作通用集合**：当函数需要对切片（slices）、映射（maps）或通道（channels）进行操作，且操作逻辑与元素类型无关时（例如，`map`、`filter`、`reduce` 等函数）。
 3. **实现通用算法**：例如排序、查找等，这些算法的逻辑通常是类型无关的。
 
-> **官方链接**: [When to use generics - go.dev](https://www.google.com/search?q=https://go.dev/blog/when-to-use-generics)
+> **官方链接**: [When to use generics - go.dev](https://go.dev/blog/when-to-use-generics)
 
 ### 何时不应该使用泛型？
 
