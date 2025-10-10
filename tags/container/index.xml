@@ -1,0 +1,1676 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Container on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/container/</link><description>Recent content in Container on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 12 Jun 2020 12:10:00 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/container/index.xml" rel="self" type="application/rss+xml"/><item><title>Docker</title><link>https://ilolicon.github.io/p/docker/</link><pubDate>Fri, 12 Jun 2020 12:10:00 +0800</pubDate><guid>https://ilolicon.github.io/p/docker/</guid><description>&lt;p>&lt;a class="link" href="https://docs.docker.com/" target="_blank" rel="noopener"
+>&lt;img src="https://img.shields.io/badge/Docker-README-00A6ED"
+loading="lazy"
+alt="docker readme"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.docker.com/" target="_blank" rel="noopener"
+>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-icon.svg"
+loading="lazy"
+alt="docker"
+>&lt;/a>&lt;/p>
+&lt;h2 id="主机级虚拟化">主机级虚拟化&lt;/h2>
+&lt;p>&lt;a class="link" href="https://virtual.51cto.com/art/201904/594481.htm" target="_blank" rel="noopener"
+>Type1和Type2虚拟机管理程序区别&lt;/a>&lt;/p>
+&lt;h3 id="type1">Type1&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Type1虚拟机管理程序直接在主机的物理硬件上运行 它被称为裸机虚拟机管理程序
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">它不必预先加载底层操作系统 通过直接访问底层硬件而无需其他软件&lt;span class="o">(&lt;/span>例如操作系统和设备驱动程序&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>VMware ESXi&lt;/li>
+&lt;li>Microsoft Hyper-V服务器&lt;/li>
+&lt;li>开源KVM&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;h3 id="type2">Type2&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Type2虚拟机管理程序通常安装在现有操作系统之上 它称为托管虚拟机管理程序
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">因为它依赖于主机预先安装的操作系统来管理对CPU/内存/存储和网络资源的调用
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>VMware Fusion&lt;/li>
+&lt;li>Oracle VM VirtualBox&lt;/li>
+&lt;li>用于x86的Oracle VM Server&lt;/li>
+&lt;li>Oracle Solaris Zones&lt;/li>
+&lt;li>Parallels&lt;/li>
+&lt;li>VMware Workstation&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;h2 id="容器级虚拟化">容器级虚拟化&lt;/h2>
+&lt;h3 id="namespace">Namespace&lt;/h3>
+&lt;p>&lt;a class="link" href="https://man7.org/linux/man-pages/man7/namespaces.7.html" target="_blank" rel="noopener"
+>man-namespaces&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://lwn.net/Articles/531381/" target="_blank" rel="noopener"
+>namespaces API&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">clone&lt;span class="o">()&lt;/span> &lt;span class="c1"># Creating a child in a new namespace&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">setns&lt;span class="o">()&lt;/span> &lt;span class="c1"># Joining an existing namespace&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">unshare&lt;span class="o">()&lt;/span> &lt;span class="c1"># Leaving a namespace&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Linux Namespaces&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>namespace&lt;/th>
+&lt;th>系统调用参数&lt;/th>
+&lt;th>隔离内容&lt;/th>
+&lt;th>内核版本&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>UTS&lt;/td>
+&lt;td>CLONE_NEWUTS&lt;/td>
+&lt;td>主机名和域名&lt;/td>
+&lt;td>2.6.19&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>IPC&lt;/td>
+&lt;td>CLONE_NEWIPC&lt;/td>
+&lt;td>信号量/消息队列/共享内存&lt;/td>
+&lt;td>2.6.19&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>PID&lt;/td>
+&lt;td>CLONE_NEWPID&lt;/td>
+&lt;td>进程编号&lt;/td>
+&lt;td>2.6.24&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Network&lt;/td>
+&lt;td>CLONE_NEWNET&lt;/td>
+&lt;td>网络设备/网络栈/端口等&lt;/td>
+&lt;td>2.6.29&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Mount&lt;/td>
+&lt;td>CLONE_NEWNS&lt;/td>
+&lt;td>挂载点(文件系统)&lt;/td>
+&lt;td>2.4.19&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>User&lt;/td>
+&lt;td>CLONE_NEWUSER&lt;/td>
+&lt;td>用户和用户组&lt;/td>
+&lt;td>3.8&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="control-groups">Control Groups&lt;/h3>
+&lt;p>&lt;a class="link" href="https://man7.org/linux/man-pages/man7/cgroups.7.html" target="_blank" rel="noopener"
+>man-cgroups&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://tech.meituan.com/2015/03/31/cgroups.html" target="_blank" rel="noopener"
+>linux资源管理之cgroups简介&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">cgroups是Linux内核提供的一种可以限制单个进程或者多个进程所使用资源的机制 可以对cpu/内存等资源实现精细化的控制
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cgroups 的全称是control groups
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cgroups为每种可以控制的资源定义了一个子系统 典型的子系统介绍如下
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>blkio 块设备IO&lt;/li>
+&lt;li>cpu CPU&lt;/li>
+&lt;li>cpuacct CPU资源使用报告&lt;/li>
+&lt;li>cpuset 多处理器平台上的CPU集合(按核/按比例)&lt;/li>
+&lt;li>devices 设备访问&lt;/li>
+&lt;li>freezer 挂起或恢复任务&lt;/li>
+&lt;li>memory 内存用量及报告&lt;/li>
+&lt;li>perf_event 对cgroup中的任务进行统一性能测试&lt;/li>
+&lt;li>net_cls cgroup中的任务创建的数据报文的类别标识符&lt;/li>
+&lt;/ul>
+&lt;h3 id="lxc">LXC&lt;/h3>
+&lt;p>&lt;a class="link" href="https://www.redhat.com/zh/topics/containers/whats-a-linux-container" target="_blank" rel="noopener"
+>whats-a-linux-container&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>LinuX Container
+&lt;ul>
+&lt;li>lxc-create(创建namespace)&lt;/li>
+&lt;li>template(拉取所需发行版的仓库相关包进行安装)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="容器编排">容器编排&lt;/h3>
+&lt;ul>
+&lt;li>machine + swarm + docker compose(单机编排)&lt;/li>
+&lt;li>mesos + marathon&lt;/li>
+&lt;li>kubernetes(k8s)&lt;/li>
+&lt;/ul>
+&lt;h2 id="docker">Docker&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># docker 容器引擎的发展&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># LXC -&amp;gt; libcontainer -&amp;gt; runC&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-&amp;gt; libcontainer&lt;span class="o">(&lt;/span>docker研发的容器引擎 替换LXC&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-&amp;gt; runC&lt;span class="o">(&lt;/span>容器运行时环境标准 Docker将RunC捐赠给OCI作为OCI容器运行时标准的参考实现&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://os.51cto.com/art/202110/687502.htm" target="_blank" rel="noopener"
+>docker/containerd/runC分别是什么&lt;/a>&lt;/p>
+&lt;h3 id="oci">OCI&lt;/h3>
+&lt;p>&lt;a class="link" href="https://opencontainers.org/" target="_blank" rel="noopener"
+>&lt;img src="https://ilolicon.github.io/p/docker/icons/opencontainers-icon.svg"
+loading="lazy"
+alt="Open Container Initiative"
+>&lt;/a>&lt;/p>
+&lt;p>Open Container Initiative&lt;/p>
+&lt;ul>
+&lt;li>由Linux基金会主导于2015年6月创立&lt;/li>
+&lt;li>旨在围绕容器格式和运行时制定一个开放的工业化标准&lt;/li>
+&lt;li>contains two specifications
+&lt;ul>
+&lt;li>the Runtime Specification (runtime-spec) 运行时标准(规范)&lt;/li>
+&lt;li>the Image Specification (image-spec) 镜像格式标准(规范)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The Runtime Specification outlines how to run a &amp;ldquo;filesystem bundle&amp;rdquo; that is unpacked on disk&lt;/li>
+&lt;li>At a high-level an OCI implementation would download an OCI Image then unpack that image into an OCI Runtime filesystem bundle&lt;/li>
+&lt;/ul>
+&lt;h3 id="runc">runC&lt;/h3>
+&lt;p>&lt;a class="link" href="https://github.com/opencontainers/runc" target="_blank" rel="noopener"
+>runC&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>OCF: Open Container Format&lt;/li>
+&lt;li>runC: runc is a CLI tool for spawning and running containers on Linux according to the OCI specification&lt;/li>
+&lt;/ul>
+&lt;h3 id="docker-architecture">docker architecture&lt;/h3>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/get-started/overview/#docker-architecture" target="_blank" rel="noopener"
+>&lt;img src="https://ilolicon.github.io/p/docker/icons/architecture.svg"
+loading="lazy"
+alt="docker architecture"
+>&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Client -&amp;gt; Daemon&lt;span class="o">(&lt;/span>REST API, over UNIX sockets or a network interface&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Registry -&amp;gt; Host&lt;span class="o">(&lt;/span>https/http&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Registry: 仓库名&lt;span class="o">(&lt;/span>repo name&lt;span class="o">)&lt;/span> + 标签&lt;span class="o">(&lt;/span>tag&lt;span class="o">)&lt;/span> 唯一标识一个镜像
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-&amp;gt; nginx:1.14.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-&amp;gt; nginx:latest&lt;span class="o">(&lt;/span>default 最新版&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Images: An image is a read-only template with instructions &lt;span class="k">for&lt;/span> creating a Docker container
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Images：静态的 不会运行
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Containers：动态 有生命周期 类似命令
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> /bin/ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - ls /etc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - ls /var
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Moby
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker-ee &lt;span class="c1"># 企业版&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker-ce &lt;span class="c1"># 社区版&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="docker-objects">docker objects&lt;/h3>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/get-started/overview/#docker-objects" target="_blank" rel="noopener"
+>docker objects&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>images&lt;/li>
+&lt;li>containers&lt;/li>
+&lt;li>networks&lt;/li>
+&lt;li>volumes&lt;/li>
+&lt;li>plugins&lt;/li>
+&lt;li>other objects&lt;/li>
+&lt;/ul>
+&lt;h4 id="images">Images&lt;/h4>
+&lt;ul>
+&lt;li>An image is a read-only template with instructions for creating a Docker container&lt;/li>
+&lt;li>Often, an image is based on another image, with some additional customization&lt;/li>
+&lt;li>You might create your own images or you might only use those created by others and published in a registry&lt;/li>
+&lt;/ul>
+&lt;h4 id="containers">Containers&lt;/h4>
+&lt;ul>
+&lt;li>A container is a runnable instance of an image&lt;/li>
+&lt;li>You can create/start/stop/move or delete a container using the Docker API or CLI&lt;/li>
+&lt;li>You can connect a container to one or more networks, attach storage to it, or even create a new image based on its current state&lt;/li>
+&lt;/ul>
+&lt;h3 id="docker-install">docker install&lt;/h3>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener"
+>Install Docker Engine&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://mirrors.aliyun.com/docker-ce/" target="_blank" rel="noopener"
+>阿里云Mirrors docker-ce&lt;/a>&lt;/p>
+&lt;h4 id="docker-cerepo">docker-ce.repo&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>docker-ce-stable&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>Docker CE Stable - &lt;span class="nv">$basearch&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://download.docker.com/linux/centos/&lt;span class="nv">$releasever&lt;/span>/&lt;span class="nv">$basearch&lt;/span>/stable
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/$releasever/$basearch/stable&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://download.docker.com/linux/centos/gpg
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="镜像加速">镜像加速&lt;/h4>
+&lt;ul>
+&lt;li>docker cn&lt;/li>
+&lt;li>&lt;a class="link" href="https://help.aliyun.com/document_detail/60750.html" target="_blank" rel="noopener"
+>阿里云官方镜像加速&lt;/a>&lt;/li>
+&lt;li>中国科技大学&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/etc/docker/daemon.json
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 更换镜像下载仓库链接&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;registry-mirrors&amp;#34;&lt;/span>: &lt;span class="o">[&lt;/span>&lt;span class="s2">&amp;#34;系统分配前缀.mirror.aliyuncs.com &amp;#34;&lt;/span>&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="docker-cli">docker cli&lt;/h3>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/reference/" target="_blank" rel="noopener"
+>docekr-reference&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">docker --help
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># docker event state 涉及部分常用命令&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="docker-event-state">docker event state&lt;/h3>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/commandline/events/" target="_blank" rel="noopener"
+>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-event-state.jpg"
+width="975"
+height="496"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-event-state_hu1fb588f0bea85f45f342114261d318d9_52218_480x0_resize_q75_box.jpg 480w, https://ilolicon.github.io/p/docker/icons/docker-event-state_hu1fb588f0bea85f45f342114261d318d9_52218_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="docker event state"
+class="gallery-image"
+data-flex-grow="196"
+data-flex-basis="471px"
+>&lt;/a>&lt;/p>
+&lt;h3 id="docker-image">docker image&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Docker镜像含有启动容器所需的文件系统及其内容 因此 其用于创建并启动docker容器
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="docker-image-layer">docker image layer&lt;/h4>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-base-image.png"
+width="800"
+height="600"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-base-image_hu2e660399b17286aa9ee92b351b0a326a_72247_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/docker-base-image_hu2e660399b17286aa9ee92b351b0a326a_72247_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="分层构建"
+class="gallery-image"
+data-flex-grow="133"
+data-flex-basis="320px"
+>&lt;/p>
+&lt;ul>
+&lt;li>采用分层构建机制 最底层为bootfs 其它为rootfs
+&lt;ul>
+&lt;li>bootfs: 用于&lt;code>系统引导&lt;/code>的文件系统 包括&lt;code>bootloader&lt;/code>和&lt;code>kernel&lt;/code> 容器启动完成后会被卸载以节约内存资源&lt;/li>
+&lt;li>rootfs: 位于bootfs之上 表现为docker容器的根文件系统
+&lt;ul>
+&lt;li>传统模式中 系统启动时 内核挂载rootfs时会首先将其挂载为&lt;code>只读&lt;/code>模式(自检) 完整性自检完成后将其重新挂载为读写模式&lt;/li>
+&lt;li>docker中 rootfs由内核挂载为&lt;code>只读&lt;/code>模式 而后通过&lt;code>联合挂载&lt;/code>技术额外挂载一个&lt;code>可写&lt;/code>层&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>docker image layer
+&lt;ul>
+&lt;li>位与下层的镜像成为父镜像(parent image) 最底层的称为基础镜像(base image)&lt;/li>
+&lt;li>最上层的为&lt;code>可读写&lt;/code>层 其下的均为&lt;code>只读&lt;/code>层&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-image-layer.png"
+width="651"
+height="430"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-image-layer_hu698cd364b218f2ed2f564ab487df7ce9_26319_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/docker-image-layer_hu698cd364b218f2ed2f564ab487df7ce9_26319_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="docker image layer"
+class="gallery-image"
+data-flex-grow="151"
+data-flex-basis="363px"
+>&lt;/p>
+&lt;h4 id="aufs">aufs&lt;/h4>
+&lt;ul>
+&lt;li>Advanced Mult-Layered Unification Filesystem 高级多层统一文件系统&lt;/li>
+&lt;li>用于为Linux文件系统实现&lt;code>联合挂载&lt;/code>&lt;/li>
+&lt;li>aufs是之前UnionFS的重新实现 2006年由Junjiro Okajima开发&lt;/li>
+&lt;li>Docekr最初使用aufs作为容器文件系统层 它目前仍作为存储后端之一来支持&lt;/li>
+&lt;li>aufs的竞争产品是overlayfs 后者自从3.18版本开始被合并到Linux内核&lt;/li>
+&lt;li>docker的分层镜像 除aufs之外 docker还支持btrfs/devicemapper/vfs等
+&lt;ul>
+&lt;li>Ubuntu系统下 docekr默认Ubuntu的aufs 而在CentOS7上 用的是devicemapper(新版默认使用overlay2)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="docekr-registry">docekr registry&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">启动容器时 docker daemon 会试图从本地获取相关的镜像 本地镜像不存在时 其将从Registry中下载该镜像并保存到本地
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Registry用于保存docker镜像 包括镜像的层次结构和元数据&lt;/li>
+&lt;li>用户可以自建Registry 也可以使用官方的Docker Hub&lt;/li>
+&lt;li>分类
+&lt;ul>
+&lt;li>Sponsor Registry: 第三方的registry 供客户和Docker社区使用(捐赠者)&lt;/li>
+&lt;li>Mirror Registry: 第三方的registry 只让客户使用(云)&lt;/li>
+&lt;li>Vendor Registry: 由发布Docker镜像的供应商提供的registry(redhat)&lt;/li>
+&lt;li>Private Registry: 通过设有防火墙和额外安全层的私有实体提供的registry(自建)
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://hub.docker.com/_/registry" target="_blank" rel="noopener"
+>docker-registry/docker-distribution&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://goharbor.io/" target="_blank" rel="noopener"
+>harbor&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-registry.png"
+width="1001"
+height="516"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-registry_hua933c1d1f3b2ebd39d6af526d8740ae9_269181_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/docker-registry_hua933c1d1f3b2ebd39d6af526d8740ae9_269181_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="docker registry"
+class="gallery-image"
+data-flex-grow="193"
+data-flex-basis="465px"
+>&lt;/p>
+&lt;h4 id="registryrepository-and-index">registry(repository and index)&lt;/h4>
+&lt;ul>
+&lt;li>Repository
+&lt;ul>
+&lt;li>由某特定的docker镜像的&lt;code>所有迭代版本&lt;/code>组成的镜像仓库&lt;/li>
+&lt;li>一个Registry中可以存在多个Repository
+&lt;ul>
+&lt;li>Repository可分为&lt;code>顶层仓库&lt;/code>和&lt;code>用户仓库&lt;/code>&lt;/li>
+&lt;li>用户仓库名称格式为&lt;code>用户名/仓库名&lt;/code> =&amp;gt; &lt;code>ilolicon/nginx&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>每个仓库可以包含多个Tag(标签) 每个标签对应一个镜像&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Index
+&lt;ul>
+&lt;li>维护用户账户/镜像的校验以及公共命名空间的信息&lt;/li>
+&lt;li>相当于为Registry提供一个完成用户认证等功能的检索接口&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="docker-hub">docker hub&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/docker-hub/" target="_blank" rel="noopener"
+>DockerHub&lt;/a>&lt;/p>
+&lt;p>Docker Hub provides the following major features:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/repos/" target="_blank" rel="noopener"
+>Repositories&lt;/a>: Push and pull container images&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/orgs/" target="_blank" rel="noopener"
+>Teams &amp;amp; Organizations&lt;/a>: Manage access to private repositories of container images&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/official_images/" target="_blank" rel="noopener"
+>Docker Official Images&lt;/a>: Pull and use high-quality container images provided by Docker&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/publish/" target="_blank" rel="noopener"
+>Docker Verified Publisher Images&lt;/a>: Pull and use high- quality container images provided by external vendors&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/builds/" target="_blank" rel="noopener"
+>Builds&lt;/a>: Automatically build container images from GitHub and Bitbucket and push them to Docker Hub&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/docker-hub/webhooks/" target="_blank" rel="noopener"
+>Webhooks&lt;/a>: Trigger actions after a successful push to a repository to integrate Docker Hub with other services&lt;/li>
+&lt;/ul>
+&lt;h4 id="docker-pull">docker pull&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/commandline/pull/" target="_blank" rel="noopener"
+>pull-commandline&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://quay.io/" target="_blank" rel="noopener"
+>quay.io&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ docker pull &amp;lt;registry&amp;gt;&lt;span class="o">[&lt;/span>:port&lt;span class="o">]&lt;/span>/&lt;span class="o">[&lt;/span>&amp;lt;namespace&amp;gt;/&lt;span class="o">]&lt;/span>&amp;lt;name&amp;gt;:&amp;lt;tag&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># e.g:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># registry: quay.io&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># port: 443(没指定 默认)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># namespace: coreos&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># name: flannel(repostory名称)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># tag: v0.15.1-arm64 指定版本&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker pull quay.io/coreos/flannel:v0.15.1-arm64
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Namespace&lt;/th>
+&lt;th>Examples(&amp;lt;namespace/name&amp;gt;)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>organization&lt;/td>
+&lt;td>redhat/kubernetes google/kubernetes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>login(user name)&lt;/td>
+&lt;td>alice/application ilolicon/application&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>role&lt;/td>
+&lt;td>devel/database test/database prod/database&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="镜像的相关操作">镜像的相关操作&lt;/h4>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-image-create.png"
+width="1330"
+height="778"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-image-create_hu35c6b1faa4899c64f224a792974bf729_550128_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/docker-image-create_hu35c6b1faa4899c64f224a792974bf729_550128_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="docker image create"
+class="gallery-image"
+data-flex-grow="170"
+data-flex-basis="410px"
+>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>镜像的生成途径&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/" target="_blank" rel="noopener"
+>Dockerfile&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/engine/reference/commandline/commit/" target="_blank" rel="noopener"
+>基于容器制作&lt;/a>&lt;/li>
+&lt;li>Docekr Hub automated builds(仍是基于Dockerfile)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>另一种镜像分发方式&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/engine/reference/commandline/save/" target="_blank" rel="noopener"
+>docker-save&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://docs.docker.com/engine/reference/commandline/load/" target="_blank" rel="noopener"
+>docker-load&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="容器虚拟化网络">容器虚拟化网络&lt;/h3>
+&lt;h4 id="容器虚拟化网络概述">容器虚拟化网络概述&lt;/h4>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/hukey/p/14062579.html" target="_blank" rel="noopener"
+>容器虚拟化网络&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">OVS: Open VSwitch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">SDN
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Overlay Network&lt;span class="o">(&lt;/span>叠加网络&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># docker默认的三种网络&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ilolicon@master ~&lt;span class="o">]&lt;/span>$ docker network ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NETWORK ID NAME DRIVER SCOPE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">78fa953ed316 bridge bridge &lt;span class="nb">local&lt;/span> &lt;span class="c1"># 桥接 默认NAT桥&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">8ec55273feb2 host host &lt;span class="nb">local&lt;/span> &lt;span class="c1"># 让容器直接使用宿主机的网络名称空间&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">9081fe29a218 none null &lt;span class="nb">local&lt;/span> &lt;span class="c1"># 只有lo接口 没有其他网卡&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ilolicon@master ~&lt;span class="o">]&lt;/span>$ yum -y install bridge-utils
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ilolicon@master ~&lt;span class="o">]&lt;/span>$ brctl show
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/four-network-container-archetypes.png"
+width="921"
+height="563"
+srcset="https://ilolicon.github.io/p/docker/icons/four-network-container-archetypes_hu5fe812ea1b5552a81ec2413a76585961_183707_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/four-network-container-archetypes_hu5fe812ea1b5552a81ec2413a76585961_183707_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Four network container archetypes"
+class="gallery-image"
+data-flex-grow="163"
+data-flex-basis="392px"
+>&lt;/p>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/network/" target="_blank" rel="noopener"
+>docker-docs:network overview&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>Closed Container&lt;/li>
+&lt;li>Bridged Container(NAT桥接网络 默认)&lt;/li>
+&lt;li>Joined Container(联盟式容器网络 相对隔离 只是共享同一个网络名称空间)&lt;/li>
+&lt;li>Open Container(开放式容器网络 共享宿主机网络名称空间)&lt;/li>
+&lt;/ul>
+&lt;h4 id="bridged-containers">Bridged Containers&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Bridged Containers可以为docker run命令使用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># &amp;#34;--hostname HOSTNAME&amp;#34; 选项为容器指定主机名&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --rm --net bridge --hostname cloudnative.ilolicon.com busybox:latest hostname
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># &amp;#34;--dns DNS_SERVER_IP&amp;#34; 选项能够为容器指定所使用的dns服务器地址&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --rm --dns 8.8.8.8 --dns 8.8.4.4 busybox:latest nslookup docker.com
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># &amp;#34;--add-host HOSTNAME:IP&amp;#34; 选项能够为容器指定本地主机名解析项&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --rm --dns 172.16.0.1 --add-host &lt;span class="s2">&amp;#34;docker.com:172.16.0.100&amp;#34;&lt;/span> busybox:latest cat /etc/hosts
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h5 id="opening-inbound-communication--expose">Opening Inbound Communication / Expose&lt;/h5>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">-p选项的使用格式
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 将指定的容器端口&amp;lt;containerPort&amp;gt; 映射至主机所有地址的一个动态端口&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-p &amp;lt;containerPort&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 将指定的容器端口&amp;lt;containerPort&amp;gt; 映射至指定的主机端口&amp;lt;hostPort&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-p &amp;lt;hostPort&amp;gt;:&amp;lt;containerPort&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 将指定的容器端口&amp;lt;containerPort&amp;gt; 映射至主机指定&amp;lt;ip&amp;gt;的动态端口&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-p &amp;lt;ip&amp;gt;::&amp;lt;containerPort&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 将指定的容器端口&amp;lt;containerPort&amp;gt; 映射至主机指定&amp;lt;ip&amp;gt;的端口&amp;lt;hostPort&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-p &amp;lt;ip&amp;gt;:&amp;lt;hostPort&amp;gt;:&amp;lt;containerPort&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">&amp;#34;动态端口&amp;#34;&lt;/span> 指随机端口 具体的映射结果可使用docker port命令查看
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Expose端口 还可以参考 -P 选项：暴露容器内部已指定的端口
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="joined-container">Joined Container&lt;/h4>
+&lt;ul>
+&lt;li>联盟式容器是指使用某个已存在容器的网络接口的容器 接口被联盟内的各容器共享使用(NTS Network IPC)&lt;/li>
+&lt;li>联盟式容器彼此间虽然共享同一个网络名称空间 但其它内部名称空间如: User/Mount等还是隔离的&lt;/li>
+&lt;li>联盟式容器彼此间存在端口冲突的可能性 使用此种模式的网络模型情况
+&lt;ul>
+&lt;li>多个容器上的程序需要程序loopback接口互相通信&lt;/li>
+&lt;li>对某已存的容器的网络属性进行监控&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建一个监听于2222端口的http服务容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --name t1 -it --rm busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/ &lt;span class="c1"># ifconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建一个联盟式容器(--network指定使用t1的网络名称空间) 并查看其监听的端口&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --name t2 -it --rm --network container:t1 busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/ &lt;span class="c1"># ifconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="open-container">Open Container&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># --network 指定 host&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 直接使用宿主机的网络名称空间 无需再Expose端口&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --rm -it --network host busybox
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="closed-container">Closed Container&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># --network none&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --rm -it --network none busybox
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="自定义docker0桥的网络信息">自定义docker0桥的网络信息&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 编辑 /etc/docker/daemon.json 配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;bip&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;192.168.1.5/24&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;fixed-cidr&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;10.20.0.0/16&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;fixed-cidr-v6&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;2001:db8::/64&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;mtu&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;1500&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;default-gateway&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;10.20.1.1&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;default-gateway-v6&amp;#34;&lt;/span>: &lt;span class="s2">&amp;#34;2001:db8:abcd::89&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;dns&amp;#34;&lt;/span>: &lt;span class="o">[&lt;/span>&lt;span class="s2">&amp;#34;10.20.1.2&amp;#34;&lt;/span>,&lt;span class="s2">&amp;#34;10.20.1.3&amp;#34;&lt;/span>&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 核心选项为bip 即bridge ip之意 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 用于指定docker0桥自身的IP地址 其他选项可以通过此地址计算得出&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="使用tcp套接字">使用TCP套接字&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># dockerd守护进程的C/S 其默认仅监听Unix Socket格式的地址 /var/run/docker.sock&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 如果使用TCP套接字 需要修改 /etc/docekr/daemon.json 配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 也可向dockerd直接传递 &amp;#34;-H|--host&amp;#34;选项&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;hosts&amp;#34;&lt;/span>: &lt;span class="o">[&lt;/span>&lt;span class="s2">&amp;#34;tcp://0.0.0.0:2375&amp;#34;&lt;/span>, &lt;span class="s2">&amp;#34;unix:///var/run/docker.sock&amp;#34;&lt;/span>&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># dockerd使用TCP监听0.0.0.0:2375之后 客户端可以远程执行CLI&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker -H x.x.x.x:2375 image ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker -H x.x.x.x:2375 ps -a
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="创建自定义网络">创建自定义网络&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建自定义网络&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker network create -d bridge --subnet &lt;span class="s2">&amp;#34;172.26.0.0/16&amp;#34;&lt;/span> --gateway &lt;span class="s2">&amp;#34;172.26.0.1&amp;#34;&lt;/span> mybr0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用自定义网络&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ilolicon@master ~&lt;span class="o">]&lt;/span>$ docker run -it --rm --name t1 --network mybr0 busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/ &lt;span class="c1"># ifconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">eth0 Link encap:Ethernet HWaddr 02:42:AC:1A:00:02
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> inet addr:172.26.0.2 Bcast:172.26.255.255 Mask:255.255.0.0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="docker存储卷">docker存储卷&lt;/h3>
+&lt;h4 id="why-data-volumes存储卷">Why Data Volumes(存储卷)&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Docker镜像由多个&lt;span class="s2">&amp;#34;只读层&amp;#34;&lt;/span>叠加而成
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">启动容器时 Docker会加载只读镜像层并在镜像栈顶部添加一个&lt;span class="s2">&amp;#34;读写层&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">如果运行中的容器修改了现有的一个已经存在的文件
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">那该文件将会从读写层下面的只读层复制到读写层 该文件的只读版本&lt;span class="s2">&amp;#34;仍然存在&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">只是已经被读写层中该文件的副本所隐藏 此即&lt;span class="s2">&amp;#34;写时复制(COW)&amp;#34;&lt;/span>机制
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/files-visible-to-a-container.png"
+width="751"
+height="423"
+srcset="https://ilolicon.github.io/p/docker/icons/files-visible-to-a-container_hu5bf186c999f6f34c90c9ad0a7dba16dd_138845_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/files-visible-to-a-container_hu5bf186c999f6f34c90c9ad0a7dba16dd_138845_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="file-visible"
+class="gallery-image"
+data-flex-grow="177"
+data-flex-basis="426px"
+>&lt;/p>
+&lt;ul>
+&lt;li>关闭并重启容器 其数据不受影响 但删除Docker容器 则其更改将会全部丢失&lt;/li>
+&lt;li>存在的问题
+&lt;ul>
+&lt;li>存储于联合文件系统中 不易于宿主机访问(效率低)&lt;/li>
+&lt;li>容器间数据共享不便&lt;/li>
+&lt;li>删除容器其数据会丢失&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>解决方案: &amp;ldquo;&lt;strong>卷&lt;/strong>(volume)&amp;rdquo;
+&lt;ul>
+&lt;li>&lt;strong>卷&lt;/strong>是容器上的一个或多个&lt;strong>目录&lt;/strong> 此类目录可绕过联合文件系统 与宿主机上的某目录&lt;strong>绑定(关联)&lt;/strong>&lt;/li>
+&lt;li>Volume于容器初始化之时即会创建 由base image提供的卷中的数据会于此期间完成复制&lt;/li>
+&lt;li>Volume的初衷是独立于容器的生命周期实现数据持久化 因此删除容器之时既不会删除卷 也不会对哪怕未被引用的卷做垃圾回收操作(加选项可以)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/volume.png"
+width="693"
+height="192"
+srcset="https://ilolicon.github.io/p/docker/icons/volume_huc6dd66b5d1fa365b97dd8d30d2bb4680_75141_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/volume_huc6dd66b5d1fa365b97dd8d30d2bb4680_75141_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="volume"
+class="gallery-image"
+data-flex-grow="360"
+data-flex-basis="866px"
+>&lt;/p>
+&lt;ul>
+&lt;li>卷为docker提供了独立于容器的数据管理机制
+&lt;ul>
+&lt;li>可以把&lt;strong>镜像&lt;/strong>想象成静态文件 -&amp;gt; 例如 &lt;strong>程序&lt;/strong>; 把卷类比为动态内容 -&amp;gt; 例如 &lt;strong>数据&lt;/strong>; 于是 镜像可以重用 而卷可以共享&lt;/li>
+&lt;li>卷实现了&lt;strong>程序(镜像)&lt;/strong> 和 &lt;strong>数据(卷)&lt;/strong> 分离 以及 &lt;strong>程序(镜像)&lt;/strong> 和 &lt;strong>制作镜像的主机&lt;/strong> 分离; 用户制作镜像时无需再考虑镜像运行的容器所在的主机的环境&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/volume2.png"
+width="932"
+height="374"
+srcset="https://ilolicon.github.io/p/docker/icons/volume2_hubb053bbe15fe56dbede9e549ddb24aef_129737_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/volume2_hubb053bbe15fe56dbede9e549ddb24aef_129737_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="volume2"
+class="gallery-image"
+data-flex-grow="249"
+data-flex-basis="598px"
+>&lt;/p>
+&lt;h4 id="data-volumes">Data volumes&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Docekr有两种类型的卷 每种类型都在容器中存在一个挂载点 但在其宿主机上的位置有所不同
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Bind mount volume(绑定挂在卷)
+&lt;ul>
+&lt;li>a volume that points to a user-specified location on the host file system&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Docker-managed volume(Docker管理卷)
+&lt;ul>
+&lt;li>the Docker daemon creates managed volumes in a portion of the host&amp;rsquo;s file system that&amp;rsquo;s owned by Docker&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/data-volumes.png"
+width="1317"
+height="440"
+srcset="https://ilolicon.github.io/p/docker/icons/data-volumes_hu4dfcbd12cf6b4d086e7fe173542ab64f_196844_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/data-volumes_hu4dfcbd12cf6b4d086e7fe173542ab64f_196844_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="data-volume"
+class="gallery-image"
+data-flex-grow="299"
+data-flex-basis="718px"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 在容器中使用Volumes&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 为docker run命令使用-v选项即可使用Volume&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Docker-managed volume&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --name t1 -v /data busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker inspect -f &lt;span class="o">{{&lt;/span>.Mounts&lt;span class="o">}}&lt;/span> t1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Bind-mount Volume&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it -v HOSTDIR:VOLUMEDIR --name t2 bustbox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker inspect -f &lt;span class="o">{{&lt;/span>.Mount&lt;span class="o">}}&lt;/span> t2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="sharing-volumes">Sharing volumes&lt;/h4>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># There are tow ways to share volumes between containers&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 多个容器的卷使用同一个主机目录&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --name t1 -v /docker/volumes/v1:/data busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --name t2 -v /docker/volumes/v1:/data busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 复制使用其他容器的卷 为docker run命令使用 --volumes-from 选项&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --name t3 -v /docker/volumes/v1:/data busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --name t4 --volumes-from t3 busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 如果有多个容器需要共享网络名称空间(UTS Network IPC) 以及需要共享存储卷&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 可以 事先创建一个 基础容器 其他的容器都加入该容器的网络名称空间(Joined Container) 并且复制该容器使用的卷(--volumes-from)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --name infracon -it -v /data/infracon/volume:/data busybox
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run --name nginx --network container:infracon --volumes-from infracon -it nginx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run ... --network container:infracon --volumes-from infracon ...
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="dockerfile">Dockerfile&lt;/h2>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/" target="_blank" rel="noopener"
+>Dockerfile-reference&lt;/a>&lt;/p>
+&lt;p>Dockerfile is nothing but the source code for building Docker images&lt;/p>
+&lt;ul>
+&lt;li>Docker can build images automatically by reading the instructions from a Dockerfile&lt;/li>
+&lt;li>A Dockerfile is a &lt;code>text document&lt;/code> than contains all the commands a user could call on the command line to assemble an image&lt;/li>
+&lt;li>Using &lt;code>docker build&lt;/code> users can create an automated build that executes several command-line instructions in succession&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/docker/icons/docker-build.png"
+width="490"
+height="242"
+srcset="https://ilolicon.github.io/p/docker/icons/docker-build_hu78e016fdb09837500502497ac9124888_91582_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/docker/icons/docker-build_hu78e016fdb09837500502497ac9124888_91582_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="build"
+class="gallery-image"
+data-flex-grow="202"
+data-flex-basis="485px"
+>&lt;/p>
+&lt;h3 id="dockerfile-format">Dockerfile Format&lt;/h3>
+&lt;ul>
+&lt;li>Format
+&lt;ul>
+&lt;li># Comment (注释)&lt;/li>
+&lt;li>INSTRUCTION arguments (指令及其参数 通常一行一个执行 太长使用&lt;code>\&lt;/code>换行)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The instruction is not case-sensitive (指令大小写不敏感)
+&lt;ul>
+&lt;li>However, convention is for them to be UPPERCASE to distinguish them from arguments more easily (一般约定使用大写 和参数区分开)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Docker runs instructions in a Dockerfile in order (顺序执行)&lt;/li>
+&lt;li>The first instruction must be &lt;code>FROM&lt;/code> in order to specify the Base Image from which you are building (第一个非指数行 必须为&lt;code>FROM&lt;/code>指令)&lt;/li>
+&lt;/ul>
+&lt;h3 id="dockerignore-file">.dockerignore file&lt;/h3>
+&lt;ul>
+&lt;li>Before the docker CLI sends the context to the docker daemon, it looks for a file named .dockerignore in the root directory of the context&lt;/li>
+&lt;li>If this file exists, the CLI modifies the context to exclude files and directories than match patterns in it&lt;/li>
+&lt;li>The CLI interprets the .dockerignore file as a newline-separated list of patterns similar to the file globs of Unix shells&lt;/li>
+&lt;/ul>
+&lt;h3 id="environment-replacement">Environment replacement&lt;/h3>
+&lt;ul>
+&lt;li>Environment variables (declared with the &lt;code>ENV&lt;/code> statement) can also be used in certain instructions as variables to be interpred by the Dockerfile&lt;/li>
+&lt;li>Environment variables are notated in the Dockerfile either with $variable_name or ${variable_name}&lt;/li>
+&lt;li>The ${variable_name} syntax also supports a few of the standard bash modifiers
+&lt;ul>
+&lt;li>${variable:-word} - 设置默认值 variable未设置或为空 则变量默认值为: word&lt;/li>
+&lt;li>${variable:+word} - 和 ${variable:-word} 相反&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="docekrfile-instructions">Docekrfile Instructions&lt;/h3>
+&lt;h4 id="from">FROM&lt;/h4>
+&lt;ul>
+&lt;li>&lt;code>FROM&lt;/code>指令是最重要的一个且必须为Docekrfile文件开篇的第一个非注释行 用于为镜像文件构建过程指定基准镜像 后续的指令运行于此基准镜像所提供的运行环境&lt;/li>
+&lt;li>实践中 基准镜像可以是任何可用镜像文件 默认情况下 &lt;code>docekr build&lt;/code>会在docker主机上查找指定的镜像文件 在其不存在时 则会从Docker Hub Registry上拉取所需的镜像文件
+&lt;ul>
+&lt;li>如果找不到执行的镜像文件 &lt;code>docker build&lt;/code>会返回一个错误信息&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>FROM &amp;lt;repository&amp;gt;[:&amp;lt;tag&amp;gt;]&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>FROM &amp;lt;repository&amp;gt;@&amp;lt;digest&amp;gt;&lt;/code> @符号指定hash码 确保base image不会被篡改
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;repository&amp;gt;&lt;/code> 指定作为 base image 的名称&lt;/li>
+&lt;li>&lt;code>&amp;lt;tag&amp;gt;&lt;/code> base image 的标签 可选 省略时默认为latest&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="maintanierdeprecated">MAINTANIER(deprecated)&lt;/h4>
+&lt;ul>
+&lt;li>用于让Docekrfile制作者提供本人的详细信息&lt;/li>
+&lt;li>Dockerfile并不限制MAINTANIER指令出现的位置 但推荐将其放置于&lt;code>FROM&lt;/code>指令后&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>MAINTANIER &amp;lt;author's detail&amp;gt;&lt;/code>
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;author's detail&amp;gt;&lt;/code>可以是任何文本信息 但约定俗成地使用作者名称及其邮件地址&lt;/li>
+&lt;li>&lt;code>MAINTANIER &amp;quot;ilolicon &amp;lt;97431110@qq.com&amp;gt;&amp;quot;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="label">LABEL&lt;/h4>
+&lt;p>The LABEL instruction adds metadata to an image (可替换MAINTANIER 并可添加更多元数据信息)&lt;/p>
+&lt;ul>
+&lt;li>Syntax: &lt;code>LABEL &amp;lt;key&amp;gt;=&amp;lt;value&amp;gt; &amp;lt;key&amp;gt;=&amp;lt;value&amp;gt; &amp;lt;key&amp;gt;=&amp;lt;value&amp;gt; ...&lt;/code>&lt;/li>
+&lt;li>The LABEL instruction adds metadata to an image&lt;/li>
+&lt;li>A LABEL is a key-value pair&lt;/li>
+&lt;li>To include spaces within a LABEL value, use quotes and backslashes as you would in command-line parsing&lt;/li>
+&lt;li>An image can have more than one label&lt;/li>
+&lt;li>You can specify multiple labels on a single line&lt;/li>
+&lt;/ul>
+&lt;h4 id="copy">COPY&lt;/h4>
+&lt;ul>
+&lt;li>用于从Docker主机复制文件至创建的新镜像文件&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>COPY &amp;lt;src&amp;gt; ... &amp;lt;dest&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>COPY [&amp;quot;&amp;lt;src&amp;gt;&amp;quot;, ..., &amp;quot;&amp;lt;dest&amp;gt;&amp;quot;]&lt;/code>
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;src&amp;gt;&lt;/code> 要复制的源文件或目录 支持使用通配符&lt;/li>
+&lt;li>&lt;code>&amp;lt;dest&amp;gt;&lt;/code> 目标路径 即正在创建的image的文件系统路径 建议&lt;code>&amp;lt;dest&amp;gt;&lt;/code>使用绝对路径 否则&lt;code>COPY&lt;/code>指令则以WORKDIR为其起始路径&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>注意: 在路径中有空白符时 通常使用第二种格式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>文件复制准则
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;src&amp;gt;&lt;/code>必须是build上下文中的路径 不能是其父目录中的文件&lt;/li>
+&lt;li>如果&lt;code>&amp;lt;src&amp;gt;&lt;/code>是目录 则其内部文件或子目录会被递归复制 但是&lt;code>&amp;lt;src&amp;gt;&lt;/code>目录本身不会被复制&lt;/li>
+&lt;li>如果指定多个&lt;code>&amp;lt;src&amp;gt;&lt;/code> 或在&lt;code>&amp;lt;src&amp;gt;&lt;/code>中使用了通配符 则&lt;code>&amp;lt;dest&amp;gt;&lt;/code>必须是一个目录 且必须以&lt;code>/&lt;/code>结尾&lt;/li>
+&lt;li>如果&lt;code>&amp;lt;dest&amp;gt;&lt;/code>事先不存在 它将会被自动创建 这包括其父级目录&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="add">ADD&lt;/h4>
+&lt;ul>
+&lt;li>&lt;code>ADD&lt;/code>指令类似于&lt;code>COPY&lt;/code>指令 ADD支持使用TAR文件和URL路径&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>ADD &amp;lt;src&amp;gt; ... &amp;lt;dest&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>ADD [&amp;quot;&amp;lt;src&amp;gt;&amp;quot;, ..., &amp;quot;&amp;lt;dest&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>操作准则
+&lt;ul>
+&lt;li>同&lt;code>COPY&lt;/code>指令&lt;/li>
+&lt;li>URL
+&lt;ul>
+&lt;li>如果&lt;code>&amp;lt;src&amp;gt;&lt;/code>为URL且&lt;code>&amp;lt;dest&amp;gt;&lt;/code>不以&lt;code>/&lt;/code>结尾 则&lt;code>&amp;lt;src&amp;gt;&lt;/code>指定的文件将被下载并直接被创建为&lt;code>&amp;lt;dest&amp;gt;&lt;/code>&lt;/li>
+&lt;li>如果&lt;code>&amp;lt;src&amp;gt;&lt;/code>为URL且&lt;code>&amp;lt;dest&amp;gt;&lt;/code>以&lt;code>/&lt;/code>结尾 则文件名URL指定的文件将被下载并保存为&lt;code>&amp;lt;dest&amp;gt;/&amp;lt;filename&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>TAR
+&lt;ul>
+&lt;li>如果&lt;code>&amp;lt;src&amp;gt;&lt;/code>是一个本地系统上的压缩格式的tar文件 它将被展开为一个目录 其行为类似于&lt;code>tar -x&lt;/code>命令 然而 通道URL获取到的tar文件将不会自动展开&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>如果&lt;code>&amp;lt;src&amp;gt;&lt;/code>有多个 或其间接或直接使用了通配符 则&lt;code>&amp;lt;dest&amp;gt;&lt;/code>必须是一个以&lt;code>/&lt;/code>结尾的目录路径 如果&lt;code>&amp;lt;dest&amp;gt;&lt;/code>不以&lt;code>/&lt;/code>结尾 则其将被视为一个普通文件 &lt;code>&amp;lt;src&amp;gt;&lt;/code>的内容将被直接写入到&lt;code>&amp;lt;dest&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="workdir">WORKDIR&lt;/h4>
+&lt;ul>
+&lt;li>用于为Dockerfile中所有的&lt;code>RUN/CMD/ENTRYPOINT/COPY/ADD&lt;/code>指令设置工作目录&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>WORKDIR &amp;lt;dirpath&amp;gt;&lt;/code>
+&lt;ul>
+&lt;li>在Dockerfile中 &lt;code>WORKDIR&lt;/code>指令可以出现多次 其路径也可以为相对路径 不过其是相对此前一个&lt;code>WODKDIR&lt;/code>指令指定的路径&lt;/li>
+&lt;li>另外 &lt;code>WORKDIR&lt;/code>也可调用由&lt;code>ENV&lt;/code>指令定义的变量&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>e.g
+&lt;ul>
+&lt;li>&lt;code>WORKDIR /var/log&lt;/code>&lt;/li>
+&lt;li>&lt;code>WORKDIR $STATEPATH&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="volume">VOLUME&lt;/h4>
+&lt;ul>
+&lt;li>用于在image中创建一个挂载点目录 以挂载Docker host上的卷或其他容器上的卷&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>VOLUME &amp;lt;mountpoint&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>VOLUME [&amp;quot;&amp;lt;mountpoint&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>如果挂载点目录路径下此前在文件存在 &lt;code>docker run&lt;/code>命令会在挂载完成后将此前的所有文件复制到新挂载的卷中&lt;/li>
+&lt;/ul>
+&lt;h4 id="expose">EXPOSE&lt;/h4>
+&lt;ul>
+&lt;li>用于为容器打开指定要监听的端口 以实现与外部通信&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>EXPOSE &amp;lt;port&amp;gt;[/&amp;lt;protocol&amp;gt;] [&amp;lt;port&amp;gt;[/protocol]...]&lt;/code>
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;protocol&amp;gt;&lt;/code>用于指定传输层协议 可为tcp或udp二者之一 默认为TCP协议&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>EXPOSE&lt;/code>指令可一次指定多个端口
+&lt;ul>
+&lt;li>&lt;code>EXPOSE 11211/udp 11211/tcp&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="env">ENV&lt;/h4>
+&lt;ul>
+&lt;li>用于为镜像定义所需的环境变量 并可被Dockerfile文件中位与其后的其它指令(如&lt;code>ENV/ADD/COPY&lt;/code>等)所调用&lt;/li>
+&lt;li>调用格式为 $variable_name 或 ${variable_name}&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>ENV &amp;lt;key&amp;gt; &amp;lt;value&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>ENV &amp;lt;key&amp;gt;=&amp;lt;value&amp;gt; ...&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>第一种格式中: &lt;code>&amp;lt;key&amp;gt;&lt;/code>之后的所有内容均会被视作其&lt;code>&amp;lt;value&amp;gt;&lt;/code>的组成部分 因此 一次只能设置一个变量&lt;/li>
+&lt;li>第二种格式中: 可以一次设置多个变量 每个变量为一个&lt;code>&amp;lt;key&amp;gt;=&amp;lt;value&amp;gt;&lt;/code>的键值对 如果&lt;code>&amp;lt;value&amp;gt;&lt;/code>中包含空格 可以以反斜线&lt;code>\&lt;/code>进行转义 也可以通过对&lt;code>&amp;lt;value&amp;gt;&lt;/code>加引号进行标识 另外 反斜线也用于续行&lt;/li>
+&lt;li>定义多个变量时 建议使用第二种方式 以便在同一层中完成所有功能&lt;/li>
+&lt;/ul>
+&lt;h4 id="run">RUN&lt;/h4>
+&lt;ul>
+&lt;li>用于指定&lt;code>docker build&lt;/code>过程中运行的程序 其可以是任何命令(基于base image提供)&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>RUN &amp;lt;command&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>RUN [&amp;quot;&amp;lt;executable&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param1&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param2&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>第一种格式中 &lt;code>&amp;lt;command&amp;gt;&lt;/code> 通常是一个shell命令 且以&lt;code>/bin/sh -c&lt;/code>来运行它 这意味着此进程在容器中的PID不是1 不能接收Unix信号 因此 当使用&lt;code>docker stop &amp;lt;container&amp;gt;&lt;/code>命令停止容器时 此进程接收不到SIGTERM信号&lt;/li>
+&lt;li>第二种语法格式中的参数是一个JSON格式的数组 其中&lt;code>&amp;lt;executable&amp;gt;&lt;/code>为要运行的命令 后面的&lt;code>&amp;lt;paramN&amp;gt;&lt;/code>为传递给命令的选项或参数 然而 此种格式指定的命令不会以&lt;code>/bin/sh -c&lt;/code>来发起 因此常见的shell操作如变量替换以及通配符&lt;code>? *等&lt;/code>替换将不会进行 不过如果要运行的命令依赖于此shell特性的话 可以将其替换为类似下面的格式
+&lt;ul>
+&lt;li>&lt;code>RUN [&amp;quot;/bin/sh&amp;quot;, &amp;quot;-c&amp;quot;, &amp;quot;&amp;lt;executable&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param1&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;li>Json数组中 注意要使用&lt;strong>双引号&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="cmd">CMD&lt;/h4>
+&lt;ul>
+&lt;li>类似于&lt;code>RUN&lt;/code>指令 &lt;code>CMD&lt;/code>指令也可用于运行任何命令或应用程序 不过 二者的运行时间点不同
+&lt;ul>
+&lt;li>&lt;code>RUN&lt;/code>指令运行于映像文件构建过程中 而&lt;code>CMD&lt;/code>指令运行于基于Dockerfile构建出的新映像文件启动一个容器时&lt;/li>
+&lt;li>&lt;code>CMD&lt;/code>指令的首要目的在于为启动的容器指定&lt;code>默认&lt;/code>要运行的程序 且其运行结束后 容器也将终止 不过&lt;code>CMD&lt;/code>指定的命令可以被&lt;code>docker run&lt;/code>的命令行选项所覆盖&lt;/li>
+&lt;li>在Docekrfile中 可以存在多个&lt;code>CMD&lt;/code>指令 但仅最后一个会生效&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>CMD &amp;lt;command&amp;gt;&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>CMD [&amp;quot;&amp;lt;executable&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param1&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param2&amp;gt;&amp;quot;]&lt;/code> 或&lt;/li>
+&lt;li>&lt;code>CMD [&amp;quot;&amp;lt;param1&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param2&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>前两种语法格式的意义同&lt;code>RUN&lt;/code>&lt;/li>
+&lt;li>都三种则用于为&lt;code>ENTRYPOINT&lt;/code>指令提供默认参数&lt;/li>
+&lt;/ul>
+&lt;h4 id="entrypoint">ENTRYPOINT&lt;/h4>
+&lt;ul>
+&lt;li>类似&lt;code>CMD&lt;/code>指令的功能 用于为容器指定默认运行程序 从而使得容器像是一个单独的可执行程序&lt;/li>
+&lt;li>与&lt;code>CMD&lt;/code>不同的是 由&lt;code>ENTRYPOINT&lt;/code>启动的程序不会被&lt;code>docker run&lt;/code>命令行指定的参数所覆盖 而且 这些命令行参数会被当作参数传递给&lt;code>ENTRYPOINT&lt;/code>指令指定的程序
+&lt;ul>
+&lt;li>不过 &lt;code>docker run&lt;/code>命令的&lt;code>--entrypoint&lt;/code>选项的参数 可以覆盖&lt;code>ENTRYPOINT&lt;/code>指令指定的程序&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>ENTRYPOINT &amp;lt;command&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>ENTRYPOINT [&amp;quot;&amp;lt;executable&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param1&amp;gt;&amp;quot;, &amp;quot;&amp;lt;param2&amp;gt;&amp;quot;]&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>docker run&lt;/code>命令传入的命令参数会覆盖&lt;code>CMD&lt;/code>指令的内容 并且附加到&lt;code>ENTRYPOINT&lt;/code>命令最后作为其参数使用&lt;/li>
+&lt;li>Dockerfile文件中也可以存在多个&lt;code>ENTRYPOINT&lt;/code>指令 但仅有最后一个会生效&lt;/li>
+&lt;/ul>
+&lt;p>Tips: 使用&lt;code>ENTRYPOINT&lt;/code>解决配置文件&lt;strong>环境变量&lt;/strong>使用问题&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 问题: nginx(或其他程序)配置文件有许多需要修改的配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 比如: root_dir / listen_ip / listen_port 等等 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用容器的情况下 如何更优的解决该问题?&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>docker-entrypoint.sh&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://github.com/docker-library/mysql/blob/master/5.7/docker-entrypoint.sh" target="_blank" rel="noopener"
+>refer:MySQL dokcer-entrypoint.sh&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 根据变量(环境变量/自定义变量)生成配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 需要修改的 传入环境变量的方式 比如: APP_ENV: TEST|PROD|DEV&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># docker run -d --name=ngx --env PORT=8080 --env XX=XX --rm ngx:v1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">IP&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>ip address show dev eth0 &lt;span class="p">|&lt;/span> awk &lt;span class="s1">&amp;#39;/inet /{split($2, ip, &amp;#34;/&amp;#34;);print ip[1]}&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &amp;gt; /etc/nginx/conf.d/www.conf &lt;span class="s">&amp;lt;&amp;lt; EOF
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">server {
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> server_name ${HOSTNAME};
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> listen ${IP:-0.0.0.0}:${PORT:-80};
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> root ${NGX_DOC_ROOT:-/usr/share/nginx/html/};
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Dockerfile CMD指定的参数($@) 取代当前shell 成为 main-process&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">exec&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Dockerfile&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Dockerfile" data-lang="Dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> nginx:1.14-alpine&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">LABEL&lt;/span> &lt;span class="nv">maintainer&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;ilolicon &amp;lt;97431110@qq.com&amp;gt;&amp;#34;&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">NGX_DOC_ROOT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/data/www/html/&amp;#34;&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ADD&lt;/span> index.html &lt;span class="nv">$NGX_DOC_ROOT&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ADD&lt;/span> docker-entrypoint.sh /bin/&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/usr/sbin/nginx&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;-g&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;daemon off&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="c"># CMD指令参数 传递给docker-entrypoint.sh脚本 脚本用$@获取全部参数&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENTRYPOINT&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/bin/docker-entrypoint.sh&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="user">USER&lt;/h4>
+&lt;ul>
+&lt;li>用于指定运行image时或运行Dockerfile中任何&lt;code>RUN CMD 或 ENTRYPOINT&lt;/code>指令指定的程序时的用户名或UID&lt;/li>
+&lt;li>默认情况下 container的运行身份为root用户&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>USER &amp;lt;UID&amp;gt;|&amp;lt;UserName&amp;gt;&lt;/code>&lt;/li>
+&lt;li>需要注意的是 &lt;code>&amp;lt;UID&amp;gt;&lt;/code>可以为任意数字 但实践中其必须为&lt;code>/etc/passwd&lt;/code>(容器中)中某用户的有效UID 否则&lt;code>docker run&lt;/code>命令将运行失败&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="healthcheck">HEALTHCHECK&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/#healthcheck" target="_blank" rel="noopener"
+>HEALTHCHECK&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>The &lt;code>HEALTHCHECK&lt;/code> instruction tells Docker how to test a container to check that it is still working&lt;/li>
+&lt;li>This can detect cases such as a web server that is stuck in an infinite loop and unable to handle new connections, even though the server process is still running&lt;/li>
+&lt;li>The HEALTHCHECK instruction has two forms
+&lt;ul>
+&lt;li>&lt;code>HEALTHCHECK [OPTIONS] CMD command&lt;/code> (check container health by running a command inside the container)&lt;/li>
+&lt;li>&lt;code>HEALTHCHECK NONE&lt;/code> (disable any healthcheck inherited from the base image)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The options that can appear before CMD are:
+&lt;ul>
+&lt;li>&amp;ndash;interval=DURATION (default: 30s)&lt;/li>
+&lt;li>&amp;ndash;timeout=DURATION (default: 30s)&lt;/li>
+&lt;li>&amp;ndash;start-period=DURATION (default: 0s) - 多少秒之后开始检测 等待container init的时间&lt;/li>
+&lt;li>&amp;ndash;retries=N (default: 3)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The command’s exit status indicates the health status of the container. The possible values are:
+&lt;ul>
+&lt;li>0: success - the container is healthy and ready for use&lt;/li>
+&lt;li>1: unhealthy - the container is not working correctly&lt;/li>
+&lt;li>2: reserved - do not use this exit code - 预留 不要使用&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>For example
+&lt;ul>
+&lt;li>&lt;code>HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="shell">SHELL&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/#shell" target="_blank" rel="noopener"
+>SHELL&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>The &lt;code>SHELL&lt;/code> instruction allows the default &lt;em>shell&lt;/em> used for the shell form of commands to be overridden&lt;/li>
+&lt;li>The default shell on Linux is [&amp;quot;/bin/sh&amp;quot;, &amp;ldquo;-c&amp;rdquo;], and on Windows is [&amp;ldquo;cmd&amp;rdquo;, &amp;ldquo;/S&amp;rdquo;, &amp;ldquo;/C&amp;rdquo;]&lt;/li>
+&lt;li>The &lt;code>SHELL&lt;/code> instruction must be written in JSON form in a Dockerfile
+&lt;ul>
+&lt;li>Syntax: SHELL [&amp;ldquo;executable&amp;rdquo;, &amp;ldquo;parameters&amp;rdquo;]&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>The &lt;code>SHELL&lt;/code> instruction can appear multiple times&lt;/li>
+&lt;li>Each &lt;code>SHELL&lt;/code> instruction overrides all previous &lt;code>SHELL&lt;/code> instructions, and affects all subsequent instruction&lt;/li>
+&lt;/ul>
+&lt;h4 id="stopsignal">STOPSIGNAL&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/#stopsignal" target="_blank" rel="noopener"
+>STOPSIGNAL&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>The &lt;code>STOPSIGNAL&lt;/code> instruction sets the system call signal that will be sent to the container to exit&lt;/li>
+&lt;li>This signal can be a signal name in the format &lt;code>SIG&amp;lt;NAME&amp;gt;&lt;/code>, for instance &lt;code>SIGKILL&lt;/code>, or an unsigned number that matches a position in the kernel’s syscall table, for instance &lt;code>9&lt;/code>
+&lt;ul>
+&lt;li>The default is &lt;code>SIGTERM&lt;/code> if not defined&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Syntax: &lt;code>STOPSIGNAL signal&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h4 id="arg">ARG&lt;/h4>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/engine/reference/builder/#arg" target="_blank" rel="noopener"
+>ARG&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>The ARG instruction defines a variable that users can pass at build-time to the builder with the docker build command using the &lt;code>--build-arg &amp;lt;varname&amp;gt;=&amp;lt;value&amp;gt;&lt;/code> flag&lt;/li>
+&lt;li>If a user specifies a build argument that was not defined in the Dockerfile, the build outputs a warning
+&lt;ul>
+&lt;li>&lt;code>[Warning] One or more build-args [foo] were not consumed.&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Syntax: &lt;code>ARG &amp;lt;name&amp;gt;[=&amp;lt;default value&amp;gt;]&lt;/code>&lt;/li>
+&lt;li>A Dockerfile may include one or more &lt;code>ARG&lt;/code> instructions&lt;/li>
+&lt;li>An &lt;code>ARG&lt;/code> instruction can optionally include a default value:
+&lt;ul>
+&lt;li>&lt;code>ARG user1=someuser&lt;/code>&lt;/li>
+&lt;li>&lt;code>ARG buildno=1&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>⚠️ &lt;strong>Warning&lt;/strong>
+It is not recommended to use build-time variables for passing secrets like github keys, user credentials etc. Build-time variable values are visible to any user of the image with the &lt;code>docker history&lt;/code> command.&lt;/p>
+&lt;p>Refer to the &lt;a class="link" href="https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information" target="_blank" rel="noopener"
+>&amp;ldquo;build images with BuildKit&amp;rdquo;&lt;/a> section to learn about secure ways to use secrets when building images.&lt;/p>
+&lt;h4 id="onbuild">ONBUILD&lt;/h4>
+&lt;ul>
+&lt;li>用于在Dockerfile中定义一个触发器&lt;/li>
+&lt;li>Dockerfile用于build映像文件 此映像文件亦可作为base image被另一个Dockerfile用作&lt;code>FROM&lt;/code>指令的参数 并以之构建新的镜像文件&lt;/li>
+&lt;li>在后面的这个Dockerfile中的&lt;code>FROM&lt;/code>指令在build过程中被执行时 将会&lt;strong>触发&lt;/strong>创建其base image的Dockerfile文件中的&lt;code>ONBUILD&lt;/code>指令定义的触发器&lt;/li>
+&lt;li>Syntax
+&lt;ul>
+&lt;li>&lt;code>ONBUILD &amp;lt;INSTRUCTION&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>尽管任何指令都可以注册成为触发器指令 但&lt;code>ONBUILD&lt;/code>不能自我嵌套 且不会触发&lt;code>FROM&lt;/code>和&lt;code>MAINTAINER&lt;/code>指令&lt;/li>
+&lt;li>使用包含&lt;code>ONBUILD&lt;/code>指令的Dockerfile构建的镜像应该使用特殊的标签
+&lt;ul>
+&lt;li>e.g: ruby:2.0-onbuild&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>在&lt;code>ONBUILD&lt;/code>指令中使用&lt;code>ADD&lt;/code>或&lt;code>COPY&lt;/code>指令应该格外小心 因为新 构建过程的上下文在缺少指定的源文件时会失败&lt;/li>
+&lt;/ul>
+&lt;h2 id="docker资源限制">Docker资源限制&lt;/h2>
+&lt;p>&lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/" target="_blank" rel="noopener"
+>Limit a container&amp;rsquo;s resources&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>By default, a container has no resource constraints and can use as much of a given resource as the host’s kernel scheduler allows&lt;/li>
+&lt;li>Docker provides ways to control how much memory, or CPU a container can use, setting runtime configuration flags of the &lt;code>docker run&lt;/code> command&lt;/li>
+&lt;li>Many of these features require your kernel to support Linux capabilities
+&lt;ul>
+&lt;li>To check for support, you can use the &lt;code>docker info&lt;/code> command&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="oome">OOME&lt;/h3>
+&lt;ul>
+&lt;li>On Linux hosts, if the kernel detects that there is not enough memory to perform important system functions, it throws an &lt;code>OOME&lt;/code>, or &lt;code>Out Of Memory Exception&lt;/code>, and starts killing processes to free up memory
+&lt;ul>
+&lt;li>一旦发生OOME 任何进程都有可能被杀死 包括docker daemon在内&lt;/li>
+&lt;li>为此 Docker特地调整了docker daemon的OOM优先级 以免它被内核&amp;quot;正法&amp;quot; 但容器优先级并为调整&lt;/li>
+&lt;li>&lt;code>Memory Hogs&lt;/code> &lt;code>OOM_ADJ&lt;/code> &lt;code>OOM_SCORE&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="limit-a-containers-access-to-memory">Limit a container’s access to memory&lt;/h4>
+&lt;ul>
+&lt;li>Docker can enforce hard memory limits, which allow the container to use no more than a given amount of user or system memory&lt;/li>
+&lt;li>or soft limits, which allow the container to use as much memory as it needs unless certain conditions are met, such as when the kernel detects low memory or contention on the host machine&lt;/li>
+&lt;li>Some of these options have different effects when used alone or when more than one option is set&lt;/li>
+&lt;li>Most of these options take a positive integer, followed by a suffix of &lt;code>b, k, m, g&lt;/code>, to indicate bytes, kilobytes, megabytes, or gigabytes&lt;/li>
+&lt;/ul>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Option&lt;/th>
+&lt;th>Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>-m&lt;/code> or &lt;code>--memory=&lt;/code>&lt;/td>
+&lt;td>The maximum amount of memory the container can use. If you set this option, the minimum allowed value is &lt;code>6m&lt;/code> (6 megabytes). That is, you must set the value to at least 6 megabytes.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--memory-swap *&lt;/code>&lt;/td>
+&lt;td>The amount of memory this container is allowed to swap to disk. See &lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/#--memory-swap-details" target="_blank" rel="noopener"
+>&lt;code>--memory-swap&lt;/code> details&lt;/a>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--memory-swappiness&lt;/code>&lt;/td>
+&lt;td>By default, the host kernel can swap out a percentage of anonymous pages used by a container. You can set &lt;code>--memory-swappiness&lt;/code> to a value between 0 and 100, to tune this percentage. See &lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/#--memory-swappiness-details" target="_blank" rel="noopener"
+>&lt;code>--memory-swappiness&lt;/code> details&lt;/a>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--memory-reservation&lt;/code>&lt;/td>
+&lt;td>Allows you to specify a soft limit smaller than &lt;code>--memory&lt;/code> which is activated when Docker detects contention or low memory on the host machine. If you use &lt;code>--memory-reservation&lt;/code>, it must be set lower than &lt;code>--memory&lt;/code> for it to take precedence. Because it is a soft limit, it does not guarantee that the container doesn’t exceed the limit.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--kernel-memory&lt;/code>&lt;/td>
+&lt;td>The maximum amount of kernel memory the container can use. The minimum allowed value is &lt;code>4m&lt;/code>. Because kernel memory cannot be swapped out, a container which is starved of kernel memory may block host machine resources, which can have side effects on the host machine and on other containers. See &lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/#--kernel-memory-details" target="_blank" rel="noopener"
+>&lt;code>--kernel-memory&lt;/code> details&lt;/a>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--oom-kill-disable&lt;/code>&lt;/td>
+&lt;td>By default, if an out-of-memory (OOM) error occurs, the kernel kills processes in a container. To change this behavior, use the &lt;code>--oom-kill-disable&lt;/code> option. Only disable the OOM killer on containers where you have also set the &lt;code>-m/--memory&lt;/code> option. If the &lt;code>-m&lt;/code> flag is not set, the host can run out of memory and the kernel may need to kill the host system’s processes to free memory.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="--memory-swap">&amp;ndash;memory-swap&lt;/h4>
+&lt;ul>
+&lt;li>Using swap allows the container to write excess memory requirements to disk when the container has exhausted all the RAM that is available to it&lt;/li>
+&lt;li>&lt;code>--memory-swap&lt;/code> is a modifier flag that only has meaning if &lt;code>--memory&lt;/code> is also set&lt;/li>
+&lt;/ul>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;code>--memory-swap&lt;/code>&lt;/th>
+&lt;th>&lt;code>--memory&lt;/code>&lt;/th>
+&lt;th>功能&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>正数S&lt;/td>
+&lt;td>正数M&lt;/td>
+&lt;td>容器可用总空间为S 其中ram为M swap为(S-M) 若S=M 则无可用swap资源&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>0&lt;/td>
+&lt;td>正数M&lt;/td>
+&lt;td>相当于未设置swap(unset)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>unset&lt;/td>
+&lt;td>正数M&lt;/td>
+&lt;td>若主机(Docker Host)启用了swap 则容器的可用swap为 2*M&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-1&lt;/td>
+&lt;td>正数M&lt;/td>
+&lt;td>若主机(Docker Host)启用了swap 则容器可使用最大至主机的所有swap空间的swap资源&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>⚠️ &lt;strong>注意:&lt;/strong> 在容器内使用free命令可以看到的swap空间 并不具有其所展示出的空间指示意义&lt;/p>
+&lt;h3 id="cpu">CPU&lt;/h3>
+&lt;p>&lt;a class="link" href="https://linux.cn/article-7325-1.html" target="_blank" rel="noopener"
+>深入Linux的进程优先级&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>By default, each container’s access to the host machine’s CPU cycles is unlimited&lt;/li>
+&lt;li>You can set various constraints to limit a given container’s access to the host machine’s CPU cycles&lt;/li>
+&lt;li>Most users use and configure the &lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/#configure-the-default-cfs-scheduler" target="_blank" rel="noopener"
+>default CFS scheduler&lt;/a>&lt;/li>
+&lt;li>You can also configure the &lt;a class="link" href="https://docs.docker.com/config/containers/resource_constraints/#configure-the-realtime-scheduler" target="_blank" rel="noopener"
+>realtime scheduler&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;h4 id="configure-the-default-cfs-scheduler">Configure the default CFS scheduler&lt;/h4>
+&lt;p>The CFS is the Linux kernel CPU scheduler for normal Linux processes. Several runtime flags allow you to configure the amount of access to CPU resources your container has. When you use these settings, Docker modifies the settings for the container’s cgroup on the host machine.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Option&lt;/th>
+&lt;th>Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>--cpus=&amp;lt;value&amp;gt;&lt;/code>&lt;/td>
+&lt;td>Specify how much of the available CPU resources a container can use. For instance, if the host machine has two CPUs and you set &lt;code>--cpus=&amp;quot;1.5&amp;quot;&lt;/code>, the container is guaranteed at most one and a half of the CPUs. This is the equivalent of setting &lt;code>--cpu-period=&amp;quot;100000&amp;quot;&lt;/code> and &lt;code>--cpu-quota=&amp;quot;150000&amp;quot;&lt;/code>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--cpu-period=&amp;lt;value&amp;gt;&lt;/code>&lt;/td>
+&lt;td>Specify the CPU CFS scheduler period, which is used alongside &lt;code>--cpu-quota&lt;/code>. Defaults to 100000 microseconds (100 milliseconds). Most users do not change this from the default. For most use-cases, &lt;code>--cpus&lt;/code> is a more convenient alternative.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--cpu-quota=&amp;lt;value&amp;gt;&lt;/code>&lt;/td>
+&lt;td>Impose a CPU CFS quota on the container. The number of microseconds per &lt;code>--cpu-period&lt;/code> that the container is limited to before throttled. As such acting as the effective ceiling. For most use-cases, &lt;code>--cpus&lt;/code> is a more convenient alternative.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--cpuset-cpus&lt;/code>&lt;/td>
+&lt;td>Limit the specific CPUs or cores a container can use. A comma-separated list or hyphen-separated range of CPUs a container can use, if you have more than one CPU. The first CPU is numbered 0. A valid value might be &lt;code>0-3&lt;/code> (to use the first, second, third, and fourth CPU) or &lt;code>1,3&lt;/code> (to use the second and fourth CPU).&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--cpu-shares&lt;/code>&lt;/td>
+&lt;td>Set this flag to a value greater or less than the default of 1024 to increase or reduce the container’s weight, and give it access to a greater or lesser proportion of the host machine’s CPU cycles. This is only enforced when CPU cycles are constrained. When plenty of CPU cycles are available, all containers use as much CPU as they need. In that way, this is a soft limit. &lt;code>--cpu-shares&lt;/code> does not prevent containers from being scheduled in swarm mode. It prioritizes container CPU resources for the available CPU cycles. It does not guarantee or reserve any specific CPU access.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># If you have 1 CPU, each of the following commands guarantees the container at most 50% of the CPU every second.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --cpus&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;.5&amp;#34;&lt;/span> ubuntu /bin/bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Which is the equivalent to manually specifying --cpu-period and --cpu-quota;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -it --cpu-period&lt;span class="o">=&lt;/span>&lt;span class="m">100000&lt;/span> --cpu-quota&lt;span class="o">=&lt;/span>&lt;span class="m">50000&lt;/span> ubuntu /bin/bash
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="测试">测试&lt;/h3>
+&lt;p>&lt;a class="link" href="https://hub.docker.com/r/polinux/stress" target="_blank" rel="noopener"
+>stress&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用stress镜像 进行测试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker run -ti --rm polinux/stress stress --cpu &lt;span class="m">1&lt;/span> --io &lt;span class="m">1&lt;/span> --vm &lt;span class="m">1&lt;/span> --vm-bytes 128M --timeout 1s --verbose
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 显示容器的运行进程&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker top CONTAINER
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 显示容器资源使用统计的实时流&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ docker stats
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MCP on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/mcp/</link><description>Recent content in MCP on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 10 Oct 2025 09:10:16 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/mcp/index.xml" rel="self" type="application/rss+xml"/><item><title>MCP</title><link>https://ilolicon.github.io/p/mcp/</link><pubDate>Fri, 10 Oct 2025 09:10:16 +0800</pubDate><guid>https://ilolicon.github.io/p/mcp/</guid><description>&lt;h2 id="简要介绍">简要介绍&lt;/h2>
+&lt;p>&lt;a class="link" href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener"
+>model-context-protocol&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://modelcontextprotocol.io/docs/getting-started/intro" target="_blank" rel="noopener"
+>mcp-intro&lt;/a>&lt;/p>
+&lt;hr>
+&lt;p>Model Context Protocol&lt;/p>
+&lt;p>模型 上下文 协议&lt;/p>
+&lt;hr>
+&lt;h3 id="用途">用途&lt;/h3>
+&lt;p>&lt;img src="https://ilolicon.github.io/icons/mcp-use.svg"
+loading="lazy"
+alt="w:1000"
+>&lt;/p>
+&lt;hr>
+&lt;h3 id="mcp-host">MCP Host&lt;/h3>
+&lt;ul>
+&lt;li>支持MCP协议的软件 比如：
+&lt;ul>
+&lt;li>Claude Code&lt;/li>
+&lt;li>Cursor&lt;/li>
+&lt;li>Cline&lt;/li>
+&lt;li>Gemini Cli&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/icons/mcp-host.svg"
+loading="lazy"
+alt="w:1000"
+>&lt;/p>
+&lt;hr>
+&lt;h3 id="mcp-server-和-tool">MCP Server 和 Tool&lt;/h3>
+&lt;ul>
+&lt;li>&lt;code>MCP Server&lt;/code>(MCP服务器)
+&lt;ul>
+&lt;li>不是传统意义上的服务器&lt;/li>
+&lt;li>本质就是一个程序，程序执行符合&lt;code>MCP&lt;/code>协议，内置了一些功能模块解决对应问题
+&lt;ul>
+&lt;li>功能模块 在MCP领域内叫：Tool(函数)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>大部分&lt;code>MCP Server&lt;/code>都是在本地通过Python或Node启动&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;img src="https://ilolicon.github.io/icons/clock.png"
+loading="lazy"
+alt="h:650"
+>&lt;/p>
+&lt;hr>
+&lt;p>&lt;a class="link" href="https://github.com/ezh0v/weather-mcp-server" target="_blank" rel="noopener"
+>weather-mcp-server&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">package&lt;/span> &lt;span class="nx">tools&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;github.com/mark3labs/mcp-go/mcp&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;github.com/mark3labs/mcp-go/server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;github.com/ezh0v/weather-mcp-server/internal/server/handlers&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;github.com/ezh0v/weather-mcp-server/internal/server/services&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">CurrentWeather&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">svc&lt;/span> &lt;span class="nx">services&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Services&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Tool&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">server&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">ToolHandlerFunc&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">tool&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">NewTool&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;current_weather&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">WithDescription&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">`
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> The service retrieves the current weather for a specified city and returns only HTML and CSS code designed
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> for displaying weather information directly on a canvas. No additional comments should be included after the response.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> It processes the city&amp;#39;s name, gathers weather data such as temperature, humidity, wind speed, and general weather conditions,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> and then generates a structured HTML layout along with appropriate CSS styles. This HTML must be rendered visually on the canvas.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> After receiving the response, the text inside the HTML should be translated into the language of the request.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> `&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">WithString&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;city&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Required&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">mcp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Description&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">`
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> The name of the city. This field is required and must be provided in English.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> Only one city is allowed, and it must be the last one provided by the user.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> `&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">handler&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">handlers&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">CurrentWeather&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">svc&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">tool&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">handler&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;hr>
+&lt;h3 id="mcp交互流程详解">MCP交互流程详解&lt;/h3></description></item></channel></rss>

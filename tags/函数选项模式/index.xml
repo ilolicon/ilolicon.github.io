@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>函数选项模式 on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9%E6%A8%A1%E5%BC%8F/</link><description>Recent content in 函数选项模式 on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 03 Sep 2021 12:36:16 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml"/><item><title>GO FUNCTIONAL OPTIONS</title><link>https://ilolicon.github.io/p/go-functional-options/</link><pubDate>Fri, 03 Sep 2021 12:36:16 +0800</pubDate><guid>https://ilolicon.github.io/p/go-functional-options/</guid><description>&lt;h2 id="配置选项问题">配置选项问题&lt;/h2>
+&lt;p>在我们编程中 我们会经常对一个对象(或是业务实体)进行相关的配置 比如下面这个业务实体&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">type&lt;/span> &lt;span class="nx">Server&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Addr&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Port&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Protocol&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">MaxConns&lt;/span> &lt;span class="kt">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">TLS&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在这个&lt;code>Server&lt;/code>对象中 我们可以看到：&lt;/p>
+&lt;ul>
+&lt;li>要有监听的地址&lt;code>Addr&lt;/code>和端口&lt;code>Port&lt;/code> 这两个选项是必须配置的(当然可以设置默认值 这里举例我们认为没有默认值且不能为空)&lt;/li>
+&lt;li>然后 还有协议&lt;code>Protocol&lt;/code> &lt;code>Timeout&lt;/code>和&lt;code>MaxConns&lt;/code>字段 这几个字段是不能为空的 但是可以有默认值
+&lt;ul>
+&lt;li>比如: 协议是&lt;code>tcp&lt;/code>超时&lt;code>30s&lt;/code>和最大连接数&lt;code>1024&lt;/code>个&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>还有一个&lt;code>TLS&lt;/code>安全链接 需要配置相关的证书和私钥 这个可以为空&lt;/li>
+&lt;/ul>
+&lt;p>针对上述这样的配置 我们需要有多种不同的创建配置&lt;code>Server&lt;/code>的函数签名 如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewDefaultServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">nil&lt;/span>&lt;span class="p">},&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewTLSServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">tls&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">tls&lt;/span>&lt;span class="p">},&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewServerWithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">timeout&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">nil&lt;/span>&lt;span class="p">},&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewTLSServerWithMaxConnAndTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">maxconns&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">tls&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">maxconns&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">tls&lt;/span>&lt;span class="p">},&lt;/span> &lt;span class="kc">nil&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>因为Go语言不支持重载函数 所以 你得用不同得函数名来应对不同的配置选项
+上面方案的缺点：&lt;/p>
+&lt;ul>
+&lt;li>创建太多的NewServer函数&lt;/li>
+&lt;li>代码冗余&lt;/li>
+&lt;li>可扩展性差&lt;/li>
+&lt;/ul>
+&lt;h2 id="配置对象方案分离可选项">配置对象方案(分离可选项)&lt;/h2>
+&lt;p>要解决上面的问题 最常见的方式是使用一个配置对象 如下所示：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">type&lt;/span> &lt;span class="nx">Config&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Protocol&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Maxconns&lt;/span> &lt;span class="kt">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">TLS&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>我们把那些非必须的选项都分离到一个结构体里 于是新的&lt;code>Server&lt;/code>对象如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">type&lt;/span> &lt;span class="nx">Server&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Addr&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Port&lt;/span> &lt;span class="kt">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Cfg&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>于是 我们只需要一个&lt;code>NewServer()&lt;/code>函数即可 在使用前需要构造&lt;code>Config&lt;/code>对象&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">cfg&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Config&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">error&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Using the default configuratrion
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nx">s&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">_&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;localhost&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">9000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">nil&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">cfg&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">ServerConfig&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nx">Protocol&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">Timeout&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">60&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">s&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">_&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;locahost&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">9000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">cfg&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面这种&lt;code>分离可选项&lt;/code>的方式 &lt;code>Config&lt;/code>对象并不是必须的 所以 你需要判断其是否是&lt;code>nil&lt;/code>或者是Empty&lt;code>Config{}&lt;/code>&lt;/p>
+&lt;h2 id="builder模式">Builder模式&lt;/h2>
+&lt;p>如果你是一个Java程序员 熟悉设计模式的一定会很自然的使用上Builder模式
+比如如下代码:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">User&lt;/span> &lt;span class="n">user&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Builder&lt;/span>&lt;span class="o">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">.&lt;/span>&lt;span class="na">name&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;ilolicon&amp;#34;&lt;/span>&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">.&lt;/span>&lt;span class="na">email&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;97431110@qq.com&amp;#34;&lt;/span>&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">.&lt;/span>&lt;span class="na">role&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;admin&amp;#34;&lt;/span>&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">.&lt;/span>&lt;span class="na">build&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>仿照上面这个模式 我们可以把上面的代码改写成如下代码(注：下面的代码没有考虑出错处理)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 使用一个builder类来做包装
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Server&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">Create&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Addr&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">addr&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Port&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">port&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 其他代码设置其他成员的模式值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">protocol&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Protocol&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">protocol&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">maxconns&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">MaxConns&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">maxconns&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Timeout&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">timeout&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">WithTLS&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">tls&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">TLS&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">tls&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">sb&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">Build&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nx">Server&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Server&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>于是 我们可以这样去使用：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">sb&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">ServerBuilder&lt;/span>&lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">server&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nx">sb&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Create&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">8080&lt;/span>&lt;span class="p">).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;udp&amp;#34;&lt;/span>&lt;span class="p">).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1024&lt;/span>&lt;span class="p">).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">).&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">Build&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面这样的方式也很清楚 不需要额外的&lt;code>Config&lt;/code>对象 使用链式的函数调用的方式来构造一个对象 只需要多增加一个Builder类&lt;/p>
+&lt;p>但是这个Builder类似乎有点多余 我们似乎可以直接在&lt;code>Server&lt;/code>上进行这样的Builder构造 事实也是如此 但是在处理错误的时候可能就有点麻烦(需要为&lt;code>Server&lt;/code>结构增加一个error成员 破坏了&lt;code>Server&lt;/code>结构体的&amp;quot;纯洁&amp;quot;) 不如一个包装类更好一些&lt;/p>
+&lt;p>如果我们想省掉这个包装的结构体 那就就轮到&lt;code>FUNCTIONAL OPTIONS&lt;/code> 函数式编程&lt;/p>
+&lt;h2 id="functional-options">Functional Options&lt;/h2>
+&lt;p>函数选项模式的实现 主要有两种&lt;/p>
+&lt;ul>
+&lt;li>基于闭包的实现&lt;/li>
+&lt;li>基于接口的实现&lt;/li>
+&lt;/ul>
+&lt;h3 id="基于闭包实现">基于闭包实现&lt;/h3>
+&lt;p>1.定义一个函数类型Option&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">type&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="kd">func&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>2.闭包的方式定义如下一组函数&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">proto&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">func&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Protocol&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">proto&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">func&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Timeout&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">timeout&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">maxConns&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">func&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">MaxConns&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">maxConns&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithTLS&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">tls&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">func&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">TLS&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">tls&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>以&lt;code>WithMaxConns()&lt;/code>函数为例 传入一个参数maxConns 返回一个函数 这个函数会将参数maxConns赋值给&lt;code>Server&lt;/code>对应的MaxConns字段&lt;/p>
+&lt;ul>
+&lt;li>当我们调用其中一个函数用&lt;code>WithMaxConns(30)&lt;/code>时&lt;/li>
+&lt;li>其返回值时一个 &lt;code>func(s *Server) {s.MaxConns = 30}&lt;/code>的函数&lt;/li>
+&lt;/ul>
+&lt;p>3.定义&lt;code>NewServer()&lt;/code>函数&lt;/p>
+&lt;p>函数参数是必填字段和可选字段(可变参数类型)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// NewServer先填上必须的字段 然后是可选字段
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">opts&lt;/span> &lt;span class="o">...&lt;/span>&lt;span class="nx">Option&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 创建Server对象并填写可选项的默认值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">s&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Addr&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Port&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Protocol&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Timeout&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">MaxConns&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">1024&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">TLS&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">nil&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 对选项列表中的每项用for-loop来设置Server对象属性
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="nx">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">option&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="k">range&lt;/span> &lt;span class="nx">opts&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">option&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">s&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>首先 &lt;code>NewServer()&lt;/code>函数当然opts是可变参数 可以传递上面的&lt;code>WithXXX()&lt;/code>一个或多个函数&lt;/li>
+&lt;li>然后 创建&lt;code>Server&lt;/code>对象 并填写可选项的默认值 如Timeout超时时间为30s&lt;/li>
+&lt;li>最后 for-loop循环opts可变参数 执行函数option去设置s对象中的各个属性&lt;/li>
+&lt;/ul>
+&lt;p>4.测试&lt;code>NewServer()&lt;/code>函数&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">8080&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fmt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Default Server: %v\n&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">8080&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;udp&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fmt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ServerWithProto: %v\n&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">8080&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;udp&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">5000&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fmt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ServerWithAll: %v\n&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ go run main.go
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Default Server : &lt;span class="p">&amp;amp;&lt;/span>&lt;span class="o">{&lt;/span>127.0.0.1 &lt;span class="m">8080&lt;/span> tcp 30s &lt;span class="m">1024&lt;/span> &amp;lt;nil&amp;gt;&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ServerWithProto: &lt;span class="p">&amp;amp;&lt;/span>&lt;span class="o">{&lt;/span>127.0.0.1 &lt;span class="m">8080&lt;/span> udp 30s &lt;span class="m">1024&lt;/span> &amp;lt;nil&amp;gt;&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ServerWithAll : &lt;span class="p">&amp;amp;&lt;/span>&lt;span class="o">{&lt;/span>127.0.0.1 &lt;span class="m">8080&lt;/span> udp 5s &lt;span class="m">5000&lt;/span> &amp;lt;nil&amp;gt;&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="基于接口实现">基于接口实现&lt;/h3>
+&lt;p>1.定义接口&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Server结构体
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">Server&lt;/span> &lt;span class="kd">struct&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Addr&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="c1">// 必填dd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">Port&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="c1">// 必填
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">Protocol&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="c1">// 非必填
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">Timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span> &lt;span class="c1">// 非必填
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">MaxConns&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="c1">// 非必填
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">TLS&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">tls&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Config&lt;/span> &lt;span class="c1">// 非必填 可以为空
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Option接口 定义需要实现的apply方法
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="kd">interface&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">apply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Option接口定义&lt;code>apply(server *Server)&lt;/code>方法 然后可选项需要实现接口&lt;/p>
+&lt;p>2.可选项实现接口&lt;/p>
+&lt;p>每个可选项都需要实现接口&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// ProtoOption 实现Option接口
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">ProtoOption&lt;/span> &lt;span class="kt">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">p&lt;/span> &lt;span class="nx">ProtoOption&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">apply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Protocol&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nb">string&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">p&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">proto&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nf">ProtoOption&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">proto&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// TimeoutOption 实现Option接口
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">TimeoutOption&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">t&lt;/span> &lt;span class="nx">TimeoutOption&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">apply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Timeout&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Duration&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">t&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">timeout&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Duration&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nf">TimeoutOption&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">timeout&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// MaxConnsOption 实现Option接口
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">type&lt;/span> &lt;span class="nx">MaxConnsOption&lt;/span> &lt;span class="kt">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">m&lt;/span> &lt;span class="nx">MaxConnsOption&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">apply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">MaxConns&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nb">int&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">m&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">maxConns&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nx">Option&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nf">MaxConnsOption&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">maxConns&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>以可选项protocol的ProtoOption为例：
+自定义类型ProtoOption实现Option接口的&lt;code>apply()&lt;/code>方法&lt;/p>
+&lt;p>3.封装函数将可选项包装为接口类型&lt;/p>
+&lt;p>提供&lt;code>WithProtocol()&lt;/code>函数将&lt;code>string&lt;/code>类型的proto转换为&lt;code>ProtoOption&lt;/code>类型
+方便以Option接口的形式传递给函数使用&lt;/p>
+&lt;p>4.定义&lt;code>NewServer()&lt;/code>函数&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">addr&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">port&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">opts&lt;/span> &lt;span class="o">...&lt;/span>&lt;span class="nx">Option&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="nx">Server&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 创建Server 并填写可选项的默认值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nx">s&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="nx">Server&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Addr&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nx">addr&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Port&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nx">port&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Protocol&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s">&amp;#34;udp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">Timeout&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">30&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">MaxConns&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">1024&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">TLS&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">nil&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="nx">_&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">opt&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="k">range&lt;/span> &lt;span class="nx">opts&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">opt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">apply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nx">s&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>for-loop循环opts可变参数 执行接口中的apply方法去设置s对象中的各个属性
+注意：s一定要传递&lt;strong>指针&lt;/strong> 否则无法修改对象属性&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">func&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">8080&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fmt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Default Server: %v\n&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">s&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="nf">NewServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">9999&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">WithMaxConns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">10240&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">WithTimeout&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">20&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="nx">time&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">Second&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">WithProtocol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tcp&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">fmt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ALL Server: %v\n&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">s&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-go" data-lang="go">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Default&lt;/span> &lt;span class="nx">Server&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="mf">127.0.0.1&lt;/span> &lt;span class="mi">8080&lt;/span> &lt;span class="nx">udp&lt;/span> &lt;span class="mi">30&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="mi">1024&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kc">nil&lt;/span>&lt;span class="p">&amp;gt;}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">ALL&lt;/span> &lt;span class="nx">Server&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="mf">127.0.0.1&lt;/span> &lt;span class="mi">9999&lt;/span> &lt;span class="nx">tcp&lt;/span> &lt;span class="mi">20&lt;/span>&lt;span class="nx">s&lt;/span> &lt;span class="mi">10240&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kc">nil&lt;/span>&lt;span class="p">&amp;gt;}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="总结">总结&lt;/h2>
+&lt;p>三种解决方法：&lt;/p>
+&lt;ul>
+&lt;li>配置对象(分离可选项)&lt;/li>
+&lt;li>Builder模式&lt;/li>
+&lt;li>函数选项模式(Functional Options) &lt;strong>使用较多&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>函数选项模式 优点：&lt;/p>
+&lt;ul>
+&lt;li>可读性强 将配置都转化为对应的函数项Option&lt;/li>
+&lt;li>扩展性好 新增参数只需要多增加一个方法&lt;/li>
+&lt;/ul>
+&lt;h2 id="参考文档">参考文档&lt;/h2>
+&lt;p>&lt;a class="link" href="https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html" target="_blank" rel="noopener"
+>Self-referential functions and the design of options&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://coolshell.cn/articles/21146.html" target="_blank" rel="noopener"
+>GO 编程模式：FUNCTIONAL OPTIONS&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://zhuanlan.zhihu.com/p/472113355?utm_source=wechat_session&amp;amp;utm_medium=social&amp;amp;utm_oi=27697422008320&amp;amp;utm_campaign=shareopn&amp;amp;s_r=0" target="_blank" rel="noopener"
+>深入浅出 Golang函数选项编程模式&lt;/a>&lt;/p></description></item></channel></rss>

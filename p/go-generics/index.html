@@ -1,0 +1,250 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Go泛型."><title>GO Generics</title><link rel=canonical href=https://ilolicon.github.io/p/go-generics/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="GO Generics"><meta property="og:description" content="Go泛型."><meta property="og:url" content="https://ilolicon.github.io/p/go-generics/"><meta property="og:site_name" content="ilolicon's Blog"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Golang"><meta property="article:tag" content="Generics"><meta property="article:tag" content="泛型"><meta property="article:published_time" content="2025-09-30T18:36:16+08:00"><meta property="article:modified_time" content="2025-09-30T18:36:16+08:00"><meta name=twitter:title content="GO Generics"><meta name=twitter:description content="Go泛型."><link rel="shortcut icon" href=/img/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu96a5ab8e0364e843af4687201b687892_162934_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ilolicon's Blog</a></h1><h2 class=site-description>Keep Calm and Carry On.</h2></div></header><ol class=social-menu><li><a href=https://github.com/ilolicon target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#go-泛型终极指南定义与最佳实践>Go 泛型终极指南：定义与最佳实践</a></li><li><a href=#什么是-go-泛型>什么是 Go 泛型？</a><ol><li><a href=#为什么需要泛型>为什么需要泛型？</a></li></ol></li><li><a href=#泛型语法核心>泛型语法核心</a><ol><li><a href=#类型参数-type-parameters>类型参数 (Type Parameters)</a></li><li><a href=#类型约束-type-constraints>类型约束 (Type Constraints)</a></li><li><a href=#泛型函数>泛型函数</a></li><li><a href=#泛型类型>泛型类型</a></li></ol></li><li><a href=#类型约束进阶>类型约束进阶</a><ol><li><a href=#预声明的约束any-和-comparable>预声明的约束：<code>any</code> 和 <code>comparable</code></a></li><li><a href=#接口作为约束>接口作为约束</a></li><li><a href=#自定义约束>自定义约束</a></li></ol></li><li><a href=#最佳实践>最佳实践</a><ol><li><a href=#何时应该使用泛型>何时应该使用泛型？</a></li><li><a href=#何时不应该使用泛型>何时不应该使用泛型？</a></li><li><a href=#约束应尽可能严格>约束应尽可能严格</a></li><li><a href=#优先使用-any-而非-interface>优先使用 <code>any</code> 而非 <code>interface{}</code></a></li><li><a href=#让编译器推断类型参数>让编译器推断类型参数</a></li></ol></li><li><a href=#常见误区与限制>常见误区与限制</a></li><li><a href=#官方资源链接>官方资源链接</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/golang/ style=background-color:#38a8d2;color:#fff>Golang</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/go-generics/>GO Generics</a></h2><h3 class=article-subtitle>Go泛型.</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Sep 30, 2025</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 4 分钟</time></div></footer></div></header><section class=article-content><h2 id=go-泛型终极指南定义与最佳实践>Go 泛型终极指南：定义与最佳实践</h2><p>本文档旨在为熟悉 Go 语言但尚未使用过泛型的开发者提供一份详尽的泛型学习指南。我们将从基本定义入手，深入探讨语法细节，并总结出社区公认的最佳实践，帮助您在项目中优雅、高效地运用泛型。</p><hr><h2 id=什么是-go-泛型>什么是 Go 泛型？</h2><p>Go 泛型（Generics）是 Go 1.18 版本引入的一个重要特性，它允许我们编写能够处理多种数据类型的函数和数据结构，而无需为每种类型都编写重复的代码。通过泛型，我们可以定义带有<strong>类型参数</strong>（Type Parameters）的函数或类型，这些类型参数在编译时会被具体的类型替换。</p><p>泛型的核心优势在于：</p><ul><li><strong>代码复用</strong>：编写一次，即可用于多种类型。</li><li><strong>类型安全</strong>：在编译期进行类型检查，避免了使用 <code>interface{}</code> 时可能出现的运行时类型断言失败。</li><li><strong>性能</strong>：避免了因使用 <code>interface{}</code> 和反射而带来的性能开销。</li></ul><blockquote><p><strong>官方链接</strong>: <a class=link href=https://go.dev/blog/generics target=_blank rel=noopener>An Introduction to Generics - go.dev</a></p></blockquote><h3 id=为什么需要泛型>为什么需要泛型？</h3><p>在泛型出现之前，为了编写处理不同类型的通用代码，通常有两种方式：</p><ol><li><strong>为每种类型编写一份代码</strong>：这会导致大量的代码重复，难以维护。</li><li><strong>使用接口 (<code>interface{}</code>) 和反射</strong>：虽然灵活，但牺牲了编译期的类型安全，且通常伴随着性能损耗。</li></ol><p>泛型通过在编译期进行类型检查和代码生成，完美地解决了上述问题，让我们能够编写出既通用又安全高效的代码。</p><h2 id=泛型语法核心>泛型语法核心</h2><p>Go 泛型的语法主要围绕<strong>类型参数</strong>和<strong>类型约束</strong>展开。</p><h3 id=类型参数-type-parameters>类型参数 (Type Parameters)</h3><p>类型参数是泛型的核心，它充当一个未指定类型的占位符。类型参数列表定义在函数名或类型名后的方括号 <code>[]</code> 中。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span> <span class=nx>PrintSlice</span><span class=p>[</span><span class=nx>T</span> <span class=nx>any</span><span class=p>](</span><span class=nx>s</span> <span class=p>[]</span><span class=nx>T</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>T</code> 就是一个类型参数。</li><li><code>any</code> 是一个类型约束，表示 <code>T</code> 可以是任何类型。</li></ul><h3 id=类型约束-type-constraints>类型约束 (Type Constraints)</h3><p>类型约束定义了类型参数可以接受的类型范围。它本质上是一个接口类型，规定了类型参数必须满足的条件（例如，必须实现某些方法或支持某些操作）。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 一个简单的约束，要求类型支持 + 操作
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Number</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=p>|</span> <span class=kt>int64</span> <span class=p>|</span> <span class=kt>float64</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// SumNumbers 函数的类型参数 T 必须满足 Number 约束
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>SumNumbers</span><span class=p>[</span><span class=nx>T</span> <span class=nx>Number</span><span class=p>](</span><span class=nx>nums</span> <span class=p>[]</span><span class=nx>T</span><span class=p>)</span> <span class=nx>T</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p><strong>官方链接</strong>: <a class=link href=https://go.dev/doc/tutorial/generics target=_blank rel=noopener>Tutorial: Getting started with generics - go.dev</a></p></blockquote><h3 id=泛型函数>泛型函数</h3><p>泛型函数是指定义了类型参数的函数。</p><p><strong>示例：一个通用的 <code>Sum</code> 函数</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>main</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;fmt&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Number 约束允许整数和浮点数类型
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Number</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=p>|</span> <span class=kt>int64</span> <span class=p>|</span> <span class=kt>float32</span> <span class=p>|</span> <span class=kt>float64</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Sum 计算一个切片中所有元素的和
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>Sum</span><span class=p>[</span><span class=nx>T</span> <span class=nx>Number</span><span class=p>](</span><span class=nx>s</span> <span class=p>[]</span><span class=nx>T</span><span class=p>)</span> <span class=nx>T</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>var</span> <span class=nx>total</span> <span class=nx>T</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>_</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>s</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>total</span> <span class=o>+=</span> <span class=nx>v</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>total</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>intSlice</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>int</span><span class=p>{</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;Sum of ints:&#34;</span><span class=p>,</span> <span class=nf>Sum</span><span class=p>(</span><span class=nx>intSlice</span><span class=p>))</span> <span class=c1>// 7
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=nx>floatSlice</span> <span class=o>:=</span> <span class=p>[]</span><span class=kt>float64</span><span class=p>{</span><span class=mf>1.1</span><span class=p>,</span> <span class=mf>2.2</span><span class=p>,</span> <span class=mf>3.3</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;Sum of floats:&#34;</span><span class=p>,</span> <span class=nf>Sum</span><span class=p>(</span><span class=nx>floatSlice</span><span class=p>))</span> <span class=c1>// 6.6
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=泛型类型>泛型类型</h3><p>泛型类型是指定义了类型参数的结构体、接口等。这对于创建通用的数据结构（如链表、栈、队列）非常有用。</p><p><strong>示例：一个通用的 <code>Stack</code> 类型</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>main</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;fmt&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Stack 是一个后进先出的泛型数据结构
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Stack</span><span class=p>[</span><span class=nx>T</span> <span class=nx>any</span><span class=p>]</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>elements</span> <span class=p>[]</span><span class=nx>T</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Stack</span><span class=p>[</span><span class=nx>T</span><span class=p>])</span> <span class=nf>Push</span><span class=p>(</span><span class=nx>value</span> <span class=nx>T</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span><span class=p>.</span><span class=nx>elements</span> <span class=p>=</span> <span class=nb>append</span><span class=p>(</span><span class=nx>s</span><span class=p>.</span><span class=nx>elements</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>s</span> <span class=o>*</span><span class=nx>Stack</span><span class=p>[</span><span class=nx>T</span><span class=p>])</span> <span class=nf>Pop</span><span class=p>()</span> <span class=p>(</span><span class=nx>T</span><span class=p>,</span> <span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=nx>s</span><span class=p>.</span><span class=nx>elements</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>var</span> <span class=nx>zero</span> <span class=nx>T</span> <span class=c1>// 声明一个 T 类型的零值
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nx>zero</span><span class=p>,</span> <span class=kc>false</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>lastIndex</span> <span class=o>:=</span> <span class=nb>len</span><span class=p>(</span><span class=nx>s</span><span class=p>.</span><span class=nx>elements</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=nx>value</span> <span class=o>:=</span> <span class=nx>s</span><span class=p>.</span><span class=nx>elements</span><span class=p>[</span><span class=nx>lastIndex</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=nx>s</span><span class=p>.</span><span class=nx>elements</span> <span class=p>=</span> <span class=nx>s</span><span class=p>.</span><span class=nx>elements</span><span class=p>[:</span><span class=nx>lastIndex</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>value</span><span class=p>,</span> <span class=kc>true</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>intStack</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>Stack</span><span class=p>[</span><span class=kt>int</span><span class=p>]{}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>intStack</span><span class=p>.</span><span class=nf>Push</span><span class=p>(</span><span class=mi>10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>intStack</span><span class=p>.</span><span class=nf>Push</span><span class=p>(</span><span class=mi>20</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>val</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nx>intStack</span><span class=p>.</span><span class=nf>Pop</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>val</span><span class=p>)</span> <span class=c1>// 20
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=nx>stringStack</span> <span class=o>:=</span> <span class=o>&amp;</span><span class=nx>Stack</span><span class=p>[</span><span class=kt>string</span><span class=p>]{}</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stringStack</span><span class=p>.</span><span class=nf>Push</span><span class=p>(</span><span class=s>&#34;hello&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>stringStack</span><span class=p>.</span><span class=nf>Push</span><span class=p>(</span><span class=s>&#34;world&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nx>strVal</span><span class=p>,</span> <span class=nx>_</span> <span class=o>:=</span> <span class=nx>stringStack</span><span class=p>.</span><span class=nf>Pop</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>strVal</span><span class=p>)</span> <span class=c1>// &#34;world&#34;
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=类型约束进阶>类型约束进阶</h2><h3 id=预声明的约束any-和-comparable>预声明的约束：<code>any</code> 和 <code>comparable</code></h3><p>Go 语言内置了两个非常有用的约束：</p><ul><li><strong><code>any</code></strong>: 它是 <code>interface{}</code> 的别名，表示允许任何类型。这是最宽松的约束。</li><li><strong><code>comparable</code></strong>: 这个约束包含了所有可以使用 <code>==</code> 和 <code>!=</code> 进行比较的类型，例如数字、字符串、指针、数组等。注意，切片、map 和函数类型不满足 <code>comparable</code> 约束。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// Find 函数在任何可比较类型的切片中查找元素
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>Find</span><span class=p>[</span><span class=nx>T</span> <span class=nx>comparable</span><span class=p>](</span><span class=nx>slice</span> <span class=p>[]</span><span class=nx>T</span><span class=p>,</span> <span class=nx>value</span> <span class=nx>T</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>i</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>slice</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nx>v</span> <span class=o>==</span> <span class=nx>value</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nx>i</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>-</span><span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p><strong>官方链接</strong>: <a class=link href=https://go.dev/ref/spec%23Type_constraints target=_blank rel=noopener>The Go Programming Language Specification - Type constraints</a></p></blockquote><h3 id=接口作为约束>接口作为约束</h3><p>任何接口类型都可以作为约束。如果一个类型参数使用了某个接口作为约束，那么所有传入的类型实参都必须实现了该接口。</p><p><strong>示例：使用 <code>fmt.Stringer</code> 作为约束</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;fmt&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Stringify 函数将任何实现了 String() 方法的类型转换为字符串切片
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>Stringify</span><span class=p>[</span><span class=nx>T</span> <span class=nx>fmt</span><span class=p>.</span><span class=nx>Stringer</span><span class=p>](</span><span class=nx>s</span> <span class=p>[]</span><span class=nx>T</span><span class=p>)</span> <span class=p>[]</span><span class=kt>string</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>result</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=kt>string</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=nx>s</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>i</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>s</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>result</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span> <span class=p>=</span> <span class=nx>v</span><span class=p>.</span><span class=nf>String</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>result</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=自定义约束>自定义约束</h3><p>我们可以通过定义一个接口来创建自定义的约束。这个接口可以包含：</p><ul><li><strong>方法集</strong>：要求类型参数必须实现的方法。</li><li><strong>类型联合（Union）</strong>：使用 <code>|</code> 来列举一组允许的类型。</li><li><strong>底层类型约束（Underlying Type Constraints）</strong>：使用 <code>~</code> 符号，表示不仅可以是该类型，也可以是所有以该类型为底层类型的自定义类型。</li></ul><p><strong>示例：自定义 <code>Numeric</code> 约束</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 自定义类型
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>MyInt</span> <span class=kt>int</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Numeric 约束包含了所有整数和浮点数类型，
+</span></span></span><span class=line><span class=cl><span class=c1>// 以及它们的底层类型
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>type</span> <span class=nx>Numeric</span> <span class=kd>interface</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=err>~</span><span class=kt>int</span> <span class=p>|</span> <span class=err>~</span><span class=kt>int64</span> <span class=p>|</span> <span class=err>~</span><span class=kt>float64</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nx>Scale</span><span class=p>[</span><span class=nx>T</span> <span class=nx>Numeric</span><span class=p>](</span><span class=nx>s</span> <span class=p>[]</span><span class=nx>T</span><span class=p>,</span> <span class=nx>factor</span> <span class=nx>T</span><span class=p>)</span> <span class=p>[]</span><span class=nx>T</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nx>result</span> <span class=o>:=</span> <span class=nb>make</span><span class=p>([]</span><span class=nx>T</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=nx>s</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=nx>i</span><span class=p>,</span> <span class=nx>v</span> <span class=o>:=</span> <span class=k>range</span> <span class=nx>s</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nx>result</span><span class=p>[</span><span class=nx>i</span><span class=p>]</span> <span class=p>=</span> <span class=nx>v</span> <span class=o>*</span> <span class=nx>factor</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nx>result</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=最佳实践>最佳实践</h2><h3 id=何时应该使用泛型>何时应该使用泛型？</h3><ol><li><strong>处理通用数据结构</strong>：当你需要实现一个适用于多种元素类型的数据结构时（如链表、二叉树、堆），泛型是理想选择。</li><li><strong>操作通用集合</strong>：当函数需要对切片（slices）、映射（maps）或通道（channels）进行操作，且操作逻辑与元素类型无关时（例如，<code>map</code>、<code>filter</code>、<code>reduce</code> 等函数）。</li><li><strong>实现通用算法</strong>：例如排序、查找等，这些算法的逻辑通常是类型无关的。</li></ol><blockquote><p><strong>官方链接</strong>: <a class=link href=https://go.dev/blog/when-to-use-generics target=_blank rel=noopener>When to use generics - go.dev</a></p></blockquote><h3 id=何时不应该使用泛型>何时不应该使用泛型？</h3><ol><li><strong>当接口能解决问题时</strong>：如果函数的逻辑依赖于类型的特定行为（方法），使用接口通常更清晰、更符合 Go 的习惯。例如，<code>io.Reader</code> 就是一个很好的例子，我们关心的是“能读”这个行为，而不是具体的类型。</li><li><strong>代码的可读性降低时</strong>：不要为了泛型而泛型。如果泛型使得代码变得过于复杂和难以理解，那么传统的函数或接口可能是更好的选择。</li><li><strong>不同类型的实现逻辑不同时</strong>：如果一个函数对不同类型的处理逻辑完全不同，那么泛型并不适用。此时应该为每种类型编写独立的函数。</li></ol><h3 id=约束应尽可能严格>约束应尽可能严格</h3><p>为类型参数选择最严格、最精确的约束。这能提高类型安全，并在编译时捕获更多的错误，同时也能让函数体内的可用操作更加明确。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 不好：约束过于宽松，v == value 会在编译时报错
+</span></span></span><span class=line><span class=cl><span class=c1>// func Find[T any](slice []T, value T) int { ... }
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 好：使用 comparable 约束，明确告知编译器 T 支持 == 操作
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nx>Find</span><span class=p>[</span><span class=nx>T</span> <span class=nx>comparable</span><span class=p>](</span><span class=nx>slice</span> <span class=p>[]</span><span class=nx>T</span><span class=p>,</span> <span class=nx>value</span> <span class=nx>T</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span> <span class=o>...</span> <span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=优先使用-any-而非-interface>优先使用 <code>any</code> 而非 <code>interface{}</code></h3><p>在泛型代码中，<code>any</code> 是 <code>interface{}</code> 的官方别名。使用 <code>any</code> 能够更清晰地表达“可以是任何类型”的意图。</p><h3 id=让编译器推断类型参数>让编译器推断类型参数</h3><p>在调用泛型函数时，Go 编译器通常能够根据传入的参数自动推断出类型参数。你应该利用这一点来保持代码的简洁。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 显式指定类型参数（通常不需要）
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nx>Sum</span><span class=p>[</span><span class=kt>int</span><span class=p>]([]</span><span class=kt>int</span><span class=p>{</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 推荐：让编译器自动推断
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nf>Sum</span><span class=p>([]</span><span class=kt>int</span><span class=p>{</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=常见误区与限制>常见误区与限制</h2><ol><li><strong>类型参数不能作为方法的接收者</strong>：你不能在一个类型的方法上定义它自己的类型参数。类型参数必须定义在类型本身上。</li><li><strong>谨慎处理泛型类型的零值</strong>：泛型函数中 <code>var zero T</code> 的值取决于 <code>T</code> 的具体类型。对于指针、切片等引用类型，零值是 <code>nil</code>；对于数值类型，零值是 <code>0</code>。要意识到这一点，避免潜在的 <code>nil</code> 指针解引用等问题。</li><li><strong>不能在 <code>type switch</code> 中直接使用类型参数</strong>：你不能直接对一个类型为 <code>T</code> 的变量使用 <code>type switch</code>。需要先将其转换为空接口 <code>any</code>。</li></ol><h2 id=官方资源链接>官方资源链接</h2><ul><li><strong>官方入门教程</strong>: <a class=link href=https://go.dev/doc/tutorial/generics target=_blank rel=noopener>Tutorial: Getting started with generics</a></li><li><strong>官方博客介绍</strong>: <a class=link href="https://www.google.com/search?q=https://go.dev/blog/generics" target=_blank rel=noopener>An Introduction To Generics</a></li><li><strong>何时使用泛型</strong>: <a class=link href="https://www.google.com/search?q=https://go.dev/blog/when-to-use-generics" target=_blank rel=noopener>When To Use Generics</a></li><li><strong>语言规范</strong>: <a class=link href="https://www.google.com/search?q=https://go.dev/ref/spec%23Type_parameters" target=_blank rel=noopener>The Go Programming Language Specification - Type parameters</a></li><li><strong>常见问题解答</strong>: <a class=link href="https://www.google.com/search?q=https://go.dev/doc/faq%23generics" target=_blank rel=noopener>Go Frequently Asked Questions (FAQ) - Generics</a></li></ul></section><footer class=article-footer><section class=article-tags><a href=/tags/golang/>Golang</a>
+<a href=/tags/generics/>Generics</a>
+<a href=/tags/%E6%B3%9B%E5%9E%8B/>泛型</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/go-design-patterns/><div class=article-details><h2 class=article-title>GO DESIGN PATTERNS</h2></div></a></article><article><a href=/p/go-functional-options/><div class=article-details><h2 class=article-title>GO FUNCTIONAL OPTIONS</h2></div></a></article><article><a href=/p/golang/><div class=article-details><h2 class=article-title>Golang</h2></div></a></article></div></div></aside><script src=https://utteranc.es/client.js repo=ilolicon/ilolicon.github.io issue-term=pathname crossorigin=anonymous async></script><style>.utterances{max-width:unset}</style><script>let utterancesLoaded=!1;function setUtterancesTheme(e){let t=document.querySelector(".utterances iframe");t&&t.contentWindow.postMessage({type:"set-theme",theme:`github-${e}`},"https://utteranc.es")}addEventListener("message",e=>{if(e.origin!=="https://utteranc.es")return;utterancesLoaded=!0,setUtterancesTheme(document.documentElement.dataset.scheme)}),window.addEventListener("onColorSchemeChange",e=>{if(!utterancesLoaded)return;setUtterancesTheme(e.detail)})</script><footer class=site-footer><section class=copyright>&copy;
+2017 -
+2025 ilolicon's Blog</section><section class=powerby>Vicissitude🐳<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.21.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
