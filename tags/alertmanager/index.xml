@@ -1,0 +1,1659 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Alertmanager on ilolicon's Blog</title><link>https://ilolicon.github.io/tags/alertmanager/</link><description>Recent content in Alertmanager on ilolicon's Blog</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Thu, 10 Dec 2020 21:36:00 +0800</lastBuildDate><atom:link href="https://ilolicon.github.io/tags/alertmanager/index.xml" rel="self" type="application/rss+xml"/><item><title>Prometheus</title><link>https://ilolicon.github.io/p/prometheus/</link><pubDate>Thu, 10 Dec 2020 21:36:00 +0800</pubDate><guid>https://ilolicon.github.io/p/prometheus/</guid><description>&lt;h2 id="prometheus监控系统">Prometheus监控系统&lt;/h2>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/introduction/overview/" target="_blank" rel="noopener"
+>&lt;img src="https://img.shields.io/badge/prometheus-v2.x&amp;#43;-E44F34"
+loading="lazy"
+alt="prometheus"
+>&lt;/a>&lt;/p>
+&lt;p>不稳定才是系统的恒态 稳定只是其中的一种特殊表现形式&lt;/p>
+&lt;h2 id="监控系统的基础概念">监控系统的基础概念&lt;/h2>
+&lt;h3 id="监控系统组件">监控系统组件&lt;/h3>
+&lt;ul>
+&lt;li>指标数据的采集(抓取)&lt;/li>
+&lt;li>指标数据存储
+&lt;ul>
+&lt;li>存储持续写入性能&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>指标数据趋势分析及可视化
+&lt;ul>
+&lt;li>分析、预测&lt;/li>
+&lt;li>界面展示、直观查看
+&lt;ul>
+&lt;li>Zabbix自带&lt;/li>
+&lt;li>Open-Falcon/夜莺&amp;hellip;&lt;/li>
+&lt;li>通用的前台界面 如: Grafana&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>告警
+&lt;ul>
+&lt;li>基础、核心功能之一&lt;/li>
+&lt;li>表达式 -〉媒介(钉钉、微信、邮件&amp;hellip;)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="监控体系自底向上">监控体系(自底向上)&lt;/h3>
+&lt;ul>
+&lt;li>系统层监控(关键指标)
+&lt;ul>
+&lt;li>系统监控
+&lt;ul>
+&lt;li>CPU&lt;/li>
+&lt;li>Load&lt;/li>
+&lt;li>Memory&lt;/li>
+&lt;li>Swap&lt;/li>
+&lt;li>DiskIO&lt;/li>
+&lt;li>Processes&lt;/li>
+&lt;li>Kernel Parameters&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>网络监控
+&lt;ul>
+&lt;li>网络设备&lt;/li>
+&lt;li>工作负载&lt;/li>
+&lt;li>网络延迟&lt;/li>
+&lt;li>丢包率&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>中间件及基础设施类系统监控
+&lt;ul>
+&lt;li>消息中间件: Kafka、RocketMQ、RabbitMQ等&lt;/li>
+&lt;li>Web服务容器: Tomcat、Jetty等&lt;/li>
+&lt;li>数据库及缓存系统: MySQL、PostgreSQL、MongoDB、ElasticSearch、Redis等&lt;/li>
+&lt;li>存储系统: Ceph等&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>应用层监控
+&lt;ul>
+&lt;li>用于衡量应用程序代码的状态和性能&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>业务层监控
+&lt;ul>
+&lt;li>用于衡量应用程序的价值(销售指标等)&lt;/li>
+&lt;li>QPS、DAU日活、转化率&lt;/li>
+&lt;li>业务接口: 登陆数、注册数、订单量、支付量、搜索量等&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="云原生时代的可观测性">云原生时代的可观测性&lt;/h3>
+&lt;p>&lt;a class="link" href="https://landscape.cncf.io/" target="_blank" rel="noopener"
+>&lt;img src="https://img.shields.io/badge/Landscape-Guide-1081c2"
+loading="lazy"
+alt="CNCF Cloud Native Interactive Landscape"
+>&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>可观测性系统&lt;/p>
+&lt;ul>
+&lt;li>指标监控(Metrics): 随时间推移产生的一些与监控相关的可聚合数据点&lt;/li>
+&lt;li>日志监控(Logging): 离散式的日志或事件(&lt;code>结构化&lt;/code>)&lt;/li>
+&lt;li>链路跟踪(Tracing): 分布式应用调用链跟踪(调用时长/性能)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>CNCF将&lt;code>可观测性&lt;/code>和&lt;code>数据分析&lt;/code>归类为一个单独的类别 划分成了5个子类&lt;/p>
+&lt;ul>
+&lt;li>监控系统&lt;/li>
+&lt;li>日志系统&lt;/li>
+&lt;li>分布式调用链跟踪系统&lt;/li>
+&lt;li>混沌工程系统: 结合监控系统提前发现问题&lt;/li>
+&lt;li>持续优化&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Prometheus仅仅是可观测性中的一个纬度(指标监控)中的一个代表&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="著名的监控方法论">著名的监控方法论&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Google的四个黄金指标&lt;/p>
+&lt;ul>
+&lt;li>常用于在服务级别帮助衡量终端用户体验、服务中断、业务影响等层面的问题&lt;/li>
+&lt;li>适用于应用及服务监控&lt;/li>
+&lt;li>四个黄金指标
+&lt;ul>
+&lt;li>延迟(Latency)
+&lt;ul>
+&lt;li>服务请求所需要的时长 如: HTTP请求平均延迟&lt;/li>
+&lt;li>需要区分失败请求和成功请求&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>流量(Traffic)
+&lt;ul>
+&lt;li>衡量服务的容量需求 如: 每秒处理的HTTP1请求数 数据库系统的事务数量&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>错误(Errors)
+&lt;ul>
+&lt;li>请求失败的速率 用于衡量错误发生的情况&lt;/li>
+&lt;li>显示失败(HTTP500) 隐式失败(返回错误内容/无效内容) 策略原因导致的失败(响应时间超过30ms请求视为失败)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>饱和度(Saturation): 服务受限资源
+&lt;ul>
+&lt;li>衡量资源的使用情况 用于表达程序有多&lt;strong>满&lt;/strong>&lt;/li>
+&lt;li>如: CPU 内存 I/O 磁盘等资源的使用情况(NodeExporter)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Netflix的USE方法&lt;/p>
+&lt;ul>
+&lt;li>主要用于分析系统性能问题 指导用户快速识别资源瓶颈以及错误的方法&lt;/li>
+&lt;li>应用于主机指标监控&lt;/li>
+&lt;li>USE
+&lt;ul>
+&lt;li>使用率(Utilization)
+&lt;ul>
+&lt;li>关注资源的使用情况 主要包括但不限于CPU 内存 网络 磁盘等&lt;/li>
+&lt;li>100%的使用率通常是系统性能瓶颈的标志&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>饱和度(Saturation)
+&lt;ul>
+&lt;li>如CPU的平均运行排队长度&lt;/li>
+&lt;li>任何资源在某种程度上的饱和都可能导致系统性能的下降&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>错误(Error)
+&lt;ul>
+&lt;li>错误计数&lt;/li>
+&lt;li>如: 网卡在数据包传输过程中检测到的以太网网络冲突了14次&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Weave Cloud的RED方法&lt;/p>
+&lt;ul>
+&lt;li>Weave Cloud基于Google的四个黄金指标的原则下 结合Prometheus以及Kubernetes容器实践 细化和总结的方法论 特别适合云原生应用以及微服务架构应用的监控和度量&lt;/li>
+&lt;li>在四大黄金指标的原则下 RED方法可以有效的帮助用户衡量云原生以及微服务应用下的用户体验问题&lt;/li>
+&lt;li>RED方法主要关注以下三种指标
+&lt;ul>
+&lt;li>(Request)Rate: 每秒钟接收的请求数&lt;/li>
+&lt;li>(Request)Errors: 每秒失败的请求数&lt;/li>
+&lt;li>(Request)Duration: 每个请求所花费的时长&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="prometheus入门">Prometheus入门&lt;/h2>
+&lt;h3 id="what-is-prometheus-monitoring">What is Prometheus Monitoring&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus是一个&lt;strong>时序(Time Series)数据库&lt;/strong> 但它的功能却并非止步于TSDB 而是一款设计用于进行目标(&lt;strong>Target&lt;/strong>)监控的关键组件&lt;/li>
+&lt;li>结合其生态内的其他组件 如: Pushgateway Alertmanager Grafana等 可构成一个完整的IT监控系统&lt;/li>
+&lt;/ul>
+&lt;h3 id="时序数据简介">时序数据简介&lt;/h3>
+&lt;ul>
+&lt;li>时序数据是在一段时间内通过重复测量(measurement)而获得的观测值的集合&lt;/li>
+&lt;li>将这些观测值绘制于图形之上 它会有一个数据轴和一个&lt;strong>时间轴&lt;/strong>&lt;/li>
+&lt;li>服务器指标数据、应用程序性能监控数据、网络数据等也都是时序数据&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/time-series.jpeg"
+width="1080"
+height="527"
+srcset="https://ilolicon.github.io/p/prometheus/icons/time-series_hu803ead4c5eed63ad2ab2a959a20373a2_57351_480x0_resize_q75_box.jpeg 480w, https://ilolicon.github.io/p/prometheus/icons/time-series_hu803ead4c5eed63ad2ab2a959a20373a2_57351_1024x0_resize_q75_box.jpeg 1024w"
+loading="lazy"
+alt="time-series"
+class="gallery-image"
+data-flex-grow="204"
+data-flex-basis="491px"
+>&lt;/p>
+&lt;h3 id="what-does-prometheus-do">What does Prometheus do&lt;/h3>
+&lt;ul>
+&lt;li>基于HTTP call 从配置文件中指定的网络端点(Endpoint)上周期性获取指标数据&lt;/li>
+&lt;li>最简单的逻辑如下图&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/what-does-prometheus-do.png"
+width="1245"
+height="742"
+srcset="https://ilolicon.github.io/p/prometheus/icons/what-does-prometheus-do_hub489a8c721d86275837a2f750a47c779_104121_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/what-does-prometheus-do_hub489a8c721d86275837a2f750a47c779_104121_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="what-does-prometheus-do"
+class="gallery-image"
+data-flex-grow="167"
+data-flex-basis="402px"
+>&lt;/p>
+&lt;h3 id="how-does-prometheus-work">How does Prometheus work&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus支持通过三种类型的途径从目标上&lt;strong>抓取(Scrape)&lt;/strong> 指标数据
+&lt;ul>
+&lt;li>Exporters&lt;/li>
+&lt;li>Instrumentation(测量系统 内建Prometheus兼容的指标暴露器)&lt;/li>
+&lt;li>Pushgateway(短生命周期任务 启动/结束时间不确定)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/how-does-prometheus-work.png"
+width="2597"
+height="871"
+srcset="https://ilolicon.github.io/p/prometheus/icons/how-does-prometheus-work_hub4766337ce40094104e377621e3497f3_326572_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/how-does-prometheus-work_hub4766337ce40094104e377621e3497f3_326572_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="how-does-prometheus-work"
+class="gallery-image"
+data-flex-grow="298"
+data-flex-basis="715px"
+>&lt;/p>
+&lt;h4 id="instrumentation程序仪表">Instrumentation(程序仪表)&lt;/h4>
+&lt;ul>
+&lt;li>任何能够支持Scrape指标数据的应用程序都首先要具有一个测量系统&lt;/li>
+&lt;li>在Prometheus的语境中 Instrumentation是指附加到应用程序中的那些用于暴露程序指标数据的客户端库
+&lt;ul>
+&lt;li>程序员借助于这些客户端库编写代码生成可暴露的指标数据&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="exporters">Exporters&lt;/h4>
+&lt;ul>
+&lt;li>对于那些未内建Instrumentation 且也不便于自行添加该类组件以暴露指标数据的应用程序来说 常用的办法是于待监控的目标应用程序外部运行u一个独立指标暴露程序 该类型的程序即统称为Exporter&lt;/li>
+&lt;li>换句话说 Exporter负责从目标应用程序上采集和聚合原始格式的数据 并转换或聚合为Prometheus格式的指标向外暴露&lt;/li>
+&lt;li>Prometheus站点上提供了大量的Exporter&lt;/li>
+&lt;/ul>
+&lt;h3 id="pull-and-push">Pull and Push&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus同其它TSDB相比有一个非常典型的特征: 它主动从各Targers上&lt;strong>拉取(pull)&lt;/strong> 数据 而非等待被监控端的&lt;strong>推送(Push)&lt;/strong>&lt;/li>
+&lt;li>两种方式各有优劣 其中 Pull模型的优势在于:
+&lt;ul>
+&lt;li>集中控制: 有利于将配置集中在Prometheus Server上完成 包括指标及采集速率等&lt;/li>
+&lt;li>Prometheus的根本目标在于收集在Target上预先完成聚合的聚合型数据 而非一款由事件驱动的存储系统&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/pull-and-push.png"
+width="1536"
+height="661"
+srcset="https://ilolicon.github.io/p/prometheus/icons/pull-and-push_hube57fa93b878f45a37f96cb33c551b1b_152686_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/pull-and-push_hube57fa93b878f45a37f96cb33c551b1b_152686_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="pull-and-push"
+class="gallery-image"
+data-flex-grow="232"
+data-flex-basis="557px"
+>&lt;/p>
+&lt;h3 id="prometheus的生态组件">Prometheus的生态组件&lt;/h3>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/introduction/overview/#architecture" target="_blank" rel="noopener"
+>promtheus-architecture&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>Prometheus负责时序型指标数据的采集及存储 但数据的分析/聚合及直观展示以及告警等功能并非由Prometheus Server负责&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture.png"
+width="1351"
+height="811"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture_hud5ed5663cc35a882862e3f8b09e662f5_96834_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture_hud5ed5663cc35a882862e3f8b09e662f5_96834_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prometheus-architecture"
+class="gallery-image"
+data-flex-grow="166"
+data-flex-basis="399px"
+>
+&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture02.png"
+width="1384"
+height="770"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture02_hu517680818b655c8b14baad5fcace8e58_70580_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prometheus-architecture02_hu517680818b655c8b14baad5fcace8e58_70580_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prometheus-architecture"
+class="gallery-image"
+data-flex-grow="179"
+data-flex-basis="431px"
+>&lt;/p>
+&lt;ul>
+&lt;li>Prometheus生态包含多个组件 其中部分组件可选
+&lt;ul>
+&lt;li>Prometheus Server: 收集和存储时间序列数据 Prometheus监控系统的核心组件&lt;/li>
+&lt;li>Client Library: 客户端库 目的在于为那些期望原生提供Instrumentation功能的应用程序提供便捷的开发途径&lt;/li>
+&lt;li>Push Gateway: 接收那些通常由短期作业生成的指标数据的网关 并支持由Prometheus Server进行指标拉取操作&lt;/li>
+&lt;li>Exporters: 用于暴露现有应用程序或服务(不支持Instrumentation)的指标给Prometheus Server
+&lt;ul>
+&lt;li>node_exporter&lt;/li>
+&lt;li>blackbox_exporter&lt;/li>
+&lt;li>mysql_exporter&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Alertmanager: 从Prometheus Server接收到&lt;strong>告警通知&lt;/strong>后 通过&lt;strong>去重 分组 路由&lt;/strong>等预处理功能后以高效向用户完成告警信息的发送&lt;/li>
+&lt;li>Data Visualization: Prometheus Web UI(内建 PromQL表达式浏览器) 及Grafana等&lt;/li>
+&lt;li>Service Discovery: 动态发现待监控的Target 从而完成监控配置的重要组件 在容器化环境尤为有用 该组件目前由Prometheus Server内建支持&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="prometheus数据模型data-model">Prometheus数据模型(Data Model)&lt;/h3>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/concepts/data_model/" target="_blank" rel="noopener"
+>prometheus-data-model&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>Prometheus仅用于以&lt;strong>键值&lt;/strong>形式存储时序式的聚合数据 它并不支持存储文本信息
+&lt;ul>
+&lt;li>其中的&lt;strong>键&lt;/strong>称为指标(Metric) 它通常意味着CPU速率 内存使用率或分区空闲比例等&lt;/li>
+&lt;li>同一指标可能为适配到多个目标或设备 因而他使用&lt;strong>标签&lt;/strong>作为元数据 从而为Metric添加更多的信息描述维度&lt;/li>
+&lt;li>这些标签还可以作为过滤器进行指标过滤及聚合运算&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/data-model.png"
+width="1568"
+height="864"
+srcset="https://ilolicon.github.io/p/prometheus/icons/data-model_hue36357c6ee0242aeedb3cc345d25fca5_258933_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/data-model_hue36357c6ee0242aeedb3cc345d25fca5_258933_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="data-model"
+class="gallery-image"
+data-flex-grow="181"
+data-flex-basis="435px"
+>&lt;/p>
+&lt;h3 id="指标类型metric-types">指标类型(Metric Types)&lt;/h3>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/concepts/metric_types/" target="_blank" rel="noopener"
+>prometheus-metric-types&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>Prometheus使用4种方法来描述监控的指标
+&lt;ul>
+&lt;li>Counter: &lt;strong>计数器&lt;/strong> 用于保存单调递增型的数据 例如: 站点访问次数等 不能为负值 也不支持减少 但可以重置回0&lt;/li>
+&lt;li>Gauge: &lt;strong>仪表盘&lt;/strong> 用于存储有着起伏特征的指标数据 例如: 内存使用情况等
+&lt;ul>
+&lt;li>Gauge是Counter的超集 但存在指标数据丢失的可能性&lt;/li>
+&lt;li>Counter能让用户确切了解指标随的变化状态 而Gauge则可能随时间流逝而精准度越来越低&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Histogram: &lt;strong>直方图&lt;/strong> 它会在一段时间范围内对数据进行采样 并将其计入可配置的bucket中 Histigram能够存储更多的信息 包括样本值分布在每个bucket中的数量、所有样本值之和以及总的样本数量 从而Prometheus能够使用内置的函数进行如下操作:
+&lt;ul>
+&lt;li>计算样本平均值: 以值的总和除以值的数量&lt;/li>
+&lt;li>计算样本分为值: 分为数有助于了解符合特定标准的数据个数 如: 评估响应时长超过1s的请求比例 若超过20%即发送告警等&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Summary: &lt;strong>摘要&lt;/strong> Histogram的扩展类型 但它是直接由被检测端自行聚合计算出分位数 并将计算结果响应给Prometheus Server的样本采集请求&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="作业job和实例instance">作业(Job)和实例(Instance)&lt;/h3>
+&lt;ul>
+&lt;li>Instance: 能够接收Prometheus Server数据Scrape操作的每个网络网络端点(endpoint) 即为一个Instance(实例)&lt;/li>
+&lt;li>通常 具有类似功能的Instance的集合称为一个Job 如: 一个MySQL主从复制集群中的所有MySQL进程&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/job-and-instance.png"
+width="1516"
+height="1032"
+srcset="https://ilolicon.github.io/p/prometheus/icons/job-and-instance_hu3d14bf3115f84bc9a808d837dc7d9195_374030_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/job-and-instance_hu3d14bf3115f84bc9a808d837dc7d9195_374030_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="job-and-instance"
+class="gallery-image"
+data-flex-grow="146"
+data-flex-basis="352px"
+>&lt;/p>
+&lt;h3 id="promtheus-query-language">Promtheus Query Language&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus提供了内置的数据查询语言PromQL(Prometheus Query Language) 支持用户进行实时的数据查询及聚合操作&lt;/li>
+&lt;li>PromQL支持处理两种&lt;strong>向量&lt;/strong> 并内置提供了一组用于数据处理的&lt;strong>函数&lt;/strong>
+&lt;ul>
+&lt;li>即时向量: 最近一次的时间戳上跟踪的数据指标&lt;/li>
+&lt;li>时间范围向量: 指定时间范围内的所有时间戳上的数据指标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/promQL.png"
+width="1908"
+height="900"
+srcset="https://ilolicon.github.io/p/prometheus/icons/promQL_hu9865fd29d613e82258402b1703bbdf83_417488_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/promQL_hu9865fd29d613e82258402b1703bbdf83_417488_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="promQL"
+class="gallery-image"
+data-flex-grow="212"
+data-flex-basis="508px"
+>&lt;/p>
+&lt;h3 id="alerts">Alerts&lt;/h3>
+&lt;ul>
+&lt;li>抓取到异常值后 Prometheus支持通过&lt;strong>告警(Alert)&lt;/strong> 机制向用户发送反馈或警示 会触发用户能够及时采取应对措施&lt;/li>
+&lt;li>Prometheus Server仅负责生成告警指示 具体的告警行为由另一个独立的应用程序&lt;strong>Alertmanager&lt;/strong>负责
+&lt;ul>
+&lt;li>告警指示由Prometheus Server基于用户提供的&lt;strong>告警规则&lt;/strong> 周期性计算生成&lt;/li>
+&lt;li>Alertmanager接收到Prometheus Server发来的告警指示后 基于用户定义的**告警路由(route)&lt;strong>向告警&lt;/strong>接收人(reveivers)**发送告警信息&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="prometheus局限性">Prometheus局限性&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus是一款指标监控系统 不适合存储事件及日志等 它更多展示的是趋势性的监控 而非精准数据&lt;/li>
+&lt;li>Prometheus认为只有最近的监控数据才有查询的需要 其本地存储的设计初衷只是保存短期(如一个月)数据 因而不支持针对大量的历史数据进行存储
+&lt;ul>
+&lt;li>若需要存储长期的历史数据 建议基于远程存储机制将数据保存于InfluxDB或OpenTSDB&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus的集群机制成熟度不高&lt;/li>
+&lt;/ul>
+&lt;h2 id="运行prometheus">运行Prometheus&lt;/h2>
+&lt;p>&lt;a class="link" href="https://packagecloud.io/prometheus-rpm/release/install#bash-rpm" target="_blank" rel="noopener"
+>rpm-repo&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>CPU使用率&lt;/p>
+&lt;ul>
+&lt;li>每台主机CPU在5分钟内的平均使用率&lt;/li>
+&lt;li>&lt;code>(1 - avg(irate(node_cpu_second_total{mode=&amp;quot;idle&amp;quot;}[5m])) by (instance)) * 100&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>CPU饱和度&lt;/p>
+&lt;ul>
+&lt;li>跟踪CPU的平均负载就能获取到相关主机的CPU1饱和度 实际上 它是将主机上的CPU数量考虑在内的一段时间内的平均运行队列长度&lt;/li>
+&lt;li>平均负载少于CPU的数量是正常情况 而长时间内超过CPU数量则表示CPU毅然饱和&lt;/li>
+&lt;li>&lt;code>node_load1 &amp;gt; on(instance) 2 * count(node_cpu_seconds_total{mode=&amp;quot;idle&amp;quot;}) by (instance)&lt;/code>
+&lt;ul>
+&lt;li>查询1分钟平均负载超过主机CPU数量两倍的时间序列&lt;/li>
+&lt;li>CPU瓶颈、程序BUG&lt;/li>
+&lt;li>控制平面&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>内存使用率&lt;/p>
+&lt;ul>
+&lt;li>node_exporter暴露了多个以node_memory为前缀的指标 我们重点关注下面几个
+&lt;ul>
+&lt;li>&lt;code>node_memory_MemTotal_bytes&lt;/code>&lt;/li>
+&lt;li>&lt;code>node_memory_MemFree_bytes&lt;/code>&lt;/li>
+&lt;li>&lt;code>node_memory_Buffers_bytes&lt;/code>&lt;/li>
+&lt;li>&lt;code>node_memory_Cached_bytes&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>计算使用率
+&lt;ul>
+&lt;li>可用空间: 上面后三个指标之和&lt;/li>
+&lt;li>已用空间: 总空间减去可用空间&lt;/li>
+&lt;li>实用率: 已用空间除以总空间&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="exporter">Exporter&lt;/h2>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/instrumenting/exporters/#exporters-and-integrations" target="_blank" rel="noopener"
+>exporters-and-integrans&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>node_exporter&lt;/li>
+&lt;li>blackbox_exporter&lt;/li>
+&lt;li>mysql_exporter&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;h3 id="客户端库">客户端库&lt;/h3>
+&lt;ul>
+&lt;li>应用程序自己并不会直接生成指标数据 这依赖于开发人员将相关的客户端库添加至应用程序中构建出的测量系统(instrumentation system)来完成
+&lt;ul>
+&lt;li>官方库语言支持: Go、Python、Java(或Scala)和Ruby&lt;/li>
+&lt;li>第三方库语言支持: Bash(pushgateway)、C、C++、C#、Node.js、Haskell、Erlang、Perl、PHP、Rust&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="exporter基础">Exporter基础&lt;/h3>
+&lt;ul>
+&lt;li>对于那些非用户可直接控制的应用代码来说 为其添加客户端库以进行直接测量很难实现
+&lt;ul>
+&lt;li>操作系统内核就是一个典型的示例 它显然不太可能易于实现添加自定义代码并通过HTTP协议输出Prometheus格式的指标&lt;/li>
+&lt;li>但这一类程序一般都会通过某种接口输出其内在的指标 只不过这些指标可能有着特殊的格式 如: Linux内核的特有指标格式 或者SNMP指标格式等&lt;/li>
+&lt;li>这些指标需要对它进行适当的解析和处理以转换为可用的目标格式 Exporter就是完成此类转换功能的应用程序&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Exporter独立运行于要获取其测量指标的应用程序之外 负责接收来自于Prometheus Server的指标获取请求 它通过目标应用程序(真正的目标)内置的指标接口获取指标数据 并将这些指标数据转换为可用的目标格式后响应给Prometheus
+&lt;ul>
+&lt;li>Exporter更像是&lt;strong>一对一&lt;/strong>的代理 它作为Prometheus Server的target存在 工作于应用程序的指标接口和Prometheus的文本指标格式之间转换数据格式&lt;/li>
+&lt;li>Exporter不存储也不缓存任何数据&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="promql">PromQL&lt;/h2>
+&lt;h3 id="promql简介">PromQL简介&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus基于指标名称(metrics name)以及附属的标签集(labelset)唯一定义一条时间序列
+&lt;ul>
+&lt;li>指标名称代表着监控目标上某类可测量属性的基本特征标识&lt;/li>
+&lt;li>标签则是这个基本特征上再次细分的多个可测量维度&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>基于PromQL表达式 用户可以针对指定的特征及其细分维度进行过滤、聚合、统计等运算 从而产生期望的计算结果&lt;/li>
+&lt;li>PromQL是Prometheus Server内置的数据查询语言
+&lt;ul>
+&lt;li>PromQL使用表达式(expression)来表达查询需求&lt;/li>
+&lt;li>根据其使用的指标和标签 以及时间范围 表达式的查询请求可灵活覆盖在一个或多个时间序列的一定范围内的样本之上 甚至是只包含单个时间序列的单个样本&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="prometheus时间序列">Prometheus时间序列&lt;/h4>
+&lt;ul>
+&lt;li>时间序列数据: 按照时间顺序 记录系统、设备状态变化的数据 每个数据称为一个&lt;strong>样本&lt;/strong>
+&lt;ul>
+&lt;li>数据采集以特定的时间周期进行 因而 随着时间流逝 将这些样本数据记录下来 将生成一个离散的样本数据序列&lt;/li>
+&lt;li>该序列也称为向量(Vector) 而将多个序列放在同一个坐标系内(以时间为横轴 以序列为纵轴) 将形成一个由数据点组成的矩阵&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prom-time-series.png"
+width="2110"
+height="864"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prom-time-series_hua6003164f96842ceb17eeedd47c3e51a_366084_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prom-time-series_hua6003164f96842ceb17eeedd47c3e51a_366084_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prom-time-series"
+class="gallery-image"
+data-flex-grow="244"
+data-flex-basis="586px"
+>&lt;/p>
+&lt;h4 id="prometheus数据模型">Prometheus数据模型&lt;/h4>
+&lt;ul>
+&lt;li>Prometheus中 每个时间序列都由指标名称(Metric Name)和标签(Label)来唯一标识 格式为&lt;code>&amp;lt;metric name&amp;gt;{&amp;lt;label name&amp;gt;=&amp;lt;label value&amp;gt;, ...}&lt;/code>
+&lt;ul>
+&lt;li>指标名称: 通常用于描述系统上要测量的某个特征
+&lt;ul>
+&lt;li>如: &lt;code>http_requests_total&lt;/code>表示接收到的HTTP请求总数&lt;/li>
+&lt;li>支持使用字母、数字、下划线和冒号 且必须能匹配RE2规范的正则表达式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>标签: 键值型数据 附加在指标名称之上 从而让指标能够支持多维度特征 可选
+&lt;ul>
+&lt;li>如: &lt;code>http_requests_total{method=&amp;quot;GET&amp;quot;}&lt;/code> 和 &lt;code>http_request_total{method=&amp;quot;POST&amp;quot;}&lt;/code>代表两个不同的时间序列&lt;/li>
+&lt;li>标签名称可使用字母、数字和下划线 切必须能匹配RE2规范的正则表达式&lt;/li>
+&lt;li>以 &lt;strong>_ _&lt;/strong> 为前缀的名称为Prometheus系统预留使用&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Metric Name的表示方式有两种
+&lt;ul>
+&lt;li>后一种通常用于Prometheus内部&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prom-inner-metric.png"
+width="1484"
+height="556"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prom-inner-metric_hu840066708452de2ec0e5416445781111_138011_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prom-inner-metric_hu840066708452de2ec0e5416445781111_138011_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prom-inner-metric"
+class="gallery-image"
+data-flex-grow="266"
+data-flex-basis="640px"
+>&lt;/p>
+&lt;h4 id="样本数据格式">样本数据格式&lt;/h4>
+&lt;ul>
+&lt;li>Prometheus的每个数据样本由两部分组成
+&lt;ul>
+&lt;li>float64格式的数据&lt;/li>
+&lt;li>毫秒精度的时间戳&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prom-data-format.png"
+width="1914"
+height="970"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prom-data-format_hudc8242f558e903a3081ccc24200335c3_872914_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prom-data-format_hudc8242f558e903a3081ccc24200335c3_872914_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prom-data-format"
+class="gallery-image"
+data-flex-grow="197"
+data-flex-basis="473px"
+>&lt;/p>
+&lt;h4 id="指标名称及标签使用注意事项">指标名称及标签使用注意事项&lt;/h4>
+&lt;ul>
+&lt;li>指标名称和标签的特定组合代表着一个时间序列
+&lt;ul>
+&lt;li>指标名称相同 但标签不同的组合分别代表着不同的时间序列&lt;/li>
+&lt;li>不同的指标名称自然更是标识不同的时间序列&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>PromQL支持&lt;strong>基于定义的指标维度进行过滤和聚合&lt;/strong>
+&lt;ul>
+&lt;li>更改任何标签值 包括添加标签或删除标签 都会创建一个新的时间序列&lt;/li>
+&lt;li>应该尽可能保持标签的稳定性 否则很可能创建新的时间序列 更甚者会生成一个动态的数据环境 并使得监控的数据源难以跟踪 从而导致建立在该指标之上的图形、告警记录规则变得无效&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/mess-env.png"
+width="1268"
+height="644"
+srcset="https://ilolicon.github.io/p/prometheus/icons/mess-env_hu6df8c11d87d1d316bc471f976612fc5c_332206_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/mess-env_hu6df8c11d87d1d316bc471f976612fc5c_332206_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="mess-env"
+class="gallery-image"
+data-flex-grow="196"
+data-flex-basis="472px"
+>&lt;/p>
+&lt;h4 id="promql的数据类型">PromQL的数据类型&lt;/h4>
+&lt;ul>
+&lt;li>PromQL的表达式中支持4种数据类型
+&lt;ul>
+&lt;li>即时向量(Instant Vector): 特定或全部的时间序列集合上 具有相同时间戳的一组样本值 称为即时向量&lt;/li>
+&lt;li>范围向量(Range Vector): 特定或全部的时间序列集合上 在指定的统一时间范围内的所有样本值&lt;/li>
+&lt;li>标量(Scalar): 一个浮点型(float64)的数据值&lt;/li>
+&lt;li>字符串(String): 支持使用单引号、双引号或反引号进行引用 但反引号中不会对转义字符串进行转义&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="时间序列选择器">时间序列选择器&lt;/h3>
+&lt;h4 id="即时向量与范围向量">即时向量与范围向量&lt;/h4>
+&lt;ul>
+&lt;li>PromQL的查询操作需要针对有限个时间序列上的样本数据进行 挑选出目标时间序列是构建表达式最为关键的一步&lt;/li>
+&lt;li>用户可以使用向量选择器表达式来挑选出给定指标名称下的所有时间序列或部分时间序列的即时(当前)样本值 或至过去某个时间范围内的样本值 前者称为即时向量选择器 后者称为范围向量选择器
+&lt;ul>
+&lt;li>即时向量选择器(Instant Vector Selectors): 返回0个、1个或多个时间序列上在给定时间戳(instant)上的各自的一个样本 该样本也可称为即时样本&lt;/li>
+&lt;li>范围向量选择器(Range Vector Selectors): 返回0个、1个或多个时间序列上在给定时间范围内的各自的一组样本&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/time-series-selectors.png"
+width="1818"
+height="762"
+srcset="https://ilolicon.github.io/p/prometheus/icons/time-series-selectors_hu717012f3ef737e8e0f26deaff2858f5d_421468_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/time-series-selectors_hu717012f3ef737e8e0f26deaff2858f5d_421468_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="time-series-selectors"
+class="gallery-image"
+data-flex-grow="238"
+data-flex-basis="572px"
+>&lt;/p>
+&lt;h4 id="向量表达式使用要点">向量表达式使用要点&lt;/h4>
+&lt;ul>
+&lt;li>表达式的返回值类型亦是即时向量、范围向量、标量或字符串4种数据类型其中之一 但是有些使用场景要求表达式返回值必须满足特定条件
+&lt;ul>
+&lt;li>需要将返回值绘制成图形时 仅支持即时向量类型的数据&lt;/li>
+&lt;li>对于诸如&lt;code>rate&lt;/code>一类的速率函数来说 其要求使用的必须是范围向量型的数据&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>由于范围向量选择器返回的是范围向量型数据 它不能用于表达式浏览器中图形绘制功能 否则表达式浏览器会返回相应错误
+&lt;ul>
+&lt;li>事实上 范围向量几乎总是结合速率类的函数&lt;code>rate&lt;/code>一同使用&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="即时向量选择器">即时向量选择器&lt;/h4>
+&lt;ul>
+&lt;li>即时向量选择器由两部分组成
+&lt;ul>
+&lt;li>指标名称: 用于限定特定指标下的时间序列 即负责过滤指标 可选&lt;/li>
+&lt;li>匹配器(Matcher): 或称为标签选择器 用于过滤时间序列上的标签 定义在{}中 可选&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>定义即时向量选择器时 以上两个部分应该至少给出一个 于是将存在下面三种组合
+&lt;ul>
+&lt;li>仅给定指标名称 或者标签名称上使用空值匹配器: 返回给定指标下的所有时间序列各自的即时样本
+&lt;ul>
+&lt;li>如: http_requests_total/http_requests_total{}&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>仅给定匹配器: 返回所有符合给定匹配器的所有时间序列上的即时样本
+&lt;ul>
+&lt;li>注意: 这些时间序列可能有着不同的指标名称&lt;/li>
+&lt;li>如: {job=~&amp;quot;.*&amp;quot;, method=&amp;ldquo;GET&amp;rdquo;}&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>指标名称和匹配器的组合: 返回给定的指标下 且符合给定标签过滤器的所有时间序列上的即时样本
+&lt;ul>
+&lt;li>如: http_requests_total{methdo=&amp;ldquo;GET&amp;rdquo;}&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="匹配器matcher">匹配器(Matcher)&lt;/h4>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/prometheus/latest/querying/basics/#time-series-selectors" target="_blank" rel="noopener"
+>time-series-selectors&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>匹配器用于定义标签过滤条件 目前支持4种匹配操作符
+&lt;ul>
+&lt;li>&lt;strong>=&lt;/strong>: Select labels that are exactly equal to the provided string.&lt;/li>
+&lt;li>&lt;strong>!=&lt;/strong>: Select labels that are not equal to the provided string.&lt;/li>
+&lt;li>&lt;strong>=~&lt;/strong>: Select labels that regex-match the provided string.&lt;/li>
+&lt;li>&lt;strong>!~&lt;/strong>: Select labels that do not regex-match the provided string.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>注意事项
+&lt;ul>
+&lt;li>匹配到空标签值的匹配器时 所有未定义该标签的时间序列同样符合条件
+&lt;ul>
+&lt;li>如: &lt;code>http_requests_total{env=&amp;quot;&amp;quot;}&lt;/code>会匹配到&lt;code>http_requests_total{method=&amp;quot;GET&amp;quot;}&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>正则表达式将执行完全锚定机制 它需要匹配指定的标签的整个值&lt;/li>
+&lt;li>向量选择器至少要包含一个指标名称 或者至少有一个不会匹配到空字符串的匹配器
+&lt;ul>
+&lt;li>如: &lt;code>{job=&amp;quot;&amp;quot;}&lt;/code> 为非法的选择器&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>使用&lt;code>__name__&lt;/code>做为标签名称 还能够对指标名称进行过滤(联邦集群时常用到)
+&lt;ul>
+&lt;li>如: &lt;code>{__name__=~&amp;quot;http_requests_.*&amp;quot;}&lt;/code>能够匹配所有以&lt;code>http_requests_&lt;/code>为前缀的所有指标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="范围向量选择器">范围向量选择器&lt;/h4>
+&lt;ul>
+&lt;li>同即时向量选择器的唯一不同之处在于 范围向量选择器需要在表达式后紧跟一个方括号[]来表达需在时间序列上返回的样本所处的时间范围
+&lt;ul>
+&lt;li>时间范围: 以当前的时间为基准的时间点 只想过去一个特定的时间长度&lt;/li>
+&lt;li>如: [5m] 指过去5分钟之内&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>时间格式: 一个整数后紧跟一个时间单位(Time Durations)
+&lt;ul>
+&lt;li>可用单位: ms(毫秒)/s(秒)/m(分钟)/h(小时)/d(天)/w(周)/y(年)&lt;/li>
+&lt;li>必须使用整数时间 且能够将多个不同级别的单位进行组合 以时间单位由大到小排序
+&lt;ul>
+&lt;li>&lt;input checked="" disabled="" type="checkbox"> 1h30m&lt;/li>
+&lt;li>&lt;input disabled="" type="checkbox"> &lt;del>1.5h&lt;/del>&lt;/li>
+&lt;li>&lt;input checked="" disabled="" type="checkbox"> 5h&lt;/li>
+&lt;li>&lt;input checked="" disabled="" type="checkbox"> 10s&lt;/li>
+&lt;li>&lt;input checked="" disabled="" type="checkbox"> 2d&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>需要注意的是 范围向量选择器返回的是一定时间范围内的数据样本 虽然不同时间序列的数据抓取时间点相同 但它们的时间戳并不会严格对齐
+&lt;ul>
+&lt;li>多个Target上的数据抓取需要分散在抓取时间点前后一定的时间范围内 以均衡Prometheus Server的负载&lt;/li>
+&lt;li>因而 Prometheus在趋势上准确 但并非绝对精准&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="偏移量修改器">偏移量修改器&lt;/h4>
+&lt;ul>
+&lt;li>默认情况下 即时向量选择器和范围向量选择器都以当前时间为基准时间点 而偏移量修改器能够修改该基准&lt;/li>
+&lt;li>偏移量修改器的使用方法是紧跟在选择器表达式之后使用&lt;strong>offset&lt;/strong>关键字指定
+&lt;ul>
+&lt;li>&lt;code>http_requests_total offset 5m&lt;/code> 表示获取以http_requests_total为指标名称的所有时间序列在过去5分钟时的&lt;strong>即时样本&lt;/strong>&lt;/li>
+&lt;li>&lt;code>http_requests_total[5m] offset 1d&lt;/code> 表示获取距此刻1天时间之前的5分钟之内的所有样本&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/offset-modifier.png"
+width="1540"
+height="498"
+srcset="https://ilolicon.github.io/p/prometheus/icons/offset-modifier_hu2c70e9b3dc79cbee7c5ee4837d32be98_120975_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/offset-modifier_hu2c70e9b3dc79cbee7c5ee4837d32be98_120975_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="offset-modifier"
+class="gallery-image"
+data-flex-grow="309"
+data-flex-basis="742px"
+>&lt;/p>
+&lt;h3 id="promql指标类型">PromQL指标类型&lt;/h3>
+&lt;ul>
+&lt;li>PromQL主要有四个指标类型 它们主要由Prometheus的客户端库使用
+&lt;ul>
+&lt;li>Counter: 计数器 单调递增 除非重置(如: 服务器或进程重启)&lt;/li>
+&lt;li>Gauge: 仪表盘 可增可减的数据&lt;/li>
+&lt;li>Histogram: 直方图 将时间单位内的数据划分成不同的时间段 并各自评估其样本个数及样本值之和 因而可计算出分位数
+&lt;ul>
+&lt;li>可用于分析因异常值而引起的平均值过大的问题&lt;/li>
+&lt;li>分位数计算要使用专用的histogram_quantile函数&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Summary: 类似直方图 但客户端会直接计算并上报分位数&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus Server并不使用类型信息 而是将所有数据展平为时间序列&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/prom-metrics-types.png"
+width="1844"
+height="584"
+srcset="https://ilolicon.github.io/p/prometheus/icons/prom-metrics-types_hu4e289c9fabc9f33a07d2178a7b4daa4f_306160_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/prom-metrics-types_hu4e289c9fabc9f33a07d2178a7b4daa4f_306160_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="prom-metrics-type"
+class="gallery-image"
+data-flex-grow="315"
+data-flex-basis="757px"
+>&lt;/p>
+&lt;h4 id="counter和gauge">Counter和Gauge&lt;/h4>
+&lt;ul>
+&lt;li>通常 Counter的总数并没有直接作用 而使需要借助于rate、topk、increase和irate等函数来生成样本数据的变化状况(增长率)
+&lt;ul>
+&lt;li>&lt;code>rate(hrrp_requests_total[2h])&lt;/code> 获取2小时内 该指标下各时间序列上的http总请求数的增长速率&lt;/li>
+&lt;li>&lt;code>topk(3, http_requests_total)&lt;/code> 获取该指标下http请求总数排名前3的时间序列&lt;/li>
+&lt;li>&lt;code>irate(http_request_total[2h])&lt;/code> 高灵敏度函数 用于计算指标的瞬时速率
+&lt;ul>
+&lt;li>基于样本范围内的最后两个样本进行计算 相较于rate函数来说 irate更适合用于短期时间范围内的变化速率分析&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Gauge用于存储其值可增可减的指标样本数据 常用于进行求和、取平均值、最小值、最大值等聚合计算 也会经常结合PromQL的predict_linear和delta函数使用
+&lt;ul>
+&lt;li>&lt;code>predict_linear(v range-vector, t, scaler)&lt;/code>函数可以预测时间序列v在t秒后的值 它通过线性回归的方式来预测样本数据的Gauge变化趋势&lt;/li>
+&lt;li>&lt;code>delta(v range-vector)&lt;/code>函数计算范围向量中每个时间序列元素的第一个值与最后一个值之差 从而展示不同时间点上的样本值差值&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="histogram">Histogram&lt;/h4>
+&lt;ul>
+&lt;li>Histogram是一种对数据分布情况的图形展示 由一系列高度不等的长条图(bar)或线段表示 用于&lt;strong>展示耽搁测度的值的分布&lt;/strong>
+&lt;ul>
+&lt;li>它一般用横轴表示某个指标维度的数据取值的分布状况 用纵轴表示样本统计的频率和频数 从而能够以二维图的形式展现数值的分布状况&lt;/li>
+&lt;li>为了构建Histogram 首先需要将值的范围进行分段 即将所有值的整个可用范围分成一系列连续、相邻(相邻出可以是等同值)但不重叠的间隔 而后统计每个间隔中有多少值&lt;/li>
+&lt;li>从统计学的角度看 分位数不能被聚合 也不能进行算数运算&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/histogram.png"
+width="1304"
+height="762"
+srcset="https://ilolicon.github.io/p/prometheus/icons/histogram_hud8d1c004fe6913a2d3de4debecd7e325_391582_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/histogram_hud8d1c004fe6913a2d3de4debecd7e325_391582_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="histogram"
+class="gallery-image"
+data-flex-grow="171"
+data-flex-basis="410px"
+>&lt;/p>
+&lt;ul>
+&lt;li>对于Prometheus来说 Histogram会在一段时间范围内对数据进行采样(通常是请求持续时长或响应大小等) 并将其计入可配置的bucket(存储桶)中
+&lt;ul>
+&lt;li>Histogram事先将特定测度可能的取值范围分割为多个样本空间 并通过对落入bucket内的观测值进行计算以及求和操作&lt;/li>
+&lt;li>与常规的方式略有不同的是 Prometheus取值间隔的划分采用的是累积(Cumulative)区间间隔机制 及每个bucket中的样本均包含了其前面所有bucket中的样本 因而也称为累积直方图
+&lt;ul>
+&lt;li>可降低Histogram的维护成本&lt;/li>
+&lt;li>支持粗略计算样本值的分位数&lt;/li>
+&lt;li>单独提供了_sum和_count指标 从而支持计算平均值&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/histogram-cumulative.png"
+width="942"
+height="806"
+srcset="https://ilolicon.github.io/p/prometheus/icons/histogram-cumulative_hu1ffa6f457cffa2ba9ad41bc62ede6d6c_170960_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/histogram-cumulative_hu1ffa6f457cffa2ba9ad41bc62ede6d6c_170960_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="histogram-cumulative"
+class="gallery-image"
+data-flex-grow="116"
+data-flex-basis="280px"
+>&lt;/p>
+&lt;ul>
+&lt;li>Histogram类型的每个指标有一个基础指标名称&lt;code>&amp;lt;basename&amp;gt;&lt;/code> 它会提供多个时间序列
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;_bucket{le=&amp;quot;&amp;lt;upper inclusive bound&amp;gt;&amp;quot;}&lt;/code>: 观测桶的上边界 及样本统计区间；最大区间(包含所有样本)的名称为&lt;code>&amp;lt;basename&amp;gt;_bucket{le=&amp;quot;+Inf&amp;quot;}&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;_sum&lt;/code>: 所有样本观测值的总和&lt;/li>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;_count&lt;/code>: 总的观测次数 它自身本质上是一个Counter类型的指标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>累积间隔机制生成的样本数据需要额外使用内置的histogram_quantile()函数 即可根据Histogram指标来计算相应的分位数(quantile) 及某个bucket的样本数在所有样本数中所占的比例
+&lt;ul>
+&lt;li>&lt;code>histogram_quantile()&lt;/code>函数在计算分位数时会假定每个区间内的样本满足线性分布状态 因为它的结果是一个预估值 并不完全准确&lt;/li>
+&lt;li>预估的准确度取决于bucket区间划分的粒度 粒度越大 准确度越低&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="summary">Summary&lt;/h4>
+&lt;ul>
+&lt;li>指标类型是客户端库的特性 而Histogram在客户端仅是简单的桶划分和分桶计数 分位数的计算由Prometheus Server基于样本数据进行估算 因而其结果未必准确 甚至不合理的bucket划分会导致较大的误差&lt;/li>
+&lt;li>Summary是一种类似于Histogram的指标类型 但它在客户端于一段时间内默认10分钟)的每个采样点进行统计 计算并存储了分位数数值 Server端直接抓取相应值即可&lt;/li>
+&lt;li>但是 Summary不支持sum和avg一类的集合运算 而且其分位数由客户端计算并生成 Server端无法获取客户端未定义的分位数 而Histogram可通过PromQL任意定义 有着较好的灵活性&lt;/li>
+&lt;li>对于每个指标 Summary以指标名称&lt;code>&amp;lt;basename&amp;gt;&lt;/code>为前缀 生成如下几个时间序列
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;{quantile=&amp;quot;&amp;lt;φ&amp;gt;&amp;quot;}&lt;/code> 其中φ是分位点 其取值范围是(0&amp;lt;=φ&amp;lt;=1) 计数器类型指标 如下是几种典型的分位点
+&lt;ul>
+&lt;li>0、0.25、0.5、0.75和1几个分位点&lt;/li>
+&lt;li>0.5、0.9和0.99几个分位点&lt;/li>
+&lt;li>0.01、0.05、0.5、0.9和0.99几个分位点&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;_sum&lt;/code> 抓取到的所有样本值之和&lt;/li>
+&lt;li>&lt;code>&amp;lt;basename&amp;gt;_count&lt;/code> 抓取到的所有样本总数&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="promql运算">PromQL运算&lt;/h3>
+&lt;h4 id="prometheus的聚合函数">Prometheus的聚合函数&lt;/h4>
+&lt;ul>
+&lt;li>一般来说 单个指标的价值不大 监控场景中往往需要联合并可视化一组指标 这种联合机制即时指&lt;strong>聚合&lt;/strong>操作 如: 将计数、求和、平均值、分位数、标准差及方差等统计函数应用于时间序列的样本之上生成具有统计学意义的结果等&lt;/li>
+&lt;li>对查询结果事先按照某种分类机制进行分组(groupby) 并将查询结果按组进行聚合计算也是较为常见的需求 如: 分组统计、分组求平均值、分组求和等&lt;/li>
+&lt;li>聚合操作由&lt;strong>聚合函数&lt;/strong>针对一组值进行计算并返回单个值或少量几个值作为记过
+&lt;ul>
+&lt;li>Prometheus内置提供的11个聚合函数也称为聚合运算符&lt;/li>
+&lt;li>这些运算符&lt;strong>仅支持&lt;/strong>应用于&lt;strong>单个即时向量&lt;/strong>的元素 器返回值也是具有少量元素的新向量或标量&lt;/li>
+&lt;li>这些聚合运算符既可以基于向量表达式返回结果中的时间序列的所有标签维度进行分组聚合 也可以仅基于指定的标签维度分组后再进行分组聚合&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="聚合表达式">聚合表达式&lt;/h4>
+&lt;ul>
+&lt;li>PromQL中的聚合操作语法格式可采用如下两种格式之一
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;aggr-op&amp;gt;([parameter,]&amp;lt;vector expression&amp;gt;)[without|by(&amp;lt;label list&amp;gt;)]&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;aggr-op&amp;gt;[without|by(label list)]([parameter,]&amp;lt;vector expression&amp;gt;)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>分组聚合: 先分组、在聚合
+&lt;ul>
+&lt;li>without: 从结果向量中删除由without指定的标签 未指定的那部分标签则用作分组标准&lt;/li>
+&lt;li>by: 功能和without相反 它仅使用by子句中指定的标签进行聚合 结果向量中出现但未被by子句执行的标签则会被忽略
+&lt;ul>
+&lt;li>为了保留上下文信息 使用by子句时需要显式指定其结果中原本出现的job、instance等一类的标签&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>事实上 各函数工作机制的不同之处也仅在于计算操作本身 PromQL对它们的执行逻辑相似&lt;/li>
+&lt;/ul>
+&lt;h4 id="11个聚合函数">11个聚合函数&lt;/h4>
+&lt;ul>
+&lt;li>sum(): 对样本值求和&lt;/li>
+&lt;li>avg(): 对样本值求平均值 这是进行指标数据分析的标准方法&lt;/li>
+&lt;li>count(): 对分组内的时间序列进行数量统计&lt;/li>
+&lt;li>stddev(): 对样本值求标准差 以帮组用户了解数据的波动大小(或称之为波动程度)&lt;/li>
+&lt;li>stdvar(): 对样本值求方差 它是求取标准差过程中的中间状态&lt;/li>
+&lt;li>min(): 求取样本值中的最小者&lt;/li>
+&lt;li>max(): 求取样本值中的最大者&lt;/li>
+&lt;li>topk(): 逆序返回分组内的样本值最大的前k个时间序列及其值&lt;/li>
+&lt;li>bottomk(): 顺序返回分组内样本值最小的前k个时间序列及其值&lt;/li>
+&lt;li>quanlite(): 分位数用于评估数据的分布状态 该函数会返回分组内指定的分位数的值 即数值落在小于等于执行的分位区间的比例&lt;/li>
+&lt;li>count_values(): 对分组内的时间序列的样本值进行数量统计&lt;/li>
+&lt;/ul>
+&lt;h4 id="二元运算符">二元运算符&lt;/h4>
+&lt;ul>
+&lt;li>PromQL支持基本的算数运算和逻辑运算 这类运算支持使用操作符连接两个操作数 因而也称为二元运算符或二元操作符
+&lt;ul>
+&lt;li>支持的运算
+&lt;ul>
+&lt;li>两个标量间运算&lt;/li>
+&lt;li>即时向量和标量间的运算: 将运算符应用于向量上的每个样本&lt;/li>
+&lt;li>两个即时向量间的运算: 遵循向量匹配机制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>将运算符用于两个即时向量间的运算时 可基于&lt;strong>向量匹配&lt;/strong>模式定义器运算机制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>算数运算
+&lt;ul>
+&lt;li>支持运算符: +、-、*、/、%(取模)、^(幂运算)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>比较运算
+&lt;ul>
+&lt;li>支持运算符: ==、!=、&amp;gt;、&amp;lt;、&amp;gt;=、&amp;lt;=&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>逻辑/集合运算
+&lt;ul>
+&lt;li>支持的运算符: and、or、unless(除了)&lt;/li>
+&lt;li>目前 该运算仅允许在两个即时向量间进行 尚不支持标量参与运算&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="向量匹配">向量匹配&lt;/h4>
+&lt;ul>
+&lt;li>即时向量间的运算时PromQL的特色之一 运算时 PromQL会为左侧向量中的那个元素找到匹配的元素 其匹配行为有两种基本类型
+&lt;ul>
+&lt;li>一对一(One-to-One)&lt;/li>
+&lt;li>一对多或多对一(Many-to-One One-to-Many)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h5 id="向量一对一匹配">向量一对一匹配&lt;/h5>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/prometheus/latest/querying/operators/#one-to-one-vector-matches" target="_blank" rel="noopener"
+>one-to-one-vector-matches&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>即时向量的一对一匹配
+&lt;ul>
+&lt;li>从运算符的两边表达式所获取的即时向量间一次比较 并找到唯一匹配(标签完全一致)的样本值&lt;/li>
+&lt;li>找不到匹配项的值则不会出现在结果中&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>匹配表达式语法
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; ignoring(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; on(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>
+&lt;ul>
+&lt;li>ignore: 定义匹配检测时要忽略的标签&lt;/li>
+&lt;li>on: 定义匹配检测时只使用的标签&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>如: &lt;code>rate(http_requests_total{status_code=~&amp;quot;5.*&amp;quot;}[5m]) &amp;gt; .1*rate(http_requests_total[5m])&lt;/code>
+&lt;ul>
+&lt;li>左侧会生成一个即时向量 它计算出5xx响应码的各类请求的增长速率
+&lt;ul>
+&lt;li>除了status_code标签外 该指标通常还有其他标签 于是 status_code的值为500的标签同其他标签的每个组合代表一个时间序列 其相应的即时样本即为结果向量的一个元素&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>右侧会生成一个即时向量 它计算出所有标签组合所代表的各类请求的增长速率&lt;/li>
+&lt;li>计算时 PromQL会在操作符左右两侧的结果元素中找到标签完全一致的元素进行比较&lt;/li>
+&lt;li>其意义为: 计算出每类请求中的5xx响应码在该类请求中所占的比例&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h5 id="一对多多对一匹配">一对多/多对一匹配&lt;/h5>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/prometheus/latest/querying/operators/#many-to-one-and-one-to-many-vector-matches" target="_blank" rel="noopener"
+>many-to-one-and-one-to-many-vector-matches&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>一对多/多对一匹配
+&lt;ul>
+&lt;li>&lt;strong>一&lt;/strong>侧的每个元素 可与&lt;strong>多&lt;/strong>侧的多个元素进行匹配&lt;/li>
+&lt;li>必须使用group_left或group_right明确指定哪侧为&lt;strong>多&lt;/strong>侧&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>匹配表达式语法
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; ignoring(&amp;lt;label list&amp;gt;) group_left(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; ignoring(&amp;lt;label list&amp;gt;) group_right(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; on(&amp;lt;label list&amp;gt;) group_left(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>&amp;lt;vector expr&amp;gt; &amp;lt;bin-op&amp;gt; on(&amp;lt;label list&amp;gt;) group_left(&amp;lt;label list&amp;gt;) &amp;lt;vector expr&amp;gt;&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="服务发现">服务发现&lt;/h2>
+&lt;ul>
+&lt;li>Prometheus指标抓取的生命周期
+&lt;ul>
+&lt;li>发现 -&amp;gt; 配置 -&amp;gt; relabel -&amp;gt; 指标数据抓取 -&amp;gt; metrics relabel&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus Server监控Target
+&lt;ul>
+&lt;li>静态配置(static configs)&lt;/li>
+&lt;li>动态发现/Prometheus的服务发现(监控环境变化频繁/动态环境)
+&lt;ul>
+&lt;li>基于文件的服务发现
+&lt;ul>
+&lt;li>略优于静态配置 不依赖于任何第三方服务或平台 因而也是最简单和通用的实现方式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>基于DNS的服务发现&lt;/li>
+&lt;li>基于API的服务发现: Kubernetes、Consul、Azure、&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>重新标记
+&lt;ul>
+&lt;li>target重新打标&lt;/li>
+&lt;li>mertric重新打标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="为何要进行服务发现">为何要进行服务发现&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus Server的数据抓取工作于Pull模型 因而 它必须事先知道各Target的位置 然后才能从相应的Exporter或Instrumentation中抓取数据
+&lt;ul>
+&lt;li>对于小型的系统环境来说 通过static_configs指定各Target便能解决问题 这也是最简单的配置方法
+&lt;ul>
+&lt;li>每个Targets用一个网络端点(ip:port)标识&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>对于中大型的系统环境或具有较强动态性的云计算环境来说 静态配置显然难以适用&lt;/li>
+&lt;li>Prometheus为此专门设计了一组服务发现机制 以便于能够基于服务注册中心(服务总线)自动发现、检测、分类可被监控的各Target 以及更新发生了变动的Target&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="指标抓取的生命周期">指标抓取的生命周期&lt;/h3>
+&lt;ul>
+&lt;li>下图展示了Prometheus上进行指标抓取的简单生命周期
+&lt;ul>
+&lt;li>在每个scrape_interval期间 Prometheus都会检查执行的作业(Job)&lt;/li>
+&lt;li>这些作业首先会根据Job上指定的发现配置生成target列表 此即服务发现的过程
+&lt;ul>
+&lt;li>服务发现会返回一个Target列表 其中包含一组称为元数据的标签 这些标签都以&lt;code>__meta__&lt;/code>为前缀&lt;/li>
+&lt;li>服务发现还会根据目标配置来设置其他标签 这些标签带有&lt;code>__&lt;/code>前缀和后缀 包括&lt;code>__scheme__&lt;/code> &lt;code>__address__&lt;/code> &lt;code>__metrics_path__&lt;/code> 分别保存target支持使用的协议(http/https 默认http) target的地址以及指标的URI路径(默认为/metrics)&lt;/li>
+&lt;li>若URI路径中存在任何参数 则它们的前缀会设置为&lt;code>__param__&lt;/code>&lt;/li>
+&lt;li>这些目标列表金和标签会返回给Prometheus 其中的一些标签也可以配置中被覆盖&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>配置标签会在抓取的生命周期中被重复利用以生成其他标签 如: 指标上的instance标签的默认值就来自于__address__标签的值&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/metrics-pull-life-cycle.png"
+width="2182"
+height="368"
+srcset="https://ilolicon.github.io/p/prometheus/icons/metrics-pull-life-cycle_hu0d291904c7f3b43eb1ba8effac244ec1_268497_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/metrics-pull-life-cycle_hu0d291904c7f3b43eb1ba8effac244ec1_268497_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="metrics-pull-life-cycle"
+class="gallery-image"
+data-flex-grow="592"
+data-flex-basis="1423px"
+>&lt;/p>
+&lt;ul>
+&lt;li>对于发现的各目标 Prometheus提供了可以重新标记(relabel)目标的机会
+&lt;ul>
+&lt;li>它定义在job配置段的relabel_config配置中 常用于实现如下功能
+&lt;ul>
+&lt;li>将来自服务发现的元数据标签中的信息附加到指标的标签上&lt;/li>
+&lt;li>过滤目标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>在这之后 便是数据抓取、以及指标返回的过程&lt;/li>
+&lt;li>抓取而来的指标在保存之前 还允许用户对指标重新打标并过滤
+&lt;ul>
+&lt;li>它定义在job配置段的metric_relabel_configs配置中 常用语实现如下功能
+&lt;ul>
+&lt;li>删除不必要的指标&lt;/li>
+&lt;li>从指标中删除敏感或不需要的标签&lt;/li>
+&lt;li>添加、编辑或修改指标的标签值或标签格式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="可集成的服务发现机制">可集成的服务发现机制&lt;/h3>
+&lt;ul>
+&lt;li>不同场景中 服务注册中心的指代也有所不同
+&lt;ul>
+&lt;li>共有云或私有IaaS云 自身保存有平台上的所有资源信息 其API Server便可以作为Prometheus的服务发现媒介
+&lt;ul>
+&lt;li>azure、ec2、digitalocean、gce、tencent cloud、alibaba cloud&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus也可以集成到多种不同的开源服务发现工具上 以动态发现需要监控的目标
+&lt;ul>
+&lt;li>Consul、Eureka Zookeeper Serverset或Airbnb Nerve等&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus也可以很好的集成到Kubernetes平台上 通过其API Server动态发现各类被监控的Pod、Service、End point、Ingress和Node对象
+&lt;ul>
+&lt;li>它也支持基于dockerswarm和marathon两款编排工具进行服务发现机制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Prometheus还支持基于基于DNS、文件或HTTP的动态发现机制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="对target重新打标">对Target重新打标&lt;/h3>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config" target="_blank" rel="noopener"
+>relabel-config&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>对target重新达标是在&lt;strong>数据抓取之前&lt;/strong>动态重写target标签的强大工具 在每个数据抓取配置中 可以定义多个relabel步骤 他们将按照定义的顺序依次执行&lt;/li>
+&lt;li>对于发现的每个target Prometheus默认会执行如下操作
+&lt;ul>
+&lt;li>job的标签设定为其所属的job_name的值&lt;/li>
+&lt;li>&lt;code>__address__&lt;/code>标签的值为该target的套接字地址&lt;code>&amp;lt;host&amp;gt;:&amp;lt;port&amp;gt;&lt;/code>&lt;/li>
+&lt;li>&lt;code>instance&lt;/code>标签的值为&lt;code>__address__&lt;/code>的值&lt;/li>
+&lt;li>&lt;code>__scheme__&lt;/code>标签的值为抓取该target上指标时使用的协议(http或https)&lt;/li>
+&lt;li>&lt;code>__metrics_path__&lt;/code>标签的值为抓取该target上的指标时使用的URI路径 默认为/metrics&lt;/li>
+&lt;li>&lt;code>__param_&amp;lt;name&amp;gt;&lt;/code>标签的值为传递的URI参数中第一个名称为&lt;code>&amp;lt;name&amp;gt;&lt;/code>的参数的值&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>重新打标记期间 还可以使用该target上以&lt;code>__meta__&lt;/code>开头的元标签
+&lt;ul>
+&lt;li>各服务发现机制为其target添加的元标签会有所不同&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>重新标记完成后 该target上以&lt;code>__&lt;/code>开头的所有标签都会被移除
+&lt;ul>
+&lt;li>若在relabel过程中需要临时存储标签值 则需要使用__tmp标签名称为前缀进行保存 依避免同Prometheus的内建标签冲突&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="relabel_config">relabel_config&lt;/h4>
+&lt;p>&lt;a class="link" href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config" target="_blank" rel="noopener"
+>relabel_config&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># The source labels select values from existing labels. Their content is concatenated&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># using the configured separator and matched against the configured regular expression&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># for the replace, keep, and drop actions.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> source_labels: &lt;span class="s1">&amp;#39;[&amp;#39;&lt;/span> &amp;lt;labelname&amp;gt; &lt;span class="o">[&lt;/span>, ...&lt;span class="o">]&lt;/span> &lt;span class="s1">&amp;#39;]&amp;#39;&lt;/span> &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Separator placed between concatenated source label values.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> separator: &amp;lt;string&amp;gt; &lt;span class="p">|&lt;/span> &lt;span class="nv">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">;&lt;/span> &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Label to which the resulting value is written in a replace action.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># It is mandatory for replace actions. Regex capture groups are available.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> target_label: &amp;lt;labelname&amp;gt; &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Regular expression against which the extracted value is matched.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> regex: &amp;lt;regex&amp;gt; &lt;span class="p">|&lt;/span> &lt;span class="nv">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">(&lt;/span>.*&lt;span class="o">)&lt;/span> &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Modulus to take of the hash of the source label values.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> modulus: &amp;lt;int&amp;gt; &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Replacement value against which a regex replace is performed if the&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># regular expression matches. Regex capture groups are available.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> replacement: &amp;lt;string&amp;gt; &lt;span class="p">|&lt;/span> &lt;span class="nv">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nv">$1&lt;/span> &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Action to perform based on regex matching.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> action: &amp;lt;relabel_action&amp;gt; &lt;span class="p">|&lt;/span> &lt;span class="nv">default&lt;/span> &lt;span class="o">=&lt;/span> replace &lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="relabel_configs">relabel_configs&lt;/h4>
+&lt;ul>
+&lt;li>&lt;code>&amp;lt;relabal_action&amp;gt;&lt;/code>字段用于定义重新标记的行为 其可用取值如下
+&lt;ul>
+&lt;li>替换标签值
+&lt;ul>
+&lt;li>replace: 首先将source_labels中指定的各标签值进行串连 而后将regex字段中的正则表达式对源标签值进行匹配判定 若匹配 则将target_label字段中指定的标签值替换为replacement字段中保存的值
+&lt;ul>
+&lt;li>replacement可按需引用保存regex中的某个&lt;strong>分组模式&lt;/strong>匹配到的值 默认保存整个regex匹配到的内容&lt;/li>
+&lt;li>进行值替换时 replacement字段中指定标签的值也支持以分组格式进行引用&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>hashmod: 将target_label的值设置为一个hash值 该hash则由models字段指定的hash模块对source_labels上各标签的串连值进行hash计算生成&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>删除指标: 该处的每个指标名称对应一个target
+&lt;ul>
+&lt;li>keep: regex&lt;strong>不能&lt;/strong>匹配到target上的source_labels上的&lt;strong>各标签的串连值&lt;/strong>时 则删除该target&lt;/li>
+&lt;li>drop: regex&lt;strong>能&lt;/strong>匹配到target上的source_labels上的&lt;strong>各标签的串连值&lt;/strong>时 则删除该target&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>创建或删除标签
+&lt;ul>
+&lt;li>labelmap: 将regex对所有的&lt;strong>标签名&lt;/strong>进行匹配判定 而后将匹配到的标签的值赋给replacement字段指定的标签名之上 通常用于取出匹配的标签名的一部分生成新标签&lt;/li>
+&lt;li>labeldrop: 将regex对所有的标签名进行匹配判定 能够匹配到的标签将从该target的标签集中删除&lt;/li>
+&lt;li>labelkeep: 将regex对所有的标签名进行匹配判定 不能够匹配到的标签将从该target的标签集中删除&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>注意: 要确保在labeldrop或labelkeep操作后 余下的标签集依然能够唯一标识该指标&lt;/li>
+&lt;/ul>
+&lt;h5 id="replace示例">replace示例&lt;/h5>
+&lt;ul>
+&lt;li>下面示例将三个源标签的值按顺序串连后 由指定的正则表达式进行模式匹配 然后由replacement引用模式匹配的结果并加以改造 将其赋值给endpoint标签&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">job_name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;nodes&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">file_sd_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">files&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">targets/prometheus/node*.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">relabel_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">source_labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">__scheme__&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">__address__&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">__metrics_path__&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">regex&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;(http|https)(.*)&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">separator&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">target_label&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;endpoint&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">replacement&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;${1}://${2}&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">action&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">replace&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h5 id="labelmap示例">labelmap示例&lt;/h5>
+&lt;ul>
+&lt;li>下面的示例 将regex指定的模式对target上所有的标签进行匹配判定 对于匹配到的标签名 它将以该标签名中匹配的部分为前缀 指定的&lt;code>_name&lt;/code>为后缀生成新的标签名 而新标签的值则与其原标签的值相同&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;nodes&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">file_sd_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">fles&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">targets/prometheus/node*.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">relabel_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">regex&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;(job|app)&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">replacement&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;${1}_name&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">action&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">labelmap&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="对抓取到的metric重新打标">对抓取到的metric重新打标&lt;/h3>
+&lt;ul>
+&lt;li>对metric重新打标时在&lt;strong>数据抓取之后&lt;/strong>动态重写metric标签的工具 在每个数据抓取配置中 可以定义多个metric relabel步骤 它们按照定义的顺序依次执行
+&lt;ul>
+&lt;li>删除不必要的指标&lt;/li>
+&lt;li>从指标中删除敏感或不需要的标签&lt;/li>
+&lt;li>添加、编辑或修改指标的标签值或标签格式&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>对metric重新打标的配置格式与target重新打标的格式相同 但前者要定义在专用的metric_relabel_configs字段中&lt;/li>
+&lt;li>要注意的是 更改或添加标签会创建新的时间序列
+&lt;ul>
+&lt;li>应该明确地使用各个标签 并尽可能保持不变 以避免创建出一个动态的数据环境&lt;/li>
+&lt;li>标签是时间序列的唯一约束 删除标签并导致时间序列重复时 可能会导致系统出现问题&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="metric-relabel删除示例">metric relabel删除示例&lt;/h4>
+&lt;ul>
+&lt;li>在source_label字段上 通过指标上的元标签&lt;code>__name__&lt;/code>引用指标名称 而后由regex进行匹配判断 可使用drop action删除匹配的指标 或使用keep action仅保留匹配的指标&lt;/li>
+&lt;li>下面的示例 用于在相应的job上 在发现的各target上 删除以 go_info 为前缀的指标&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">job_name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;nodes&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">file_sd_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">files&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">targets/prometheus/node*.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">metric_relabel_configs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">source_labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">__name__&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">regex&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;go_info.*&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">action&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">drop&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="查询持久化可视化">查询持久化/可视化&lt;/h2>
+&lt;p>&lt;a class="link" href="https://grafana.com/" target="_blank" rel="noopener"
+>grafana&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>记录规则(recording rule)&lt;/li>
+&lt;li>告警规则(alert rule)&lt;/li>
+&lt;/ul>
+&lt;h2 id="alertmanager">Alertmanager&lt;/h2>
+&lt;h3 id="告警功能概述">告警功能概述&lt;/h3>
+&lt;ul>
+&lt;li>Prometheus对指标的收集、存储同告警能力分数于Prometheus Server和Alertmanager两个独立的组件 前者仅负责基于&lt;strong>告警规则&lt;/strong>生成告警通知 具体的告警操作由后者完成&lt;/li>
+&lt;li>alertmanager负责处理由客户端发来的告警通知
+&lt;ul>
+&lt;li>客户端通常是Prometheus Server 但它也支持接收来自其它工具的告警&lt;/li>
+&lt;li>alertmanager对告警通知进行分组、去重后 根据路由规则将其路由到不同的receiver 如: Email、钉钉、企业微信等&lt;img src="https://ilolicon.github.io/p/prometheus/icons/alert-function.png"
+width="1394"
+height="838"
+srcset="https://ilolicon.github.io/p/prometheus/icons/alert-function_hu2acb61bb20289256c0c05d7b41a0061a_365148_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/alert-function_hu2acb61bb20289256c0c05d7b41a0061a_365148_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="alert-function"
+class="gallery-image"
+data-flex-grow="166"
+data-flex-basis="399px"
+>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="告警逻辑">告警逻辑&lt;/h3>
+&lt;ul>
+&lt;li>首先要配置Prometheus成为Alertmanager的告警客户端
+&lt;ul>
+&lt;li>反过来 Alertmanager也是应用程序 它自身同样应该纳入Prometheus的监控目标&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>配置逻辑
+&lt;ul>
+&lt;li>在Alertmanager上定义receiver 他们通常是能够基于某个媒介接收告警信息的特定用户
+&lt;ul>
+&lt;li>Email、WeChat、Pagerduty和Webhook等是最为常见的发送告警信息的媒介&lt;/li>
+&lt;li>在不同的媒介上 代表告警信息接收人的地址表示方式也会有所不同&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>在Alertmanager上定义路由规则(route) 以便将收到的告警通知按需分别进行处理
+&lt;ul>
+&lt;li>alertmanager的route配置段支持定义&lt;strong>树&lt;/strong>状路由表 入口位置成为根节点 每个字节点可以基于匹配条件定义出一个独立的路由分支&lt;/li>
+&lt;li>所有告警都将进入路由根节点 而后进行子节点遍历&lt;/li>
+&lt;li>若路由上的continue字段的值为false 则遇到第一个匹配的路由分支后即终止 否则将继续匹配后续的字节点&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>在Prometheus上定义&lt;strong>告警规则&lt;/strong>生成告警通知 发送给Alertmanager&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://ilolicon.github.io/p/prometheus/icons/alert-logic.png"
+width="2210"
+height="726"
+srcset="https://ilolicon.github.io/p/prometheus/icons/alert-logic_hu667e046a03ead91bda2d4475a1396f58_461782_480x0_resize_box_3.png 480w, https://ilolicon.github.io/p/prometheus/icons/alert-logic_hu667e046a03ead91bda2d4475a1396f58_461782_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="alert-logic"
+class="gallery-image"
+data-flex-grow="304"
+data-flex-basis="730px"
+>&lt;/p>
+&lt;h3 id="alertmanager特性">Alertmanager特性&lt;/h3>
+&lt;ul>
+&lt;li>除了基本的告警通知能力外 Alertmanager还支持对告警进行去重、分组、抑制、静默和路由等功能
+&lt;ul>
+&lt;li>&lt;strong>分组(Grouping)&lt;/strong>: 将相似告警合并为单个告警通知的机制 在系统因大面积故障而出发告警潮时 分组机制能避免用户被大量的告警噪声淹没 进行导致关键信息的隐没&lt;/li>
+&lt;li>&lt;strong>抑制(Inhibition)&lt;/strong>: 系统中某个组件或服务故障而出发告警通知后 那些依赖于该组件或服务的其它组件或服务可能也会因此而触发告警 抑制便是避免类似的级联告警的一种特性 从而让用户能将精力集中于真正的故障所在&lt;/li>
+&lt;li>&lt;strong>静默(Slience)&lt;/strong>: 是指在一个特定的时间窗口内 即便接收到告警通知 Alertmanager也不会真正向用户发送告警信息的行为 通常 在系统例行维护期间 需要激活告警系统的静默特性&lt;/li>
+&lt;li>&lt;strong>路由(Route)&lt;/strong>: 用于配置Alertmanager如何处理传入的特定类型的告警通知 其基本逻辑是根据路由匹配规则的匹配结果来确定处理当前告警通知的路径和行为&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="告警规则">告警规则&lt;/h3>
+&lt;ul>
+&lt;li>类似于记录规则 有着类似或相关联功能的告警规则同样可以组织为group 从而为规则名称提供&lt;strong>名称空间&lt;/strong> 一个组内的每个告警必须有个名称 且在该组内必须唯一
+&lt;ul>
+&lt;li>alert: 告警规则的名称&lt;/li>
+&lt;li>expr: 基于PromQL表达式的告警触发条件(布尔表达式) 用于计算是否有时间序列可以满足该条件 可以使用由Recording rule定义的指标&lt;/li>
+&lt;li>for: 控制在出发告警之前 测试表达式的值必须为true的时长
+&lt;ul>
+&lt;li>表达式为true 但其持续时间为能满足for定义的时长时 相关的告警状态为pending状态&lt;/li>
+&lt;li>满足该时长之后 相关的告警将被触发 并转为firing状态&lt;/li>
+&lt;li>表达式的值为false时 告警将处于inactive状态&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>labels: 告警规则被激活时 相关时间序列上的所有标签都会添加到生成告警示例上 而labels则允许用户在告警上附加其它自定义的标签 该类标签值支持&lt;strong>模版化&lt;/strong>
+&lt;ul>
+&lt;li>告警名称及其标签则为告警的标识 类似于时间序列的标识机制&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>annotations: 附加在告警之上的注解信息 其格式类似于标签 但不能被用于标识告警实例 经常用于存储告警摘要 且其值支持模版化&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="告警路由">告警路由&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">[ receiver&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;string&amp;gt; ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># The labels by which incoming alerts are grouped together. For example,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># multiple alerts coming in for cluster=A and alertname=LatencyHigh would&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># be batched into a single group.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c">#&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># To aggregate by all possible labels use the special value &amp;#39;...&amp;#39; as the sole label name, for example:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># group_by: [&amp;#39;...&amp;#39;]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># This effectively disables aggregation entirely, passing through all&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># alerts as-is. This is unlikely to be what you want, unless you have&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># a very low alert volume or your upstream notification system performs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># its own grouping.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 分组时使用的标签 默认情况下 所有的告警都组织在一起 而一旦指定分组标签 则Alertmanager将按这些标签进行分组&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">[ group_by&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;[&amp;#39;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;labelname&amp;gt;, ... &amp;#39;]&amp;#39; ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Whether an alert should continue matching subsequent sibling nodes.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">[ continue&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;boolean&amp;gt; | default = false ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># DEPRECATED: Use matchers below.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># A set of equality matchers an alert has to fulfill to match the node.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">match&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">[ &amp;lt;labelname&amp;gt;&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;labelvalue&amp;gt;, ... ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># DEPRECATED: Use matchers below.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># A set of regex-matchers an alert has to fulfill to match the node.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">match_re&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">[ &amp;lt;labelname&amp;gt;&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;regex&amp;gt;, ... ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># A list of matchers that an alert has to fulfill to match the node.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">matchers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="l">&amp;lt;matcher&amp;gt; ... ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># How long to initially wait to send a notification for a group&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># of alerts. Allows to wait for an inhibiting alert to arrive or collect&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># more initial alerts for the same group. (Usually ~0s to few minutes.)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 发出一组告警通知的初始等待时长 允许等待一个抑制告警到达或收集属于同一组的更多初始告警 通常是0至数分钟&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">[ group_wait&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;duration&amp;gt; | default = 30s ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># How long to wait before sending a notification about new alerts that&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># are added to a group of alerts for which an initial notification has&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># already been sent. (Usually ~5m or more.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 发送关于新告警的消息之前 需要等待多久 新告警将被添加到已经发送了初始通知的告警组中 一般在5分钟或以上&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">[ group_interval&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;duration&amp;gt; | default = 5m ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># How long to wait before sending a notification again if it has already&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># been sent successfully for an alert. (Usually ~3h or more).&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 成功发送了告警后再次发送告警信息需要等待的时长 一般至少为3个小时&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">[ repeat_interval&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;duration&amp;gt; | default = 4h ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Times when the route should be muted. These must match the name of a&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># mute time interval defined in the mute_time_intervals section.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Additionally, the root node cannot have any mute times.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># When a route is muted it will not send any notifications, but&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># otherwise acts normally (including ending the route-matching process&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># if the `continue` option is not set.)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">mute_time_intervals&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="l">&amp;lt;string&amp;gt; ...]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Times when the route should be active. These must match the name of a&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># time interval defined in the time_intervals section. An empty value&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># means that the route is always active.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Additionally, the root node cannot have any active times.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># The route will send notifications only when active, but otherwise&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># acts normally (including ending the route-matching process&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># if the `continue` option is not set).&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">active_time_intervals&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="l">&amp;lt;string&amp;gt; ...]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Zero or more child routes.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># 自路由配置&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">routes&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="l">&amp;lt;route&amp;gt; ... ]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="prometheus-server高可用">Prometheus Server高可用&lt;/h2>
+&lt;p>&lt;a class="link" href="https://www.robustperception.io/scaling-and-federating-prometheus/" target="_blank" rel="noopener"
+>Scaling and Federating Prometheus&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.robustperception.io/how-much-ram-does-prometheus-2-x-need-for-cardinality-and-ingestion/" target="_blank" rel="noopener"
+>How much RAM does Prometheus 2.x need for cardinality and ingestion&lt;/a>&lt;/p>
+&lt;h2 id="alertmanager高可用">Alertmanager高可用&lt;/h2>
+&lt;p>&lt;a class="link" href="https://github.com/prometheus/alertmanager#high-availability" target="_blank" rel="noopener"
+>alertmanager-HA&lt;/a>&lt;/p>
+&lt;h2 id="promql-example">PromQL Example&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 待更新&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

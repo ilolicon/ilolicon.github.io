@@ -1,0 +1,365 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Build installation package on Debian series or Redhat series."><title>Build installation package on linux</title><link rel=canonical href=https://ilolicon.github.io/p/build-installation-package-on-linux/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="Build installation package on linux"><meta property="og:description" content="Build installation package on Debian series or Redhat series."><meta property="og:url" content="https://ilolicon.github.io/p/build-installation-package-on-linux/"><meta property="og:site_name" content="ilolicon's Blog"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="dkpg"><meta property="article:tag" content="rpm"><meta property="article:tag" content="debian"><meta property="article:tag" content="ubuntu"><meta property="article:tag" content="redhat"><meta property="article:tag" content="centos"><meta property="article:published_time" content="2024-03-11T19:53:00+08:00"><meta property="article:modified_time" content="2024-03-11T19:53:00+08:00"><meta name=twitter:title content="Build installation package on linux"><meta name=twitter:description content="Build installation package on Debian series or Redhat series."><link rel="shortcut icon" href=/img/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu96a5ab8e0364e843af4687201b687892_162934_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ilolicon's Blog</a></h1><h2 class=site-description>Keep Calm and Carry On.</h2></div></header><ol class=social-menu><li><a href=https://github.com/ilolicon target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#rpm>rpm</a><ol><li><a href=#rpm包构建>rpm包构建</a></li><li><a href=#rpm配置文件处理>rpm配置文件处理</a></li><li><a href=#rpm包私有仓库构建>rpm包私有仓库构建</a></li><li><a href=#问题处理>问题处理</a></li></ol></li><li><a href=#deb>deb</a><ol><li><a href=#deb包构建>deb包构建</a></li><li><a href=#deb配置文件处理>deb配置文件处理</a></li><li><a href=#deb私有仓库制作>deb私有仓库制作</a></li><li><a href=#client端相关配置>client端相关配置</a></li><li><a href=#deb镜像同步>deb镜像同步</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/linux/ style=background-color:#2a9d8f;color:#fff>Linux</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/build-installation-package-on-linux/>Build installation package on linux</a></h2><h3 class=article-subtitle>Build installation package on Debian series or Redhat series.</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Mar 11, 2024</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 4 分钟</time></div></footer></div></header><section class=article-content><h2 id=rpm>rpm</h2><h3 id=rpm包构建>rpm包构建</h3><p><a class=link href=https://www.cnblogs.com/yipianchuyun/p/15442896.html target=_blank rel=noopener>RPM打包原理、示例、详解及备查</a></p><h3 id=rpm配置文件处理>rpm配置文件处理</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># .spec文件参考配置 </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Name:           pkg name
+</span></span><span class=line><span class=cl>Version:        %<span class=o>{</span>version<span class=o>}</span>
+</span></span><span class=line><span class=cl>Release:        %<span class=o>(</span>date +%%y%%m%%d%%0k<span class=o>)</span>
+</span></span><span class=line><span class=cl>Summary:        pkg summary
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>License:        xxx
+</span></span><span class=line><span class=cl>URL:            xxx
+</span></span><span class=line><span class=cl>Source0:        %<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%description
+</span></span><span class=line><span class=cl>pkg description.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%prep
+</span></span><span class=line><span class=cl>%setup -q
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%install
+</span></span><span class=line><span class=cl>mkdir -p %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_bindir<span class=o>}</span>
+</span></span><span class=line><span class=cl>mkdir -p %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_sysconfdir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>
+</span></span><span class=line><span class=cl>mkdir -p %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_sysconfdir<span class=o>}</span>/default
+</span></span><span class=line><span class=cl>mkdir -p %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_unitdir<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>install -m <span class=m>0755</span> %<span class=o>{</span>_builddir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>/.build/%<span class=o>{</span>_os<span class=o>}</span>-amd64/%<span class=o>{</span>name<span class=o>}</span> %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_bindir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>
+</span></span><span class=line><span class=cl>install -m <span class=m>0644</span> %<span class=o>{</span>_builddir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>/dist/%<span class=o>{</span>name<span class=o>}</span>.env %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_sysconfdir<span class=o>}</span>/default/%<span class=o>{</span>name<span class=o>}</span>
+</span></span><span class=line><span class=cl>install -m <span class=m>0644</span> %<span class=o>{</span>_builddir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>/config.yml %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_sysconfdir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>/config.yml
+</span></span><span class=line><span class=cl>install -m <span class=m>0644</span> %<span class=o>{</span>_builddir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>/dist/web-config.yml %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_sysconfdir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>/web-config.yml
+</span></span><span class=line><span class=cl>install -m <span class=m>0644</span> %<span class=o>{</span>_builddir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>-%<span class=o>{</span>version<span class=o>}</span>/dist/%<span class=o>{</span>name<span class=o>}</span>.service %<span class=o>{</span>buildroot<span class=o>}</span>%<span class=o>{</span>_unitdir<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 以下为配置文件处理参考 重点:$config(noreplace)</span>
+</span></span><span class=line><span class=cl>%files
+</span></span><span class=line><span class=cl>%defattr<span class=o>(</span>-,root,root,-<span class=o>)</span>
+</span></span><span class=line><span class=cl>%<span class=o>{</span>_bindir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>
+</span></span><span class=line><span class=cl>%config<span class=o>(</span>noreplace<span class=o>)</span> %<span class=o>{</span>_sysconfdir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>
+</span></span><span class=line><span class=cl>%config<span class=o>(</span>noreplace<span class=o>)</span> %<span class=o>{</span>_sysconfdir<span class=o>}</span>/default
+</span></span><span class=line><span class=cl>%<span class=o>{</span>_unitdir<span class=o>}</span>/%<span class=o>{</span>name<span class=o>}</span>.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%post
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%changelog
+</span></span><span class=line><span class=cl>* Wed May <span class=m>24</span> <span class=m>2023</span> xxx &lt;xxx@xx.com&gt;
+</span></span><span class=line><span class=cl>- initial
+</span></span></code></pre></td></tr></table></div></div><h3 id=rpm包私有仓库构建>rpm包私有仓库构建</h3><ul><li>所有构建好的.rpm包 全部放到准备好的目录<code>$BASE_DIR</code></li><li>进入目录<code>cd $BASE_DIR</code> 执行命令<code>createrepo .</code>即可(或不进目录 跟绝对路径)</li><li>搭建http/ftp等服务进行访问 配置.repo文件即可进行安装</li></ul><h3 id=问题处理>问题处理</h3><ul><li>Q: <code>GO</code>源码包构建遇到<code>RPM build warnings: Missing build-id in /bin/xxx</code>问题</li><li>A: 参考该文档解决 <a class=link href=https://tonybai.com/2017/06/27/an-intro-about-go-portability/ target=_blank rel=noopener>也谈GO的可移植性</a></li></ul><h2 id=deb>deb</h2><h3 id=deb包构建>deb包构建</h3><p><a class=link href=https://hedzr.com/packaging/deb/creating-deb-file-from-scratch/#debiancontrol target=_blank rel=noopener>从零开始制作deb文件</a></p><p><a class=link href=https://www.debian.org/doc/manuals/maint-guide/ target=_blank rel=noopener>Debian新维护者手册</a></p><h3 id=deb配置文件处理>deb配置文件处理</h3><p><a class=link href=https://askubuntu.com/questions/473354/how-to-mark-some-file-in-debian-package-as-config target=_blank rel=noopener>How to mark some file in debian package as config?</a></p><p><a class=link href=https://www.debian.org/doc/debian-policy/ap-pkg-conffiles.html target=_blank rel=noopener>Debian Policy Manual</a></p><p>针对上面链接说的第三种情况: 本地安装 和 包维护者 都修改过配置文件的情况
+升级会提示用户相关问题 需要用户自行解决差异
+如果安装的时候 不想进入交互模式(比如批量安装的时候) 则可以使用dpkg的以下参数解决:</p><ul><li>&ndash;force-confold: 保留当前配置文件 将新配置文件安装为<code>.dpkg-dist</code>扩展名 需要手动合并</li><li>&ndash;force-confnew: 覆盖当前配置文件，但将旧配置文件备份为<code>.dpkg-old</code>扩展名</li><li>&ndash;force-confdef: 当用户未指定具体选项时 采取默认行为<code>保留、覆盖或交互</code></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo dpkg -i --force-confnew package_name.deb  <span class=c1># dpkg</span>
+</span></span><span class=line><span class=cl>apt install --force-confnew package_name       <span class=c1># apt</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=deb私有仓库制作>deb私有仓库制作</h3><p>借助reprepro设置仓库</p><p><a class=link href=https://wiki.debian.org/DebianRepository/Format target=_blank rel=noopener>DebianRepoFormat</a></p><p><a class=link href=https://wiki.debian.org/DebianRepository/SetupWithReprepro target=_blank rel=noopener>SetupWithReprepro</a></p><p><a class=link href=https://scotbofh.wordpress.com/2011/04/26/creating-your-own-signed-apt-repository-and-debian-packages/ target=_blank rel=noopener>creating-your-own-signed-apt-repository-and-debian-packages</a></p><ul><li>安装软件包</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo apt install -y gnupg reprepro
+</span></span></code></pre></td></tr></table></div></div><ul><li>创建GPG密钥</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 两个命令都可以 查看man手册获取区别</span>
+</span></span><span class=line><span class=cl>gpg --gen-key
+</span></span><span class=line><span class=cl>gpg --full-gen-key <span class=c1># 执行之后 按照提示操作即可</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>gpg -k, list-keys <span class=c1># 查看所有keys</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>配置包的存储库<code>BASE_DIR</code> 这里以nginx为例</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=cl><span class=c1># 增加配置 私有仓库自行根据需求添加认证
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kn>listen</span> <span class=mi>80</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kn>access_log</span> <span class=s>/var/log/nginx/repo-error.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kn>error_log</span> <span class=s>/var/log/nginx/repo-error.log</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kn>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>root</span> <span class=s>/srv/repos/apt</span><span class=p>;</span>  <span class=c1># $BASE_DIR
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kn>autoindex</span> <span class=no>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kn>location</span> <span class=p>~</span> <span class=sr>/(.*)/conf</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>deny</span> <span class=s>all</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kn>location</span> <span class=p>~</span> <span class=sr>/(.*)/db</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>deny</span> <span class=s>all</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># nginx -t
+</span></span></span><span class=line><span class=cl><span class=c1># systemctl reload nginx
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>配置reprepro <a class=link href=https://wiki.debian.org/DebianRepository/SetupWithReprepro target=_blank rel=noopener>具体参考</a></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># create a reprepro configuration directory</span>
+</span></span><span class=line><span class=cl>mkdir -p /srv/repos/apt/debian/conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># create the conf/distributions</span>
+</span></span><span class=line><span class=cl>Origin: Your project name
+</span></span><span class=line><span class=cl>Label: Your project name
+</span></span><span class=line><span class=cl>Codename: &lt;osrelease&gt;
+</span></span><span class=line><span class=cl>Architectures: <span class=nb>source</span> i386 amd64
+</span></span><span class=line><span class=cl>Components: main
+</span></span><span class=line><span class=cl>Description: Apt repository <span class=k>for</span> project x
+</span></span><span class=line><span class=cl>SignWith: &lt;key-id&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># &lt;key-id&gt;获取</span>
+</span></span><span class=line><span class=cl>$ gpg --list-secret-key --with-subkey-fingerprint
+</span></span><span class=line><span class=cl>pub   rsa4096 2010-09-23 <span class=o>[</span>SC<span class=o>]</span>
+</span></span><span class=line><span class=cl>      E123D55E623D56323D65E123655E623D563D5831
+</span></span><span class=line><span class=cl>uid           <span class=o>[</span>ultimate<span class=o>]</span> Joe User <span class=o>(</span>Some organization<span class=o>)</span> &lt;joe.user@example.com&gt;
+</span></span><span class=line><span class=cl>sub   rsa4096 2010-09-23 <span class=o>[</span>E<span class=o>]</span>
+</span></span><span class=line><span class=cl>      F24957412415744F1495F149571F2495F2495714  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Here &lt;keyid&gt; (fingerprint) for the OpenPGP key is F24957412415744F1495F149571F2495F2495714 (that&#39;s technically the subkey, which is recommended to be used for this sort of signing purpose).</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># add an options file to make daily life with reprepro command-line a little easier. This file is in /srv/repos/apt/debian/conf/options:</span>
+</span></span><span class=line><span class=cl>verbose
+</span></span><span class=line><span class=cl>basedir /srv/repos/apt/debian
+</span></span><span class=line><span class=cl>ask-passphrase
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 执行命令创建仓库树</span>
+</span></span><span class=line><span class=cl>reprepro <span class=nb>export</span>  <span class=c1># 完整命令 reprepro --ask-passphrase -Vb /srv/repos/apt/debian export</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 把.deb包加入仓库</span>
+</span></span><span class=line><span class=cl><span class=c1># 完整命令也需要加上 --ask-passphrase -Vb /srv/repos/apt/debian </span>
+</span></span><span class=line><span class=cl><span class=c1># 更多命令行用户参阅man手册: man reprepro</span>
+</span></span><span class=line><span class=cl>reprepro includedeb codename .deb-filename
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 把.deb移除仓库</span>
+</span></span><span class=line><span class=cl>reprepro remove codename package-names
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 导出OpenPGP key</span>
+</span></span><span class=line><span class=cl>gpg --armor --output whatever.gpg.key --export-options export-minimal --export &lt;key-id&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Copy this to a webserver so that users can download it and add it to their OpenPGP keychains similarly to this (as root):</span>
+</span></span><span class=line><span class=cl><span class=c1># 注意: 该方法已弃用 参考下面`client端相关配置`</span>
+</span></span><span class=line><span class=cl>wget -O - http://www.example.com/repos/apt/conf/&lt;whatever&gt;.gpg.key <span class=p>|</span> apt-key add -
+</span></span></code></pre></td></tr></table></div></div><h3 id=client端相关配置>client端相关配置</h3><p>http(s) deb仓库搭建完成之后 即可以进行相关包下载</p><ul><li>添加key</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># wget或curl获取key内容 再通过apt-key add -命令导入会有warning提示</span>
+</span></span><span class=line><span class=cl><span class=c1># Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).</span>
+</span></span><span class=line><span class=cl><span class=c1># 下面命令废弃 不推荐</span>
+</span></span><span class=line><span class=cl>wget -O - http://www.example.com/repos/apt/conf/&lt;whatever&gt;.gpg.key <span class=p>|</span> apt-key add -
+</span></span></code></pre></td></tr></table></div></div><ul><li>参考下面回答添加key和source.list</li></ul><p><a class=link href=https://stackoverflow.com/questions/68992799/warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead target=_blank rel=noopener>warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo mkdir -m <span class=m>0755</span> -p /etc/apt/keyrings/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>curl -fsSL https://example.com/EXAMPLE.gpg <span class=p>|</span>
+</span></span><span class=line><span class=cl>    sudo gpg --dearmor -o /etc/apt/keyrings/EXAMPLE.gpg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;deb [signed-by=/etc/apt/keyrings/EXAMPLE.gpg] https://example.com/apt stable main&#34;</span> <span class=p>|</span>
+</span></span><span class=line><span class=cl>    sudo tee /etc/apt/sources.list.d/EXAMPLE.list &gt; /dev/null
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Optional (you can find the email address / ID using `apt-key list`)</span>
+</span></span><span class=line><span class=cl>sudo apt-key del support@example.com
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Optional (not necessary on most systems)</span>
+</span></span><span class=line><span class=cl>sudo chmod <span class=m>644</span> /etc/apt/keyrings/EXAMPLE.gpg
+</span></span><span class=line><span class=cl>sudo chmod <span class=m>644</span> /etc/apt/sources.list.d/EXAMPLE.list
+</span></span></code></pre></td></tr></table></div></div><ul><li>如果http服务器添加过认证 需要使用apt-auth管理 否则有warning 参考下面内容</li><li><a class=link href=https://stackoverflow.com/questions/18941517/how-to-access-local-apt-repository-that-requires-http-authentication target=_blank rel=noopener>how-to-access-local-apt-repository-that-requires-http-authentication</a></li><li><code>man apt_auth.conf</code>查看具体信息</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>EXAMPLE
+</span></span><span class=line><span class=cl>       Supplying login information <span class=k>for</span> a user named apt with the password debian <span class=k>for</span> the sources.list<span class=o>(</span>5<span class=o>)</span> entry
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           deb https://example.org/debian bookworm main
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       could be <span class=k>done</span> in the entry directly:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           deb https://apt:debian@example.org/debian bookworm main
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       Alternatively an entry like the following in the auth.conf file could be used:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           machine example.org
+</span></span><span class=line><span class=cl>           login apt
+</span></span><span class=line><span class=cl>           password debian
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       Or alternatively within a single line:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           machine example.org login apt password debian
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       If you need to be more specific all of these lines will also apply to the example entry:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           machine example.org/deb login apt password debian
+</span></span><span class=line><span class=cl>           machine example.org/debian login apt password debian
+</span></span><span class=line><span class=cl>           machine example.org/debian/ login apt password debian
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       On the other hand neither of the following lines apply:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>           machine example.org:443 login apt password debian
+</span></span><span class=line><span class=cl>           machine example.org/deb/ login apt password debian
+</span></span><span class=line><span class=cl>           machine example.org/ubuntu login apt password debian
+</span></span><span class=line><span class=cl>           machine example.orga login apt password debian
+</span></span><span class=line><span class=cl>           machine example.net login apt password debian
+</span></span></code></pre></td></tr></table></div></div><h3 id=deb镜像同步>deb镜像同步</h3><p><a class=link href=https://bbs.lingmo.org/blog/61-jing-xiang-tong-bu-shuo-ming target=_blank rel=noopener>镜像同步说明</a></p></section><footer class=article-footer><section class=article-tags><a href=/tags/dkpg/>dkpg</a>
+<a href=/tags/rpm/>rpm</a>
+<a href=/tags/debian/>debian</a>
+<a href=/tags/ubuntu/>ubuntu</a>
+<a href=/tags/redhat/>redhat</a>
+<a href=/tags/centos/>centos</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/mqtt/><div class=article-details><h2 class=article-title>MQTT</h2></div></a></article></div></div></aside><script src=https://utteranc.es/client.js repo=ilolicon/ilolicon.github.io issue-term=pathname crossorigin=anonymous async></script><style>.utterances{max-width:unset}</style><script>let utterancesLoaded=!1;function setUtterancesTheme(e){let t=document.querySelector(".utterances iframe");t&&t.contentWindow.postMessage({type:"set-theme",theme:`github-${e}`},"https://utteranc.es")}addEventListener("message",e=>{if(e.origin!=="https://utteranc.es")return;utterancesLoaded=!0,setUtterancesTheme(document.documentElement.dataset.scheme)}),window.addEventListener("onColorSchemeChange",e=>{if(!utterancesLoaded)return;setUtterancesTheme(e.detail)})</script><footer class=site-footer><section class=copyright>&copy;
+2017 -
+2025 ilolicon's Blog</section><section class=powerby>Vicissitude🐳<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.21.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
