@@ -4,6 +4,7 @@ theme: uncover
 title: "MCP"
 description: Model Context Protocol.
 date: 2025-10-10 09:10:16+08:00
+draft: true
 categories: 
 - LLM
 tags:
@@ -77,25 +78,32 @@ func CurrentWeather(svc services.Services) (mcp.Tool, server.ToolHandlerFunc) {
         mcp.WithDescription(`
             The service retrieves the current weather for a specified city and returns only HTML and CSS code designed 
             for displaying weather information directly on a canvas. No additional comments should be included after the response. 
-            It processes the city's name, gathers weather data such as temperature, humidity, wind speed, and general weather conditions, 
-            and then generates a structured HTML layout along with appropriate CSS styles. This HTML must be rendered visually on the canvas. 
-            After receiving the response, the text inside the HTML should be translated into the language of the request.
-        `),
-        mcp.WithString("city",
-            mcp.Required(),
-            mcp.Description(`
-                The name of the city. This field is required and must be provided in English. 
-                Only one city is allowed, and it must be the last one provided by the user.
-            `),
-        ),
-    )
-
-    handler := handlers.CurrentWeather(svc)
-
-    return tool, handler
-}
+            It processes the city's name, gathers weather data such as temperature, humidity, wind speed, and general weather condition![alt text](image.png)
 ```
 
 ---
 
 ### MCP交互流程详解
+
+![h:600](./icons/mcp-interaction-detailed.svg)
+
+---
+
+### 如何使用别人编写的Mcp Server ?
+
+- [mcp.so](mcp.so)
+- [mcpmarket.com](mcpmarket.com)
+- [smithery.ai](smithery.ai)
+- [mcpservers.org](http://mcpservers.org)
+- [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers)
+- ...
+
+---
+
+### MCP底层协议分析的原理与方法
+
+![w:1200](./icons/input-output.svg)
+
+---
+
+![w:1200](./icons/input-output-with-logging.svg)
